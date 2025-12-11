@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid Survival - Studio Game indie </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* Gaya dasar untuk modal yang digerakkan oleh JS internal */
+        .modal { display: none; }
+        .modal.active { display: flex; }
+        .modal-open { overflow: hidden; }
+        
+        /* [FIXED: Hero Section Opacity Bug] */
+        .hero { opacity: 0; transition: opacity 1s ease-in-out; }
+        .hero.loaded { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="#" class="nav-studio-name">
+            <img src="studio_logo.png" alt="Grid Survival Logo" class="nav-logo-image">
+            Grid Survival
+        </a>
+        <button id="menuButton" class="nav-menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <div id="menuOverlay">
+        <span class="menu-close-btn">&times;</span>
+        <ul class="menu-links">
+            <li><a href="#hero">HOME</a></li>
+            <li><a href="#games">GAMES</a></li>
+            <li><a href="#about">ABOUT</a></li>
+            <li><a href="#contact">CONTACT</a></li>
+        </ul>
+    </div>
+
+    <section id="hero" class="hero">
+        <h1 class="hero-title">Grid The Survival</h1> 
+        
+        <p class="tagline">
+            <span id="typing-text"></span>
+            <span class="cursor">|</span>
+        </p>
+        
+        <a href="#games" class="btn-primary-scroll">LIHAT SEMUA GAME</a> 
+    </section>
+
+    <section id="games" class="section-padding">
+        <h2 class="section-header-title">PROYEK GAME KAMI</h2>
+        
+        <div class="games-grid">
+            
+            <div class="game-card" data-game-id="minecraft-parkour-2d">
+                <div class="game-image-wrapper">
+                    <img src="mc_parkun_thumb.jpg" alt="Minecraft Parkun 2D Thumbnail" class="game-image">
+                </div>
+                <div class="game-info">
+                    <h3 class="game-title">Minecraft Parkun 2D</h3>
+                    <p class="game-description">Parkour 2D terinspirasi Minecraft (Mobile).</p>
+                    <p class="game-dev">Dev: Grid Survival | Genre: Arcade</p>
+                </div>
+            </div>
+            
+            <div class="game-card" data-game-id="the-one-for-zombie">
+                <div class="game-image-wrapper">
+                    <img src="one_zombie_thumb.jpg" alt="THE ONE FOR ZOMBIE Thumbnail" class="game-image">
+                </div>
+                <div class="game-info">
+                    <h3 class="game-title">THE ONE FOR ZOMBIE</h3>
+                    <p class="game-description">Aksi bertahan hidup melawan gerombolan zombie (Mobile).</p>
+                    <p class="game-dev">Dev: Grid Survival | Genre: Action</p>
+                </div>
+            </div>
+
+            <div class="game-card" data-game-id="desa-karya-investasi-zombie">
+                <div class="game-image-wrapper">
+                    <img src="desa_invest_thumb.jpg" alt="DESA KARYA INVESTASI ZOMBIE Thumbnail" class="game-image">
+                </div>
+                <div class="game-info">
+                    <h3 class="game-title">Desa Investasi Zombie</h3>
+                    <p class="game-description">Manajemen desa dan investasi melawan zombie.</p>
+                    <p class="game-dev">Dev: Grid Survival | Genre: Simulation</p>
+                </div>
+            </div>
+            
+            <div class="game-card" data-game-id="gerbang-parkun-2d">
+                <div class="game-image-wrapper">
+                    <img src="gerbang_parkun_thumb.jpg" alt="Gerbang Parkun 2D Thumbnail" class="game-image">
+                </div>
+                <div class="game-info">
+                    <h3 class="game-title">Gerbang Parkun 2D</h3>
+                    <p class="game-description">Parkour 2D kompetitif (Mobile & Windows).</p>
+                    <p class="game-dev">Dev: Grid Survival | Genre: Platformer</p>
+                </div>
+            </div>
+
+            <div class="game-card" data-game-id="desa-cipta-karya-ch2">
+                <div class="game-image-wrapper">
+                    <img src="cipta_karya2_thumb.jpg" alt="Desa Cipta Karya Chapter 2 Thumbnail" class="game-image">
+                </div>
+                <div class="game-info">
+                    <h3 class="game-title">Desa Cipta Karya Ch 2</h3>
+                    <p class="game-description">Kelanjutan simulasi pembangunan desa (Mobile).</p>
+                    <p class="game-dev">Dev: Grid Survival | Genre: Simulation</p>
+                </div>
+            </div>
+            
+            <div class="game-card" data-game-id="the-undeads-roblox">
+                <div class="game-image-wrapper">
+                    <img src="undeads_roblox_thumb.jpg" alt="The Undeads Roblox Thumbnail" class="game-image">
+                </div>
+                <div class="game-info">
+                    <h3 class="game-title">The Undeads (Roblox)</h3>
+                    <p class="game-description">Game survival zombie populer di Roblox (PC & Mobile).</p>
+                    <p class="game-dev">Dev: Grid Survival | Genre: Survival, Action</p>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+    <section id="about" class="about-section">
+        <h2 class="section-header-title">TENTANG GRID SURVIVAL</h2>
+        <p>Kami adalah studio game indie yang bersemangat menciptakan pengalaman bermain yang unik dan menantang. dari di Indonesia, kami fokus pada genre Survival, RPG, dan Strategy dengan sentuhan cerita di dalam gamplay kamu, semoga game ini terhibur ya.</p>
+    </section>
+
+    <footer id="contact">
+        <div class="footer-content">
+            <div>
+                <h3>Grid Survival</h3>
+                <p>Menciptakan game digital yang layak untuk di mainkan.</p>
+                <p style="margin-top: 10px;">
+                    Email: <a href="mailto:dzakifaisal11@gmail.com" style="color: var(--primary-color); text-decoration: none;">dzakifaisal11@gmail.com</a>
+                </p>
+            </div>
+            <div class="social-icons">
+                <a href="https://whatsapp.com/channel/0029VaAxK4O2975D8utbc927" target="_blank" title="WhatsApp Channel"><i class="fab fa-whatsapp"></i></a>
+                <a href="https://www.youtube.com/@ZAKI_FAISAL_05_OFFICIAL" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="https://discord.com/invite/Aq7fGHcHJE" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+                <a href="https://www.instagram.com/zakifaisal05/" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+        <p class="footer-copy">&copy; 2025 Grid Survival. All Rights Reserved.</p>
+    </footer>
+
+    <div id="gameModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModalBtn">&times;</span>
+            
+            <img id="modal-logo" src="" alt="Game Logo" class="modal-logo">
+            <h2 id="modal-title" class="modal-title"></h2>
+            <p id="modal-description" class="modal-description"></p>
+
+            <div class="gallery-container">
+                <div id="gallery-slides" class="gallery-slides">
+                    </div>
+                <button class="gallery-btn gallery-prev" id="prevSlide">&#10094;</button>
+                <button class="gallery-btn gallery-next" id="nextSlide">&#10095;</button>
+            </div>
+            <div id="gallery-dots" class="gallery-dots">
+                </div>
+
+            <div class="download-section">
+                <div id="platform-buttons" class="platform-buttons">
+                    </div>
+                <div class="supported-platforms">
+                    <span class="platform-icon"><i class="fas fa-desktop"></i></span>
+                    <span class="platform-icon"><i class="fab fa-android"></i></span>
+                    <span class="platform-icon"><i class="fab fa-apple"></i></span>
+                    <p>Tersedia di PC, Android, dan iOS.</p>
+                </div>
+            </div>
+
+            <div id="other-games-container">
+                <h3 class="section-title">Game Lain dari Grid Survival</h3>
+                <div id="other-games-grid" class="other-games-grid">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Game disatukan ke dalam HTML (VERSI TERBARU DENGAN SEMUA LINK DAN GALERI)
+        const gameData = [
+            // --- GAME 1: Minecraft Parkun 2D ---
+            {
+                id: 'minecraft-parkour-2d',
+                title: 'Minecraft Parkun 2D',
+                logo: 'mc_parkun_logo.png', 
+                desc: 'Petualangan parkour seru dalam format 2D yang terinspirasi dari dunia Minecraft. Lompat, hindari rintangan, dan selesaikan tantangan secepat mungkin!',
+                gallery: [
+                    'mc_parkun_ss1.jpg', 'mc_parkun_ss2.jpg', 'mc_parkun_ss3.jpg', 'mc_parkun_ss4.jpg'
+                ], 
+                platforms: [
+                    { name: 'TapTap (Mobile)', url: 'https://www.taptap.io/app/236072?utm_medium=share&utm_source=copylink', class: 'btn-taptap' }
+                ],
+                developer: 'Grid Survival',
+            },
+            // --- GAME 2: THE ONE FOR ZOMBIE ---
+            {
+                id: 'the-one-for-zombie',
+                title: 'THE ONE FOR ZOMBIE',
+                logo: 'one_zombie_logo.png', 
+                desc: 'Game aksi bertahan hidup melawan gerombolan zombie. Kumpulkan senjata dan selamatkan yang tersisa. Hanya satu yang akan bertahan!',
+                gallery: [
+                    'one_zombie_ss1.jpg', 'one_zombie_ss2.jpg', 'one_zombie_ss3.jpg',
+                ], 
+                platforms: [
+                    { name: 'TapTap (Mobile)', url: 'https://www.taptap.io/app/346358?utm_medium=share&utm_source=copylink', class: 'btn-taptap' }
+                ],
+                developer: 'Grid Survival',
+            },
+            // --- GAME 3: DESA KARYA INVESTASI ZOMBIE ---
+            {
+                id: 'desa-karya-investasi-zombie',
+                title: 'DESA KARYA INVESTASI ZOMBIE',
+                logo: 'desa_invest_logo.png', 
+                desc: 'Gabungan unik antara manajemen desa, investasi, dan pertahanan melawan serangan zombie. Kelola sumber daya Anda dengan bijak.',
+                gallery: [
+                    'desa_invest_ss1.jpg', 'desa_invest_ss2.jpg', 'desa_invest_ss3.jpg', 'desa_invest_ss4.jpg',
+                ], 
+                platforms: [
+                    { name: 'TapTap (Mobile)', url: 'https://www.taptap.io/app/33703520', class: 'btn-taptap' },
+                    { name: 'Itch.io (Mobile)', url: 'https://zakifaisalofficial.itch.io/desa-cipta-karya-invensi-zombie', class: 'btn-itchio' }
+                ],
+                developer: 'Grid Survival',
+            },
+            // --- GAME 4: Gerbang Parkun 2D ---
+            {
+                id: 'gerbang-parkun-2d',
+                title: 'Gerbang Parkun 2D',
+                logo: 'gerbang_parkun_logo.png', 
+                desc: 'Parkour 2D dengan level yang menantang dan *speedrun* yang kompetitif. Buka gerbang menuju level berikutnya dengan *skill* lompatan sempurna.',
+                gallery: [
+                    'gerbang_parkun_ss1.jpg', 'gerbang_parkun_ss2.jpg', 'gerbang_parkun_ss3.jpg',
+                ], 
+                platforms: [
+                    { name: 'Itch.io (Mobile/Windows)', url: 'https://zakifaisalofficial.itch.io/gerbang-parkun-2d', class: 'btn-itchio' },
+                    { name: 'TapTap (Mobile)', url: 'https://www.taptap.io/app/33618770', class: 'btn-taptap' }
+                ],
+                developer: 'Grid Survival',
+            },
+            // --- GAME 5: Desa Cipta Karya Chapter 2 ---
+            {
+                id: 'desa-cipta-karya-ch2',
+                title: 'Desa Cipta Karya Chapter 2',
+                logo: 'cipta_karya2_logo.png', 
+                desc: 'Kelanjutan dari kisah pembangunan desa dan simulasi kehidupan. Hadapi tantangan baru dan kembangkan desa hingga makmur.',
+                gallery: [
+                    'cipta_karya2_ss1.jpg', 'cipta_karya2_ss2.jpg', 'cipta_karya2_ss3.jpg', 'cipta_karya2_ss4.jpg'
+                ], 
+                platforms: [
+                    { name: 'TapTap (Mobile)', url: 'https://www.taptap.io/app/33752652?share_id=d04b5dd55ff9&utm_medium=share&utm_source=copylink', class: 'btn-taptap' },
+                    { name: 'Itch.io (Mobile)', url: 'https://zakifaisalofficial.itch.io/desa-karya-chapter-2', class: 'btn-itchio' },
+                    { name: 'Amazon (Mobile)', url: 'https://www.amazon.com/gp/product/B0DH53XXFR', class: 'btn-amazon' } 
+                ],
+                developer: 'Grid Survival',
+            },
+            // --- GAME 6: THE UNDEADS (Roblox) ---
+            {
+                id: 'the-undeads-roblox', 
+                title: 'The Undeads (Roblox)',
+                logo: 'undeads_roblox_logo.png', 
+                desc: 'Game aksi bertahan hidup populer di Roblox. Bentuk tim, bangun pertahanan, dan lawan gelombang mayat hidup yang tak ada habisnya. Dapat dimainkan di PC dan Mobile.',
+                gallery: [
+                    'undeads_roblox_ss1.jpg', 'undeads_roblox_ss4.jpg', 'undeads_roblox_ss3.jpg', 'undeads_roblox_ss2.jpg'
+                ], 
+                platforms: [
+                    { name: 'play this game on Roblox', url: 'https://www.roblox.com/share?code=e4fd841cb9108b43bc5d7e7d9b47a2b3&type=ExperienceDetails&stamp=1765460894310', class: 'btn-roblox' } 
+                ],
+                developer: 'Grid Survival',
+            }
+        ];
+
+        // LOGIKA SCRIPT UTAMA
+        document.addEventListener('DOMContentLoaded', () => {
+            const heroSection = document.getElementById('hero');
+            const menuOverlay = document.getElementById('menuOverlay');
+            const modal = document.getElementById('gameModal');
+            const gameCards = document.querySelectorAll('.game-card');
+            const menuButton = document.getElementById('menuButton');
+            const menuCloseBtn = document.querySelector('.menu-close-btn');
+            const menuLinks = document.querySelectorAll('.menu-links a');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const prevSlide = document.getElementById('prevSlide');
+            const nextSlide = document.getElementById('nextSlide');
+            
+            let currentSlide = 0;
+
+            const toggleBodyScroll = (lock) => {
+                document.body.classList.toggle('modal-open', lock);
+            };
+
+            // FIX: Hero Animation (Fade-in saat load)
+            if (heroSection) {
+                setTimeout(() => {
+                    heroSection.classList.add('loaded');
+                }, 100);
+            }
+
+            // Navigation Menu Logic
+            const closeMenu = () => {
+                menuOverlay.classList.remove('open');
+                toggleBodyScroll(false); 
+            };
+            menuButton.addEventListener('click', () => {
+                menuOverlay.classList.add('open');
+                toggleBodyScroll(true); 
+            });
+            menuCloseBtn.addEventListener('click', closeMenu);
+            menuLinks.forEach(link => {
+                link.addEventListener('click', closeMenu);
+            });
+            menuOverlay.addEventListener('click', (e) => {
+                if (e.target.id === 'menuOverlay') closeMenu();
+            });
+            
+            // --- Logika Smooth Scroll untuk tombol utama ---
+            const primaryScrollButton = document.querySelector('.btn-primary-scroll');
+
+            if (primaryScrollButton) {
+                primaryScrollButton.addEventListener('click', function(e) {
+                    e.preventDefault(); 
+                    const targetId = this.getAttribute('href'); 
+                    const targetElement = document.querySelector(targetId);
+
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            }
+            // --- End Smooth Scroll ---
+
+
+            // Modal Functions
+            const showSlide = (index) => {
+                const slides = document.querySelectorAll('#gallery-slides .gallery-slide');
+                const dots = document.querySelectorAll('#gallery-dots .gallery-dot');
+                if (slides.length === 0) return;
+
+                if (index >= slides.length) { index = 0; }
+                if (index < 0) { index = slides.length - 1; }
+                currentSlide = index;
+
+                const offset = -currentSlide * 100;
+                document.getElementById('gallery-slides').style.transform = `translateX(${offset}%)`;
+
+                dots.forEach(dot => dot.classList.remove('active'));
+                if(dots[currentSlide]) dots[currentSlide].classList.add('active');
+            };
+
+            const renderGallery = (game, screenshots) => {
+                const slidesContainer = document.getElementById('gallery-slides');
+                const dotsContainer = document.getElementById('gallery-dots');
+                slidesContainer.innerHTML = '';
+                dotsContainer.innerHTML = '';
+                
+                screenshots.forEach((src, index) => {
+                    const slide = document.createElement('div');
+                    slide.classList.add('gallery-slide');
+                    slide.innerHTML = `<img src="${src}" alt="${game.title} Screenshot ${index + 1}">`;
+                    slidesContainer.appendChild(slide);
+
+                    const dot = document.createElement('span');
+                    dot.classList.add('gallery-dot');
+                    if (index === 0) dot.classList.add('active');
+                    dot.addEventListener('click', () => showSlide(index));
+                    dotsContainer.appendChild(dot);
+                });
+
+                showSlide(currentSlide);
+            };
+
+            const renderPlatformButtons = (platforms) => {
+                const platformContainer = document.getElementById('platform-buttons');
+                platformContainer.innerHTML = '';
+
+                platforms.forEach(platform => {
+                    const button = document.createElement('a');
+                    button.href = platform.url;
+                    button.target = "_blank";
+                    button.classList.add('btn-platform', platform.class);
+                    // Menghilangkan kata 'DOWNLOAD' agar sesuai dengan data baru jika ada
+                    let buttonText = platform.name.toUpperCase().startsWith('PLAY') ? platform.name.toUpperCase() : `DOWNLOAD ${platform.name.toUpperCase()}`;
+                    
+                    button.textContent = buttonText;
+                    platformContainer.appendChild(button);
+                });
+            };
+            
+            // Render Other Games
+            const renderOtherGames = (currentId) => {
+                const otherGamesGrid = document.getElementById('other-games-grid');
+                otherGamesGrid.innerHTML = '';
+                
+                const otherGames = gameData.filter(g => g.id !== currentId).slice(0, 3);
+
+                document.getElementById('other-games-container').style.display = otherGames.length > 0 ? 'block' : 'none';
+
+                otherGames.forEach(game

@@ -199,6 +199,26 @@
         modal.scrollTo(0, 0);
     };
 
+    // ────────────────────────────────────────────────
+    // SYNC DENGAN ADMIN PANEL
+    // Kalau admin hapus game, sembunyikan card-nya
+    // ────────────────────────────────────────────────
+    (function syncAdminDeletes() {
+        var raw;
+        try { raw = localStorage.getItem('gs_catalog_games'); } catch(e) { return; }
+        if (!raw) return;
+        var adminGames;
+        try { adminGames = JSON.parse(raw); } catch(e) { return; }
+        if (!Array.isArray(adminGames)) return;
+        var activeIds = adminGames.map(function(g) { return g.id; });
+        document.querySelectorAll('.game-card').forEach(function(card) {
+            var id = card.getAttribute('data-game-id');
+            if (id && activeIds.indexOf(id) === -1) {
+                card.style.display = 'none';
+            }
+        });
+    })();
+
     // Card click listeners
     gameCards.forEach(card => {
         card.addEventListener('click', () => showGameDetails(card.getAttribute('data-game-id')));

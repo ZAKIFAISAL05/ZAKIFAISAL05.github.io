@@ -1,37 +1,165 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Grid Survival — Studio Game Indie Indonesia. Pengembang game mobile dan PC: Survival, RPG, Strategy, dan Roblox.">
     <meta name="theme-color" content="#00e5ff">
-
     <title>Grid Survival — Studio Game Indie</title>
-
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
           integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
           crossorigin="anonymous" referrerpolicy="no-referrer">
-
-    <!-- Main CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        /* DARK/LIGHT MODE OVERRIDES */
+        :root, [data-theme="dark"] {
+            --pixel-green:#00ff41;--pixel-cyan:#00e5ff;--pixel-yellow:#ffe600;
+            --pixel-red:#ff3c3c;--pixel-purple:#c86fdf;
+            --bg-black:#080c10;--bg-panel:#0d1117;--bg-card:#111827;
+            --bg-card-hover:#16202e;--border:#1e3040;--border-glow:#00e5ff55;
+            --text-main:#ffffff;--text-muted:#4a7a8a;--text-dim:#2a4a5a;
+            --pixel-shadow:4px 4px 0 #000;--scanline-opacity:0.04;
+        }
+        [data-theme="light"] {
+            --pixel-green:#007a1f;--pixel-cyan:#006ea8;--pixel-yellow:#a07b00;
+            --pixel-red:#cc0000;--pixel-purple:#7b2fa3;
+            --bg-black:#f0f4f8;--bg-panel:#ffffff;--bg-card:#e8eef5;
+            --bg-card-hover:#dce6f0;--border:#b0c4d8;--border-glow:#006ea833;
+            --text-main:#000000;--text-muted:#334d66;--text-dim:#7a9ab8;
+            --pixel-shadow:3px 3px 0 #99aabb;--scanline-opacity:0.015;
+        }
+        [data-theme="light"] body {
+            background-image:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.015) 2px,rgba(0,0,0,0.015) 4px);
+        }
+        /* Smooth transition */
+        body,nav,section,footer,.game-card,.modal-content,.modal,#menuOverlay {
+            transition:background-color 0.35s ease,color 0.35s ease,border-color 0.35s ease !important;
+        }
+
+        /* NAV RIGHT */
+        .nav-right{display:flex;align-items:center;gap:10px;}
+
+        /* THEME TOGGLE */
+        #themeToggle {
+            background:none;border:2px solid var(--pixel-cyan);color:var(--pixel-cyan);
+            font-family:'Press Start 2P',monospace;font-size:0.5em;padding:5px 10px;
+            cursor:pointer;box-shadow:2px 2px 0 #000;letter-spacing:1px;
+            display:flex;align-items:center;gap:6px;white-space:nowrap;
+        }
+        #themeToggle:hover{background:var(--pixel-cyan);color:var(--bg-black);}
+        #themeToggle .t-icon{font-size:1.1em;}
+        [data-theme="light"] #themeToggle{box-shadow:2px 2px 0 #99aabb;}
+
+        /* MASCOT FIXED */
+        #mascot-wrap {
+            position:fixed;bottom:20px;right:20px;z-index:999;
+            display:flex;flex-direction:column;align-items:center;gap:4px;
+            pointer-events:none;
+        }
+        .speech-bubble {
+            background:var(--bg-panel);border:2px solid var(--pixel-cyan);
+            box-shadow:3px 3px 0 #000,0 0 14px var(--border-glow);
+            padding:8px 14px;font-family:'Press Start 2P',monospace;
+            font-size:0.42em;color:var(--pixel-cyan);
+            text-shadow:0 0 8px var(--pixel-cyan);
+            white-space:nowrap;position:relative;
+            min-width:90px;text-align:center;
+            animation:bubPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both,
+                       bubFloat 3s ease-in-out 0.6s infinite;
+        }
+        .speech-bubble::after {
+            content:'';position:absolute;bottom:-10px;left:50%;
+            transform:translateX(-50%);
+            border-left:8px solid transparent;border-right:8px solid transparent;
+            border-top:10px solid var(--pixel-cyan);
+        }
+        .speech-bubble::before {
+            content:'';position:absolute;bottom:-7px;left:50%;
+            transform:translateX(-50%);z-index:1;
+            border-left:6px solid transparent;border-right:6px solid transparent;
+            border-top:8px solid var(--bg-panel);
+        }
+        .bcursor{display:inline-block;animation:blink 0.7s step-end infinite;color:var(--pixel-green);}
+
+        .mascot-body {
+            width:80px;height:80px;position:relative;
+            pointer-events:all;cursor:pointer;
+            animation:mFloat 2.5s ease-in-out infinite;
+        }
+        .mascot-body img {
+            width:100%;height:100%;object-fit:contain;image-rendering:pixelated;
+            filter:drop-shadow(0 0 10px var(--pixel-cyan)) drop-shadow(3px 3px 0 #000);
+            animation:mGlow 2s ease-in-out infinite alternate;
+        }
+        .mwave {
+            position:absolute;top:-8px;right:-16px;font-size:1.5em;
+            animation:wave 1.2s ease-in-out infinite;transform-origin:70% 80%;
+        }
+        .mshadow {
+            width:48px;height:8px;background:rgba(0,229,255,0.2);
+            border-radius:50%;margin:0 auto;
+            animation:shad 2.5s ease-in-out infinite;filter:blur(3px);
+        }
+        [data-theme="light"] .mascot-body img {
+            filter:drop-shadow(0 0 10px #006ea8) drop-shadow(3px 3px 0 #99aabb);
+        }
+        [data-theme="light"] .mshadow{background:rgba(0,110,168,0.2);}
+
+        /* SCROLL TOP */
+        #scrollTop {
+            position:fixed;bottom:116px;right:20px;z-index:998;
+            background:var(--bg-panel);border:2px solid var(--pixel-green);
+            color:var(--pixel-green);font-family:'Press Start 2P',monospace;
+            font-size:0.55em;width:42px;height:42px;cursor:pointer;
+            box-shadow:3px 3px 0 #000;display:none;align-items:center;
+            justify-content:center;
+        }
+        #scrollTop.show{display:flex;}
+        #scrollTop:hover{background:var(--pixel-green);color:#000;}
+        [data-theme="light"] #scrollTop{box-shadow:3px 3px 0 #99aabb;}
+
+        /* PARTICLE */
+        #pcanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.35;}
+
+        /* KEYFRAMES */
+        @keyframes mFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+        @keyframes mGlow{0%{filter:drop-shadow(0 0 6px var(--pixel-cyan)) drop-shadow(3px 3px 0 #000)}
+                        100%{filter:drop-shadow(0 0 20px var(--pixel-cyan)) drop-shadow(0 0 8px var(--pixel-green)) drop-shadow(3px 3px 0 #000)}}
+        @keyframes wave{0%,100%{transform:rotate(-10deg)}25%{transform:rotate(25deg)}50%{transform:rotate(-5deg)}75%{transform:rotate(20deg)}}
+        @keyframes shad{0%,100%{transform:scaleX(0.8);opacity:0.3}50%{transform:scaleX(1.2);opacity:0.6}}
+        @keyframes bubPop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+        @keyframes bubFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+        @media(max-width:480px){
+            .mascot-body{width:60px;height:60px;}
+            .speech-bubble{font-size:0.35em;}
+            #mascot-wrap{bottom:14px;right:14px;}
+        }
+    </style>
 </head>
 <body>
 
-<!-- ══════════════════════
-     NAVIGATION
-══════════════════════ -->
+<canvas id="pcanvas"></canvas>
+
+<!-- NAV -->
 <nav>
     <a href="#" class="nav-studio-name">
         <img src="assets/img/studio_logo.png" alt="Grid Survival Logo" class="nav-logo-image">
         Grid Survival
     </a>
-    <button id="menuButton" class="nav-menu-btn" aria-label="Open menu">
-        <i class="fas fa-bars"></i>
-    </button>
+    <div class="nav-right">
+        <button id="themeToggle" aria-label="Toggle dark/light mode">
+            <span class="t-icon">🌙</span>
+            <span class="t-label">DARK</span>
+        </button>
+        <button id="menuButton" class="nav-menu-btn" aria-label="Open menu">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
 </nav>
 
-<!-- Menu Overlay -->
+<!-- MENU OVERLAY -->
 <div id="menuOverlay" role="dialog" aria-modal="true" aria-label="Navigation menu">
     <span class="menu-close-btn" role="button" tabindex="0" aria-label="Close menu">&times;</span>
     <ul class="menu-links">
@@ -42,137 +170,69 @@
     </ul>
 </div>
 
-<!-- ══════════════════════
-     HERO
-══════════════════════ -->
+<!-- HERO -->
 <section id="hero" class="hero" aria-label="Hero section">
-    <!-- Pixel corner decorations -->
     <div class="hero-corner hero-corner-tl"></div>
     <div class="hero-corner hero-corner-tr"></div>
     <div class="hero-corner hero-corner-bl"></div>
     <div class="hero-corner hero-corner-br"></div>
-
     <h1 class="hero-title">Grid The Survival</h1>
-
     <p class="tagline">
         <span id="typing-text"></span>
         <span class="cursor">█</span>
     </p>
-
     <a href="#games" class="btn-primary-scroll">▶ LIHAT SEMUA GAME</a>
 </section>
 
-<!-- ══════════════════════
-     GAMES SECTION
-══════════════════════ -->
+<!-- GAMES -->
 <section id="games" class="section-padding" aria-label="Game catalog">
     <h2 class="section-header-title">PROYEK GAME KAMI</h2>
-
     <div class="games-grid">
-
-        <div class="game-card" data-game-id="minecraft-parkour-2d" tabindex="0" role="button" aria-label="Minecraft Parkun 2D">
-            <div class="game-image-wrapper">
-                <img src="assets/img/mc_parkun_thumb.jpg" alt="Minecraft Parkun 2D" class="game-image" loading="lazy">
-            </div>
-            <div class="game-info">
-                <h3 class="game-title">Minecraft Parkun 2D</h3>
-                <p class="game-description">Parkour 2D terinspirasi Minecraft. (Mobile)</p>
-                <p class="game-dev">Dev: Grid Survival | Genre: Arcade</p>
-            </div>
+        <div class="game-card" data-game-id="minecraft-parkour-2d" tabindex="0" role="button">
+            <div class="game-image-wrapper"><img src="assets/img/mc_parkun_thumb.jpg" alt="Minecraft Parkun 2D" class="game-image" loading="lazy"></div>
+            <div class="game-info"><h3 class="game-title">Minecraft Parkun 2D</h3><p class="game-description">Parkour 2D terinspirasi Minecraft. (Mobile)</p><p class="game-dev">Dev: Grid Survival | Genre: Arcade</p></div>
         </div>
-
-        <div class="game-card" data-game-id="the-one-for-zombie" tabindex="0" role="button" aria-label="THE ONE FOR ZOMBIE">
-            <div class="game-image-wrapper">
-                <img src="assets/img/one_zombie_thumb.jpg" alt="THE ONE FOR ZOMBIE" class="game-image" loading="lazy">
-            </div>
-            <div class="game-info">
-                <h3 class="game-title">THE ONE FOR ZOMBIE</h3>
-                <p class="game-description">Aksi bertahan hidup melawan gerombolan zombie. (Mobile)</p>
-                <p class="game-dev">Dev: Grid Survival | Genre: Action</p>
-            </div>
+        <div class="game-card" data-game-id="the-one-for-zombie" tabindex="0" role="button">
+            <div class="game-image-wrapper"><img src="assets/img/one_zombie_thumb.jpg" alt="THE ONE FOR ZOMBIE" class="game-image" loading="lazy"></div>
+            <div class="game-info"><h3 class="game-title">THE ONE FOR ZOMBIE</h3><p class="game-description">Aksi bertahan hidup melawan gerombolan zombie. (Mobile)</p><p class="game-dev">Dev: Grid Survival | Genre: Action</p></div>
         </div>
-
-        <div class="game-card" data-game-id="desa-karya-investasi-zombie" tabindex="0" role="button" aria-label="Desa Investasi Zombie">
-            <div class="game-image-wrapper">
-                <img src="assets/img/desa_invest_thumb.jpg" alt="Desa Investasi Zombie" class="game-image" loading="lazy">
-            </div>
-            <div class="game-info">
-                <h3 class="game-title">Desa Investasi Zombie</h3>
-                <p class="game-description">Manajemen desa dan investasi melawan zombie.</p>
-                <p class="game-dev">Dev: Grid Survival | Genre: Simulation</p>
-            </div>
+        <div class="game-card" data-game-id="desa-karya-investasi-zombie" tabindex="0" role="button">
+            <div class="game-image-wrapper"><img src="assets/img/desa_invest_thumb.jpg" alt="Desa Investasi Zombie" class="game-image" loading="lazy"></div>
+            <div class="game-info"><h3 class="game-title">Desa Investasi Zombie</h3><p class="game-description">Manajemen desa dan investasi melawan zombie.</p><p class="game-dev">Dev: Grid Survival | Genre: Simulation</p></div>
         </div>
-
-        <div class="game-card" data-game-id="gerbang-parkun-2d" tabindex="0" role="button" aria-label="Gerbang Parkun 2D">
-            <div class="game-image-wrapper">
-                <img src="assets/img/gerbang_parkun_thumb.jpg" alt="Gerbang Parkun 2D" class="game-image" loading="lazy">
-            </div>
-            <div class="game-info">
-                <h3 class="game-title">Gerbang Parkun 2D</h3>
-                <p class="game-description">Parkour 2D kompetitif — speedrun challenge. (Mobile & Windows)</p>
-                <p class="game-dev">Dev: Grid Survival | Genre: Platformer</p>
-            </div>
+        <div class="game-card" data-game-id="gerbang-parkun-2d" tabindex="0" role="button">
+            <div class="game-image-wrapper"><img src="assets/img/gerbang_parkun_thumb.jpg" alt="Gerbang Parkun 2D" class="game-image" loading="lazy"></div>
+            <div class="game-info"><h3 class="game-title">Gerbang Parkun 2D</h3><p class="game-description">Parkour 2D kompetitif — speedrun challenge. (Mobile & Windows)</p><p class="game-dev">Dev: Grid Survival | Genre: Platformer</p></div>
         </div>
-
-        <div class="game-card" data-game-id="desa-cipta-karya-ch2" tabindex="0" role="button" aria-label="Desa Cipta Karya Chapter 2">
-            <div class="game-image-wrapper">
-                <img src="assets/img/cipta_karya2_thumb.jpg" alt="Desa Cipta Karya Chapter 2" class="game-image" loading="lazy">
-            </div>
-            <div class="game-info">
-                <h3 class="game-title">Desa Cipta Karya Ch 2</h3>
-                <p class="game-description">Kelanjutan simulasi pembangunan desa. (Mobile)</p>
-                <p class="game-dev">Dev: Grid Survival | Genre: Simulation</p>
-            </div>
+        <div class="game-card" data-game-id="desa-cipta-karya-ch2" tabindex="0" role="button">
+            <div class="game-image-wrapper"><img src="assets/img/cipta_karya2_thumb.jpg" alt="Desa Cipta Karya Chapter 2" class="game-image" loading="lazy"></div>
+            <div class="game-info"><h3 class="game-title">Desa Cipta Karya Ch 2</h3><p class="game-description">Kelanjutan simulasi pembangunan desa. (Mobile)</p><p class="game-dev">Dev: Grid Survival | Genre: Simulation</p></div>
         </div>
-
-        <div class="game-card" data-game-id="the-undeads-roblox" tabindex="0" role="button" aria-label="The Undeads Roblox">
-            <div class="game-image-wrapper">
-                <img src="assets/img/undeads_roblox_thumb.jpg" alt="The Undeads Roblox" class="game-image" loading="lazy">
-            </div>
-            <div class="game-info">
-                <h3 class="game-title">The Undeads (Roblox)</h3>
-                <p class="game-description">Game survival zombie populer di Roblox. (PC & Mobile)</p>
-                <p class="game-dev">Dev: Grid Survival | Genre: Survival, Action</p>
-            </div>
+        <div class="game-card" data-game-id="the-undeads-roblox" tabindex="0" role="button">
+            <div class="game-image-wrapper"><img src="assets/img/undeads_roblox_thumb.jpg" alt="The Undeads Roblox" class="game-image" loading="lazy"></div>
+            <div class="game-info"><h3 class="game-title">The Undeads (Roblox)</h3><p class="game-description">Game survival zombie populer di Roblox. (PC & Mobile)</p><p class="game-dev">Dev: Grid Survival | Genre: Survival, Action</p></div>
         </div>
-
-        <div class="game-card" data-game-id="frequency-fury-obby" tabindex="0" role="button" aria-label="Frequency Fury Obby">
-            <div class="game-image-wrapper">
-                <img src="assets/img/frequency_fury_thumb.jpg" alt="Frequency Fury Obby" class="game-image" loading="lazy">
-            </div>
-            <div class="game-info">
-                <h3 class="game-title">Frequency Fury Obby (Roblox)</h3>
-                <p class="game-description">Obby parkour menantang — uji ketepatan dan kecepatan.</p>
-                <p class="game-dev">Dev: Grid Survival | Genre: Arcade, Platformer</p>
-            </div>
+        <div class="game-card" data-game-id="frequency-fury-obby" tabindex="0" role="button">
+            <div class="game-image-wrapper"><img src="assets/img/frequency_fury_thumb.jpg" alt="Frequency Fury Obby" class="game-image" loading="lazy"></div>
+            <div class="game-info"><h3 class="game-title">Frequency Fury Obby (Roblox)</h3><p class="game-description">Obby parkour menantang — uji ketepatan dan kecepatan.</p><p class="game-dev">Dev: Grid Survival | Genre: Arcade, Platformer</p></div>
         </div>
-
     </div>
 </section>
 
-<!-- ══════════════════════
-     ABOUT SECTION
-══════════════════════ -->
+<!-- ABOUT -->
 <section id="about" class="about-section" aria-label="About us">
     <h2 class="section-header-title">TENTANG GRID SURVIVAL</h2>
     <p>Kami adalah studio game indie yang bersemangat menciptakan pengalaman bermain yang unik dan menantang. Dari Indonesia, kami fokus pada genre Survival, RPG, dan Strategy — dengan sentuhan cerita yang dalam di setiap gameplay. Semoga game kami menghiburmu!</p>
 </section>
 
-<!-- ══════════════════════
-     FOOTER / CONTACT
-══════════════════════ -->
+<!-- FOOTER -->
 <footer id="contact">
     <div class="footer-content">
         <h3>▓ GRID SURVIVAL ▓</h3>
         <p>Menciptakan game digital yang layak untuk dimainkan.</p>
-        <p style="margin-top:10px;">
-            Email: <a href="mailto:dzakifaisal11@gmail.com"
-                      style="color:var(--pixel-cyan);text-decoration:none;">
-                dzakifaisal11@gmail.com
-            </a>
-        </p>
+        <p style="margin-top:10px;">Email: <a href="mailto:dzakifaisal11@gmail.com" style="color:var(--pixel-cyan);text-decoration:none;">dzakifaisal11@gmail.com</a></p>
         <div class="social-icons" style="margin-top:20px;">
-            <a href="https://whatsapp.com/channel/0029VaAxK4O2975D8utbc927" target="_blank" rel="noopener" title="WhatsApp Channel"><i class="fab fa-whatsapp"></i></a>
+            <a href="https://whatsapp.com/channel/0029VaAxK4O2975D8utbc927" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
             <a href="https://www.youtube.com/@ZAKI_FAISAL_05_OFFICIAL" target="_blank" rel="noopener" title="YouTube"><i class="fab fa-youtube"></i></a>
             <a href="https://discord.gg/f8jW6B3X" target="_blank" rel="noopener" title="Discord"><i class="fab fa-discord"></i></a>
             <a href="https://www.instagram.com/zakifaisal05/" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
@@ -181,26 +241,19 @@
     <p class="footer-copy">&copy; 2025 Grid Survival. All Rights Reserved.</p>
 </footer>
 
-<!-- ══════════════════════
-     GAME MODAL
-══════════════════════ -->
+<!-- MODAL -->
 <div id="gameModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-content">
         <span class="close-modal" id="closeModalBtn" role="button" tabindex="0" aria-label="Close">&times;</span>
-
         <img id="modal-logo" src="" alt="Game Logo" class="modal-logo">
         <h2 id="modal-title" class="modal-title"></h2>
         <p id="modal-description" class="modal-description"></p>
-
-        <!-- Gallery Slider -->
         <div class="gallery-container">
             <div id="gallery-slides" class="gallery-slides"></div>
-            <button class="gallery-btn gallery-prev" id="prevSlide" aria-label="Previous screenshot">&#10094;</button>
-            <button class="gallery-btn gallery-next" id="nextSlide" aria-label="Next screenshot">&#10095;</button>
+            <button class="gallery-btn gallery-prev" id="prevSlide" aria-label="Previous">&#10094;</button>
+            <button class="gallery-btn gallery-next" id="nextSlide" aria-label="Next">&#10095;</button>
         </div>
         <div id="gallery-dots" class="gallery-dots"></div>
-
-        <!-- Download Section -->
         <div class="download-section">
             <div id="platform-buttons" class="platform-buttons"></div>
             <div class="supported-platforms">
@@ -210,8 +263,6 @@
                 <p>Tersedia di PC, Android, dan iOS.</p>
             </div>
         </div>
-
-        <!-- Other Games -->
         <div id="other-games-container">
             <h3 class="section-title">Game Lain dari Grid Survival</h3>
             <div id="other-games-grid" class="other-games-grid"></div>
@@ -219,12 +270,125 @@
     </div>
 </div>
 
-<!-- ══════════════════════
-     SCRIPTS
-══════════════════════ -->
-<!-- Game data (inline for single-file deployment, no module needed) -->
+<!-- MASCOT -->
+<div id="mascot-wrap">
+    <div class="speech-bubble" id="mascot-bubble">
+        <span id="btext"></span><span class="bcursor">▌</span>
+    </div>
+    <div class="mascot-body" id="mascot" title="Klik aku!">
+        <img src="assets/img/studio_logo.png" alt="Grid Survival Mascot">
+        <span class="mwave">👋</span>
+    </div>
+    <div class="mshadow"></div>
+</div>
+
+<!-- SCROLL TOP -->
+<button id="scrollTop" aria-label="Scroll to top">▲</button>
+
 <script src="assets/js/gameData.js"></script>
 <script src="assets/js/main.js"></script>
+<script>
+(function(){
+'use strict';
 
+/* THEME TOGGLE */
+var html=document.documentElement;
+var tbtn=document.getElementById('themeToggle');
+var ticon=tbtn.querySelector('.t-icon');
+var tlabel=tbtn.querySelector('.t-label');
+var saved=localStorage.getItem('gs-theme')||'dark';
+applyTheme(saved);
+function applyTheme(t){
+    html.setAttribute('data-theme',t);
+    localStorage.setItem('gs-theme',t);
+    if(t==='dark'){ticon.textContent='🌙';tlabel.textContent='DARK';}
+    else{ticon.textContent='☀️';tlabel.textContent='LITE';}
+}
+tbtn.addEventListener('click',function(){
+    applyTheme(html.getAttribute('data-theme')==='dark'?'light':'dark');
+});
+
+/* MASCOT BUBBLE TYPING */
+var msgs=["HELLO! 👾","WELCOME!","PLAY OUR GAMES!","GRID SURVIVAL!","SELAMAT DATANG!","KLIK AKU! 😄","INDIE FROM ID! 🇮🇩","HAVE FUN! 🎮"];
+var mi=0,ci=0,typing=true,pt=null;
+var btxt=document.getElementById('btext');
+
+function tick(){
+    var m=msgs[mi];
+    if(typing){
+        if(ci<m.length){btxt.textContent+=m.charAt(ci++);setTimeout(tick,85);}
+        else{pt=setTimeout(function(){typing=false;tick();},2400);}
+    } else {
+        if(ci>0){btxt.textContent=btxt.textContent.slice(0,--ci);setTimeout(tick,38);}
+        else{mi=(mi+1)%msgs.length;typing=true;setTimeout(tick,350);}
+    }
+}
+setTimeout(tick,1400);
+
+document.getElementById('mascot').addEventListener('click',function(){
+    clearTimeout(pt);btxt.textContent='';ci=0;typing=true;
+    mi=(mi+1)%msgs.length;tick();
+});
+
+/* SCROLL TOP */
+var stb=document.getElementById('scrollTop');
+window.addEventListener('scroll',function(){
+    stb.classList.toggle('show',window.scrollY>350);
+});
+stb.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
+
+/* PARTICLES */
+var cv=document.getElementById('pcanvas');
+var cx=cv.getContext('2d');
+function rsz(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
+rsz();window.addEventListener('resize',rsz);
+
+var DARK_COLORS=['#00ff41','#00e5ff','#ffe600','#c86fdf'];
+var LITE_COLORS=['#007a1f','#006ea8','#a07b00','#7b2fa3'];
+function rndColor(){
+    var arr=html.getAttribute('data-theme')==='dark'?DARK_COLORS:LITE_COLORS;
+    return arr[Math.floor(Math.random()*arr.length)];
+}
+
+var pts=[];
+function mkP(){
+    return {
+        x:Math.random()*cv.width,
+        y:Math.random()*cv.height,
+        sz:(Math.floor(Math.random()*3)+1)*2,
+        col:rndColor(),
+        vx:(Math.random()-0.5)*0.4,
+        vy:-Math.random()*0.5-0.15,
+        a:Math.random()*0.5+0.2,
+        life:Math.random(),
+        dec:Math.random()*0.003+0.001
+    };
+}
+for(var i=0;i<40;i++)pts.push(mkP());
+
+function resetP(p){
+    p.x=Math.random()*cv.width;p.y=cv.height+10;
+    p.sz=(Math.floor(Math.random()*3)+1)*2;
+    p.col=rndColor();p.vx=(Math.random()-0.5)*0.4;
+    p.vy=-Math.random()*0.5-0.15;p.a=Math.random()*0.5+0.2;
+    p.life=1;p.dec=Math.random()*0.003+0.001;
+}
+
+function anim(){
+    cx.clearRect(0,0,cv.width,cv.height);
+    pts.forEach(function(p){
+        p.x+=p.vx;p.y+=p.vy;p.life-=p.dec;
+        if(p.life<=0||p.y<-10)resetP(p);
+        cx.globalAlpha=p.life*p.a;
+        cx.fillStyle=p.col;
+        cx.fillRect(Math.round(p.x),Math.round(p.y),p.sz,p.sz);
+    });
+    cx.globalAlpha=1;
+    requestAnimationFrame(anim);
+}
+anim();
+
+})();
+</script>
 </body>
 </html>

@@ -7,57 +7,203 @@
     <title>ADMIN // Grid Survival</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-section-title {
+            font-family: var(--font-px);
+            font-size: 0.55em;
+            color: var(--cyan);
+            border-left: 3px solid var(--cyan);
+            padding: 10px 14px;
+            margin: 28px 0 14px;
+            background: rgba(0,229,255,0.04);
+            letter-spacing: 2px;
+        }
+        .add-form {
+            background: #0a1018;
+            border: 2px solid #1e3040;
+            box-shadow: 4px 4px 0 #000;
+            padding: 24px;
+            margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        @media(max-width:600px){ .add-form { grid-template-columns: 1fr; } }
+        .form-field { display: flex; flex-direction: column; gap: 6px; }
+        .form-field.full { grid-column: 1 / -1; }
+        .form-field label {
+            font-family: var(--font-px);
+            font-size: 0.45em;
+            color: #4a7a8a;
+            letter-spacing: 1px;
+        }
+        .form-field input,
+        .form-field textarea,
+        .form-field select {
+            background: #080c10;
+            border: 2px solid #1e3040;
+            color: #b0d8e8;
+            font-family: var(--font-mo);
+            font-size: 17px;
+            padding: 10px 12px;
+            outline: none;
+            transition: border-color 0.2s;
+            resize: vertical;
+        }
+        .form-field input:focus,.form-field textarea:focus,.form-field select:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 8px rgba(0,229,255,0.15);
+        }
+        .form-field select option { background: #0d1117; }
+
+        /* Icon upload */
+        .icon-upload-wrap { display: flex; align-items: center; gap: 16px; }
+        .icon-preview {
+            width: 64px; height: 64px;
+            border: 2px solid #1e3040;
+            background: #080c10;
+            display: flex; align-items: center; justify-content: center;
+            color: #2a4a5a; font-size: 24px; flex-shrink: 0;
+            image-rendering: pixelated; overflow: hidden;
+        }
+        .icon-preview img { width: 100%; height: 100%; object-fit: contain; }
+        .btn-upload-icon {
+            font-family: var(--font-px); font-size: 0.4em;
+            background: transparent; color: var(--yellow); border: 2px solid var(--yellow);
+            padding: 10px 14px; cursor: pointer; letter-spacing: 1px; transition: background 0.15s, color 0.15s;
+        }
+        .btn-upload-icon:hover { background: var(--yellow); color: #000; }
+
+        /* Platform builder */
+        .platform-builder { display: flex; flex-direction: column; gap: 8px; }
+        .platform-row { display: flex; gap: 8px; align-items: center; }
+        .platform-row input { flex: 1; }
+        .platform-row select { width: 160px; flex-shrink: 0; }
+        .btn-rm-platform {
+            background: transparent; border: 2px solid var(--red); color: var(--red);
+            width: 32px; height: 32px; cursor: pointer; font-size: 14px; flex-shrink: 0; transition: background 0.15s;
+        }
+        .btn-rm-platform:hover { background: var(--red); color: #000; }
+        .btn-add-platform {
+            font-family: var(--font-px); font-size: 0.38em;
+            background: transparent; color: var(--green); border: 2px solid var(--green);
+            padding: 8px 12px; cursor: pointer; align-self: flex-start; margin-top: 4px; transition: background 0.15s, color 0.15s;
+        }
+        .btn-add-platform:hover { background: var(--green); color: #000; }
+
+        /* Submit */
+        .btn-add-game {
+            font-family: var(--font-px); font-size: 0.5em;
+            background: transparent; color: var(--green); border: 2px solid var(--green);
+            box-shadow: 4px 4px 0 #000; padding: 14px 20px; cursor: pointer;
+            letter-spacing: 2px; transition: background 0.15s, color 0.15s, transform 0.1s; width: 100%;
+        }
+        .btn-add-game:hover { background: var(--green); color: #000; transform: translate(-2px,-2px); box-shadow: 6px 6px 0 #000; }
+
+        /* Alert */
+        .alert {
+            padding: 12px 16px; font-family: var(--font-mo); font-size: 18px;
+            border: 2px solid; margin-bottom: 12px; display: none;
+        }
+        .alert.success { border-color: var(--green); color: var(--green); background: rgba(0,255,65,0.05); }
+        .alert.error   { border-color: var(--red);   color: var(--red);   background: rgba(255,60,60,0.05); }
+        .alert.show    { display: block; }
+
+        /* Table icons */
+        .game-icon-cell {
+            width: 40px; height: 40px; border: 1px solid #1e3040;
+            object-fit: contain; background: #080c10; image-rendering: pixelated;
+        }
+        .game-icon-placeholder {
+            width: 40px; height: 40px; border: 1px solid #1e3040; background: #080c10;
+            display: inline-flex; align-items: center; justify-content: center; color: #2a4a5a; font-size: 16px;
+        }
+        .btn-delete {
+            font-family: var(--font-px); font-size: 0.4em;
+            background: transparent; color: var(--red); border: 2px solid var(--red);
+            padding: 6px 10px; cursor: pointer; transition: background 0.15s, color 0.15s; letter-spacing: 1px;
+        }
+        .btn-delete:hover { background: var(--red); color: #000; }
+        .btn-small {
+            font-family: var(--font-px); font-size: 0.4em;
+            background: transparent; color: var(--cyan); border: 2px solid var(--cyan);
+            padding: 6px 10px; cursor: pointer; text-decoration: none;
+            display: inline-block; transition: background 0.15s, color 0.15s; margin-right: 6px;
+        }
+        .btn-small:hover { background: var(--cyan); color: #000; }
+        .custom-badge {
+            background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.3);
+            color: var(--cyan); font-size: 0.45em; font-family: var(--font-px);
+            padding: 2px 8px; letter-spacing: 1px;
+        }
+
+        /* Confirm modal */
+        .confirm-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            z-index: 9999; display: none; align-items: center; justify-content: center;
+        }
+        .confirm-overlay.show { display: flex; }
+        .confirm-box {
+            background: var(--panel); border: 2px solid var(--red);
+            box-shadow: 8px 8px 0 #000, 0 0 30px rgba(255,60,60,0.2);
+            padding: 32px; max-width: 380px; width: 90%; text-align: center;
+        }
+        .confirm-title { font-family: var(--font-px); font-size: 0.7em; color: var(--red); margin-bottom: 16px; text-shadow: 2px 2px 0 #000; }
+        .confirm-msg   { font-family: var(--font-mo); font-size: 20px; color: #b0d8e8; margin-bottom: 24px; }
+        .confirm-btns  { display: flex; gap: 12px; justify-content: center; }
+        .confirm-yes   { font-family: var(--font-px); font-size: 0.5em; background: var(--red); color: #000; border: 2px solid var(--red); padding: 12px 18px; cursor: pointer; }
+        .confirm-no    { font-family: var(--font-px); font-size: 0.5em; background: transparent; color: #b0d8e8; border: 2px solid #1e3040; padding: 12px 18px; cursor: pointer; }
+        .confirm-no:hover { border-color: var(--cyan); color: var(--cyan); }
+
+        /* Export */
+        .action-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-export {
+            font-family: var(--font-px); font-size: 0.4em;
+            background: transparent; color: var(--yellow); border: 2px solid var(--yellow);
+            padding: 8px 14px; cursor: pointer; letter-spacing: 1px; transition: background 0.15s, color 0.15s;
+        }
+        .btn-export:hover { background: var(--yellow); color: #000; }
+
+        /* Char in nav */
+        #adminCharCanvas { image-rendering: pixelated; image-rendering: crisp-edges; display:inline-block; vertical-align: middle; margin-right: 10px; }
+    </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════
-     LOGIN SCREEN
-════════════════════════════════════════════ -->
+<!-- LOGIN -->
 <div class="login-wrap" id="loginWrap">
     <div class="login-box">
         <div class="login-title">⬛ ADMIN ACCESS ⬛</div>
         <div class="login-sub">[ GRID SURVIVAL STUDIO ]</div>
-
         <div class="login-field">
             <label for="adminUser">USERNAME</label>
-            <input type="text" id="adminUser" autocomplete="off" spellcheck="false"
-                   placeholder="ENTER USERNAME" maxlength="32">
+            <input type="text" id="adminUser" autocomplete="off" spellcheck="false" placeholder="ENTER USERNAME" maxlength="32">
         </div>
-
         <div class="login-field">
             <label for="adminPass">PASSWORD</label>
-            <input type="password" id="adminPass" autocomplete="off"
-                   placeholder="••••••••" maxlength="64">
+            <input type="password" id="adminPass" autocomplete="off" placeholder="••••••••" maxlength="64">
         </div>
-
-        <button class="btn-login" id="loginBtn" onclick="doLogin()">
-            [ ENTER SYSTEM ]
-        </button>
-
+        <button class="btn-login" id="loginBtn" onclick="doLogin()">[ ENTER SYSTEM ]</button>
         <div class="login-err" id="loginErr"></div>
         <div class="login-attempts" id="loginAttempts"></div>
         <div class="lockout-msg" id="lockoutMsg" style="display:none;"></div>
     </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     ADMIN PANEL
-════════════════════════════════════════════ -->
+<!-- ADMIN PANEL -->
 <div class="admin-wrap" id="adminWrap">
-
-    <!-- Top Nav -->
     <nav class="admin-nav">
-        <div class="admin-nav-title">▓ GRID SURVIVAL ADMIN ▓</div>
+        <div class="admin-nav-title">
+            <canvas id="adminCharCanvas" width="60" height="36"></canvas>
+            ▓ GRID SURVIVAL ADMIN ▓
+        </div>
         <div class="admin-nav-right">
             <span class="admin-user" id="adminUserDisplay"></span>
             <button class="btn-logout" onclick="doLogout()">[ LOGOUT ]</button>
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="admin-main">
-
-        <!-- Session Info -->
         <div class="session-bar">
             <div>SESSION: <span id="sessionId">—</span></div>
             <div>LOGIN: <span id="loginTime">—</span></div>
@@ -67,358 +213,338 @@
 
         <!-- Stats -->
         <div class="admin-section-title">▌ DASHBOARD OVERVIEW</div>
-
         <div class="admin-stats">
-            <div class="stat-card">
-                <span class="stat-num">7</span>
-                <div class="stat-label">TOTAL GAMES</div>
+            <div class="stat-card"><span class="stat-num" id="statTotal">0</span><div class="stat-label">TOTAL GAMES</div></div>
+            <div class="stat-card"><span class="stat-num" id="statPlatforms">0</span><div class="stat-label">PLATFORMS</div></div>
+            <div class="stat-card"><span class="stat-num" id="statRoblox">0</span><div class="stat-label">ROBLOX GAMES</div></div>
+            <div class="stat-card"><span class="stat-num" id="sessionTimer">00:00</span><div class="stat-label">SESSION TIME</div></div>
+        </div>
+
+        <!-- Add Game -->
+        <div class="admin-section-title">▌ TAMBAH GAME BARU</div>
+        <div id="alertBox" class="alert"></div>
+
+        <div class="add-form">
+            <div class="form-field">
+                <label>GAME TITLE *</label>
+                <input type="text" id="fg-title" placeholder="Nama Game..." maxlength="80">
             </div>
-            <div class="stat-card">
-                <span class="stat-num">4</span>
-                <div class="stat-label">PLATFORMS</div>
+            <div class="form-field">
+                <label>GENRE *</label>
+                <select id="fg-genre">
+                    <option value="">-- Pilih Genre --</option>
+                    <option value="Arcade">Arcade</option>
+                    <option value="Action">Action</option>
+                    <option value="Simulation">Simulation</option>
+                    <option value="Platformer">Platformer</option>
+                    <option value="Survival">Survival</option>
+                    <option value="RPG">RPG</option>
+                    <option value="Strategy">Strategy</option>
+                    <option value="Puzzle">Puzzle</option>
+                    <option value="Horror">Horror</option>
+                    <option value="Other">Other</option>
+                </select>
             </div>
-            <div class="stat-card">
-                <span class="stat-num">2</span>
-                <div class="stat-label">ROBLOX GAMES</div>
+            <div class="form-field full">
+                <label>DESKRIPSI</label>
+                <textarea id="fg-desc" rows="3" placeholder="Deskripsi singkat game..."></textarea>
             </div>
-            <div class="stat-card">
-                <span class="stat-num" id="sessionTimer">00:00</span>
-                <div class="stat-label">SESSION TIME</div>
+            <div class="form-field full">
+                <label>ICON / LOGO GAME</label>
+                <div class="icon-upload-wrap">
+                    <div class="icon-preview" id="iconPreview"><i class="fas fa-gamepad"></i></div>
+                    <div>
+                        <button class="btn-upload-icon" onclick="document.getElementById('iconFile').click()">▶ PILIH GAMBAR</button>
+                        <input type="file" id="iconFile" accept="image/*" style="display:none" onchange="handleIconUpload(event)">
+                        <div style="margin-top:8px;font-family:var(--font-mo);font-size:15px;color:#4a7a8a;">PNG, JPG, WEBP — maks 2MB</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-field full">
+                <label>PLATFORM &amp; LINK DOWNLOAD</label>
+                <div class="platform-builder" id="platformBuilder">
+                    <div class="platform-row" id="prow-0">
+                        <select class="p-type">
+                            <option value="btn-taptap">TapTap</option>
+                            <option value="btn-itchio">Itch.io</option>
+                            <option value="btn-roblox">Roblox</option>
+                            <option value="btn-amazon">Amazon</option>
+                            <option value="btn-gplay">Google Play</option>
+                            <option value="btn-steam">Steam</option>
+                        </select>
+                        <input class="p-url" type="url" placeholder="https://...">
+                        <button class="btn-rm-platform" onclick="removePlatform('prow-0')" title="Hapus">×</button>
+                    </div>
+                </div>
+                <button class="btn-add-platform" onclick="addPlatformRow()">+ TAMBAH PLATFORM</button>
+            </div>
+            <div class="form-field full">
+                <button class="btn-add-game" onclick="submitAddGame()">▶ SIMPAN GAME KE KATALOG</button>
             </div>
         </div>
 
-        <!-- Game List -->
+        <!-- Game Catalog -->
         <div class="admin-section-title">▌ GAME CATALOG</div>
-
+        <div class="action-bar">
+            <button class="btn-export" onclick="exportGameData()">⬇ EXPORT gameData.js</button>
+            <span style="font-family:var(--font-mo);font-size:16px;color:#4a7a8a;">* Export untuk update file assets/js/gameData.js di website</span>
+        </div>
         <div class="admin-table-wrap">
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>GAME TITLE</th>
-                        <th>GENRE</th>
-                        <th>PLATFORMS</th>
-                        <th>ACTIONS</th>
+                        <th>#</th><th>ICO</th><th>GAME TITLE</th><th>GENRE</th><th>PLATFORMS</th><th>ACTIONS</th>
                     </tr>
                 </thead>
-                <tbody id="gameTableBody">
-                    <!-- Populated by JS -->
-                </tbody>
+                <tbody id="gameTableBody"></tbody>
             </table>
         </div>
 
-        <!-- Activity Log -->
+        <!-- Log -->
         <div class="admin-section-title">▌ ACTIVITY LOG</div>
-
-        <div class="admin-log" id="activityLog">
-            <!-- Populated by JS -->
-        </div>
-
+        <div class="admin-log" id="activityLog"></div>
     </main>
 </div>
 
+<!-- Confirm Delete -->
+<div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+        <div class="confirm-title">⚠ KONFIRMASI HAPUS</div>
+        <div class="confirm-msg" id="confirmMsg">Hapus game ini?</div>
+        <div class="confirm-btns">
+            <button class="confirm-yes" id="confirmYes">[ YA, HAPUS ]</button>
+            <button class="confirm-no" onclick="closeConfirm()">[ BATAL ]</button>
+        </div>
+    </div>
+</div>
+
 <script>
-/* ════════════════════════════════════════════════
-   SECURITY CONFIG
-   ⚠  Change these before deploying!
-   ⚠  For production: move auth to a server-side backend.
-════════════════════════════════════════════════ */
+/* ── SECURITY CONFIG ── */
 const ADMIN_CREDENTIALS = {
-    // SHA-256 hash of password "GridAdmin2025!"
-    // Generate new hash: https://emn178.github.io/online-tools/sha256.html
     username: 'ZAKI',
     passHash: '821bc6e7ed5ec0007c1d7b88e8ffdd428df9ae1444325fd5c97a372773b31df4'
-    // ^ REPLACE THIS with real SHA-256 hash of your chosen password
 };
+const MAX_ATTEMPTS=5, LOCKOUT_SECONDS=300, SESSION_MINUTES=60;
+const SESSION_KEY='gs_admin_session', ATTEMPT_KEY='gs_admin_attempts', LOCKOUT_KEY='gs_admin_lockout';
+const GAMES_STORAGE='gs_catalog_games';
 
-const MAX_ATTEMPTS    = 5;    // Max login attempts before lockout
-const LOCKOUT_SECONDS = 300;  // 5-minute lockout
-const SESSION_MINUTES = 60;   // Session expiry in minutes
-const SESSION_KEY      = 'gs_admin_session';
-const ATTEMPT_KEY      = 'gs_admin_attempts';
-const LOCKOUT_KEY      = 'gs_admin_lockout';
-
-/* ── Simple SHA-256 (browser-native SubtleCrypto) ── */
 async function sha256(str) {
-    const buf = await crypto.subtle.digest('SHA-256',
-        new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf))
-        .map(b => b.toString(16).padStart(2, '0')).join('');
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
-
-/* ── Generate random token ── */
 function randToken() {
-    const arr = new Uint8Array(16);
-    crypto.getRandomValues(arr);
-    return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+    const a=new Uint8Array(16); crypto.getRandomValues(a);
+    return Array.from(a).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function getAttempts(){try{return JSON.parse(sessionStorage.getItem(ATTEMPT_KEY))||{count:0};}catch{return{count:0};}}
+function setAttempts(d){sessionStorage.setItem(ATTEMPT_KEY,JSON.stringify(d));}
+function isLockedOut(){const l=sessionStorage.getItem(LOCKOUT_KEY);if(!l)return false;const r=parseInt(l)-Date.now();return r>0?Math.ceil(r/1000):false;}
+function setLockout(){sessionStorage.setItem(LOCKOUT_KEY,Date.now()+LOCKOUT_SECONDS*1000);}
+function getSession(){try{return JSON.parse(sessionStorage.getItem(SESSION_KEY));}catch{return null;}}
+function setSession(user){const s={user,token:randToken(),exp:Date.now()+SESSION_MINUTES*60*1000,loginAt:new Date().toLocaleTimeString('id-ID')};sessionStorage.setItem(SESSION_KEY,JSON.stringify(s));return s;}
+function clearSession(){sessionStorage.removeItem(SESSION_KEY);}
+function isSessionValid(){const s=getSession();return s&&Date.now()<s.exp;}
+
+const logLines=[];
+function addLog(msg,type='evt'){const ts=new Date().toLocaleTimeString('id-ID',{hour12:false});logLines.push({ts,msg,type});renderLog();}
+function renderLog(){const el=document.getElementById('activityLog');if(!el)return;el.innerHTML=logLines.slice(-30).reverse().map(l=>`<div class="log-line"><span class="ts">[${l.ts}]</span><span class="${l.type==='warn'?'evt-warn':l.type==='err'?'evt-err':'evt'}">${escHtml(l.msg)}</span></div>`).join('');}
+function escHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+/* ── GAME CATALOG ── */
+const DEFAULT_GAMES=[
+    {id:'minecraft-parkour-2d',title:'Minecraft Parkun 2D',genre:'Arcade',desc:'Petualangan parkour seru 2D terinspirasi Minecraft.',icon:'../assets/img/mc_parkun_logo.png',platforms:[{name:'TapTap (Mobile)',url:'https://www.taptap.io/app/236072',cls:'btn-taptap'}]},
+    {id:'the-one-for-zombie',title:'THE ONE FOR ZOMBIE',genre:'Action',desc:'Game aksi bertahan hidup melawan gerombolan zombie.',icon:'../assets/img/one_zombie_logo.png',platforms:[{name:'TapTap (Mobile)',url:'https://www.taptap.io/app/346358',cls:'btn-taptap'}]},
+    {id:'desa-karya-investasi-zombie',title:'Desa Karya Investasi Zombie',genre:'Simulation',desc:'Manajemen desa, investasi, dan pertahanan zombie.',icon:'../assets/img/desa_invest_logo.png',platforms:[{name:'TapTap (Mobile)',url:'https://www.taptap.io/app/33703520',cls:'btn-taptap'},{name:'Itch.io',url:'https://zakifaisalofficial.itch.io/desa-cipta-karya-invensi-zombie',cls:'btn-itchio'}]},
+    {id:'gerbang-parkun-2d',title:'Gerbang Parkun 2D',genre:'Platformer',desc:'Parkour 2D kompetitif dengan speedrun challenge.',icon:'../assets/img/gerbang_parkun_logo.png',platforms:[{name:'Itch.io',url:'https://zakifaisalofficial.itch.io/gerbang-parkun-2d',cls:'btn-itchio'},{name:'TapTap (Mobile)',url:'https://www.taptap.io/app/33618770',cls:'btn-taptap'}]},
+    {id:'desa-cipta-karya-ch2',title:'Desa Cipta Karya Chapter 2',genre:'Simulation',desc:'Kelanjutan simulasi pembangunan desa.',icon:'../assets/img/cipta_karya2_logo.png',platforms:[{name:'TapTap (Mobile)',url:'https://www.taptap.io/app/33752652',cls:'btn-taptap'},{name:'Itch.io',url:'https://zakifaisalofficial.itch.io/desa-karya-chapter-2',cls:'btn-itchio'}]},
+    {id:'the-undeads-roblox',title:'The Undeads (Roblox)',genre:'Survival',desc:'Game survival zombie populer di Roblox.',icon:'../assets/img/undeads_roblox_logo.png',platforms:[{name:'Play on Roblox',url:'https://www.roblox.com/share?code=e4fd841cb9108b43bc5d7e7d9b47a2b3',cls:'btn-roblox'}]},
+    {id:'frequency-fury-obby',title:'Frequency Fury Obby (Roblox)',genre:'Arcade',desc:'Obby parkour menantang di Roblox.',icon:'../assets/img/frequency_fury_logo.png',platforms:[{name:'Play on Roblox',url:'https://www.roblox.com/id/games/113175281404228/Frequency-Fury-Obby',cls:'btn-roblox'}]}
+];
+
+function loadGames(){try{const s=localStorage.getItem(GAMES_STORAGE);if(s)return JSON.parse(s);}catch{}saveGames(DEFAULT_GAMES);return DEFAULT_GAMES;}
+function saveGames(g){localStorage.setItem(GAMES_STORAGE,JSON.stringify(g));}
+function getGames(){return loadGames();}
+
+let pendingIconDataUrl='';
+function handleIconUpload(e){
+    const file=e.target.files[0];if(!file)return;
+    if(file.size>2*1024*1024){showAlert('File terlalu besar (maks 2MB)','error');return;}
+    const reader=new FileReader();
+    reader.onload=ev=>{pendingIconDataUrl=ev.target.result;document.getElementById('iconPreview').innerHTML=`<img src="${pendingIconDataUrl}" alt="preview">`;};
+    reader.readAsDataURL(file);
 }
 
-/* ── Rate-limit helpers ── */
-function getAttempts() {
-    try { return JSON.parse(sessionStorage.getItem(ATTEMPT_KEY)) || { count: 0 }; }
-    catch { return { count: 0 }; }
+let platformRowCount=1;
+function addPlatformRow(){
+    const id='prow-'+platformRowCount++;
+    const row=document.createElement('div');row.className='platform-row';row.id=id;
+    row.innerHTML=`<select class="p-type"><option value="btn-taptap">TapTap</option><option value="btn-itchio">Itch.io</option><option value="btn-roblox">Roblox</option><option value="btn-amazon">Amazon</option><option value="btn-gplay">Google Play</option><option value="btn-steam">Steam</option></select><input class="p-url" type="url" placeholder="https://..."><button class="btn-rm-platform" onclick="removePlatform('${id}')" title="Hapus">×</button>`;
+    document.getElementById('platformBuilder').appendChild(row);
 }
-function setAttempts(data) { sessionStorage.setItem(ATTEMPT_KEY, JSON.stringify(data)); }
+function removePlatform(id){const el=document.getElementById(id);if(el)el.remove();}
 
-function isLockedOut() {
-    const lockout = sessionStorage.getItem(LOCKOUT_KEY);
-    if (!lockout) return false;
-    const remaining = parseInt(lockout) - Date.now();
-    return remaining > 0 ? Math.ceil(remaining / 1000) : false;
-}
-function setLockout() {
-    sessionStorage.setItem(LOCKOUT_KEY, Date.now() + LOCKOUT_SECONDS * 1000);
-}
-
-/* ── Session helpers ── */
-function getSession() {
-    try { return JSON.parse(sessionStorage.getItem(SESSION_KEY)); }
-    catch { return null; }
-}
-function setSession(user) {
-    const sess = {
-        user,
-        token: randToken(),
-        exp: Date.now() + SESSION_MINUTES * 60 * 1000,
-        loginAt: new Date().toLocaleTimeString('id-ID')
-    };
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(sess));
-    return sess;
-}
-function clearSession() { sessionStorage.removeItem(SESSION_KEY); }
-
-function isSessionValid() {
-    const s = getSession();
-    return s && Date.now() < s.exp;
+const PNAMES={'btn-taptap':'TapTap','btn-itchio':'Itch.io','btn-roblox':'Roblox','btn-amazon':'Amazon','btn-gplay':'Google Play','btn-steam':'Steam'};
+function collectPlatforms(){
+    const rows=document.querySelectorAll('#platformBuilder .platform-row');const result=[];
+    rows.forEach(row=>{const cls=row.querySelector('.p-type').value;const url=row.querySelector('.p-url').value.trim();if(url)result.push({name:PNAMES[cls]||cls,url,cls});});
+    return result;
 }
 
-/* ── Log helpers ── */
-const logLines = [];
-function addLog(msg, type = 'evt') {
-    const ts = new Date().toLocaleTimeString('id-ID', { hour12: false });
-    logLines.push({ ts, msg, type });
-    renderLog();
+function submitAddGame(){
+    const title=document.getElementById('fg-title').value.trim();
+    const genre=document.getElementById('fg-genre').value;
+    const desc=document.getElementById('fg-desc').value.trim();
+    const platforms=collectPlatforms();
+    if(!title){showAlert('Judul game wajib diisi!','error');return;}
+    if(!genre){showAlert('Pilih genre game!','error');return;}
+    const games=getGames();
+    const id=title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+    if(games.find(g=>g.id===id)){showAlert('Game dengan judul ini sudah ada!','error');return;}
+    games.push({id,title,genre,desc:desc||'Game baru dari Grid Survival.',icon:pendingIconDataUrl||'',platforms});
+    saveGames(games);
+    showAlert(`Game "${title}" berhasil ditambahkan!`,'success');
+    addLog(`GAME ADDED — "${title}" | Genre: ${genre}`);
+    // Reset form
+    document.getElementById('fg-title').value='';
+    document.getElementById('fg-genre').value='';
+    document.getElementById('fg-desc').value='';
+    document.getElementById('iconPreview').innerHTML='<i class="fas fa-gamepad"></i>';
+    pendingIconDataUrl='';
+    document.getElementById('platformBuilder').innerHTML=`<div class="platform-row" id="prow-0"><select class="p-type"><option value="btn-taptap">TapTap</option><option value="btn-itchio">Itch.io</option><option value="btn-roblox">Roblox</option><option value="btn-amazon">Amazon</option><option value="btn-gplay">Google Play</option><option value="btn-steam">Steam</option></select><input class="p-url" type="url" placeholder="https://..."><button class="btn-rm-platform" onclick="removePlatform('prow-0')" title="Hapus">×</button></div>`;
+    platformRowCount=1;
+    renderGameTable();updateStats();
 }
-function renderLog() {
-    const el = document.getElementById('activityLog');
-    if (!el) return;
-    el.innerHTML = logLines.slice(-30).reverse().map(l =>
-        `<div class="log-line">
-            <span class="ts">[${l.ts}]</span>
-            <span class="${l.type === 'warn' ? 'evt-warn' : l.type === 'err' ? 'evt-err' : 'evt'}">${escHtml(l.msg)}</span>
-        </div>`
-    ).join('');
+
+let pendingDeleteId=null;
+function confirmDelete(id,title){
+    pendingDeleteId=id;
+    document.getElementById('confirmMsg').textContent=`Hapus game "${title}" dari katalog?`;
+    document.getElementById('confirmOverlay').classList.add('show');
+    document.getElementById('confirmYes').onclick=()=>{deleteGame(pendingDeleteId);closeConfirm();};
+}
+function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('show');pendingDeleteId=null;}
+function deleteGame(id){
+    let games=getGames();const game=games.find(g=>g.id===id);if(!game)return;
+    games=games.filter(g=>g.id!==id);saveGames(games);
+    addLog(`GAME DELETED — "${game.title}"`,'warn');
+    showAlert(`Game "${game.title}" dihapus.`,'success');
+    renderGameTable();updateStats();
 }
 
-function escHtml(str) {
-    return str.replace(/[&<>"']/g, c =>
-        ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+function showAlert(msg,type){const el=document.getElementById('alertBox');el.textContent=`> ${msg}`;el.className=`alert ${type} show`;setTimeout(()=>el.classList.remove('show'),4000);}
+
+const GENRE_BADGE={'Arcade':'badge-arcade','Action':'badge-action','Simulation':'badge-sim','Platformer':'badge-platform','Survival':'badge-survival'};
+function renderGameTable(){
+    const tbody=document.getElementById('gameTableBody');const games=getGames();
+    if(!games.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:#2a4a5a;padding:30px;">Belum ada game.</td></tr>';return;}
+    tbody.innerHTML=games.map((g,i)=>`<tr>
+        <td style="color:var(--cyan);font-family:'Press Start 2P',monospace;font-size:0.5em;">${String(i+1).padStart(2,'0')}</td>
+        <td>${g.icon?`<img src="${escHtml(g.icon)}" class="game-icon-cell" alt="${escHtml(g.title)}">`:`<span class="game-icon-placeholder"><i class="fas fa-gamepad"></i></span>`}</td>
+        <td>${escHtml(g.title)}</td>
+        <td><span class="badge ${GENRE_BADGE[g.genre]||'custom-badge'}">${escHtml(g.genre)}</span></td>
+        <td>${g.platforms.map(p=>`<span style="margin-right:6px;color:#4a7a8a;">${escHtml(p.name)}</span>`).join('')||'—'}</td>
+        <td><a href="../index.html" target="_blank" class="btn-small">VIEW</a><button class="btn-delete" onclick="confirmDelete('${escHtml(g.id)}','${escHtml(g.title).replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">HAPUS</button></td>
+    </tr>`).join('');
 }
 
-/* ════════════════════════════════════════════════
-   LOGIN LOGIC
-════════════════════════════════════════════════ */
-async function doLogin() {
-    const errEl     = document.getElementById('loginErr');
-    const attEl     = document.getElementById('loginAttempts');
-    const lockEl    = document.getElementById('lockoutMsg');
-    const btnEl     = document.getElementById('loginBtn');
-    errEl.textContent = '';
+function updateStats(){
+    const games=getGames();
+    document.getElementById('statTotal').textContent=games.length;
+    document.getElementById('statRoblox').textContent=games.filter(g=>g.platforms.some(p=>p.cls==='btn-roblox')).length;
+    const plats=new Set(games.flatMap(g=>g.platforms.map(p=>p.cls)));
+    document.getElementById('statPlatforms').textContent=plats.size||0;
+}
 
-    /* Check lockout */
-    const remaining = isLockedOut();
-    if (remaining) {
-        showLockout(remaining);
-        return;
-    }
+function exportGameData(){
+    const games=getGames();
+    const mapped=games.map(g=>({
+        id:g.id,title:g.title,
+        logo:g.icon&&g.icon.startsWith('data:')?g.icon:(g.icon||'assets/img/studio_logo.png'),
+        thumb:g.icon&&g.icon.startsWith('data:')?g.icon:(g.icon||'assets/img/studio_logo.png'),
+        desc:g.desc,genre:g.genre,gallery:[],platforms:g.platforms,developer:'Grid Survival'
+    }));
+    const jsContent=`// assets/js/gameData.js\n// Auto-generated from Admin Panel — ${new Date().toLocaleString('id-ID')}\n\nconst gameData = ${JSON.stringify(mapped,null,4)};\n`;
+    const blob=new Blob([jsContent],{type:'text/javascript'});
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='gameData.js';a.click();URL.revokeObjectURL(url);
+    addLog('EXPORTED gameData.js — '+games.length+' games');
+    showAlert('gameData.js diexport! Upload ke assets/js/ di website.','success');
+}
 
-    const user = document.getElementById('adminUser').value.trim();
-    const pass = document.getElementById('adminPass').value;
-
-    if (!user || !pass) {
-        errEl.textContent = '> ERROR: FIELDS CANNOT BE EMPTY';
-        return;
-    }
-
-    /* Disable button during hash */
-    btnEl.disabled = true;
-    btnEl.textContent = '[ AUTHENTICATING... ]';
-
-    try {
-        const hash = await sha256(pass);
-        const attempts = getAttempts();
-
-        if (user === ADMIN_CREDENTIALS.username && hash === ADMIN_CREDENTIALS.passHash) {
-            /* ✅ SUCCESS */
-            setAttempts({ count: 0 });
-            sessionStorage.removeItem(LOCKOUT_KEY);
-            const sess = setSession(user);
-
-            addLog(`LOGIN OK — user: ${user} | session: ${sess.token.slice(0,8)}…`);
-            showAdmin(sess);
-        } else {
-            /* ❌ FAIL */
-            attempts.count = (attempts.count || 0) + 1;
-            setAttempts(attempts);
-
-            const left = MAX_ATTEMPTS - attempts.count;
-            addLog(`LOGIN FAILED — user: ${user} | attempt ${attempts.count}/${MAX_ATTEMPTS}`, 'warn');
-
-            if (attempts.count >= MAX_ATTEMPTS) {
-                setLockout();
-                setAttempts({ count: 0 });
-                addLog(`ACCOUNT LOCKED — too many failed attempts`, 'err');
-                showLockout(LOCKOUT_SECONDS);
-            } else {
-                errEl.textContent = `> ACCESS DENIED — ${left} ATTEMPT${left !== 1 ? 'S' : ''} REMAINING`;
-                attEl.textContent = `[ ${attempts.count}/${MAX_ATTEMPTS} ATTEMPTS USED ]`;
-            }
+/* ── LOGIN LOGIC ── */
+async function doLogin(){
+    const errEl=document.getElementById('loginErr'),attEl=document.getElementById('loginAttempts'),btnEl=document.getElementById('loginBtn');
+    errEl.textContent='';
+    const remaining=isLockedOut();if(remaining){showLockout(remaining);return;}
+    const user=document.getElementById('adminUser').value.trim(),pass=document.getElementById('adminPass').value;
+    if(!user||!pass){errEl.textContent='> ERROR: FIELDS CANNOT BE EMPTY';return;}
+    btnEl.disabled=true;btnEl.textContent='[ AUTHENTICATING... ]';
+    try{
+        const hash=await sha256(pass),attempts=getAttempts();
+        if(user===ADMIN_CREDENTIALS.username&&hash===ADMIN_CREDENTIALS.passHash){
+            setAttempts({count:0});sessionStorage.removeItem(LOCKOUT_KEY);
+            const sess=setSession(user);addLog(`LOGIN OK — user: ${user} | session: ${sess.token.slice(0,8)}…`);showAdmin(sess);
+        }else{
+            attempts.count=(attempts.count||0)+1;setAttempts(attempts);
+            const left=MAX_ATTEMPTS-attempts.count;
+            addLog(`LOGIN FAILED — user: ${user} | attempt ${attempts.count}/${MAX_ATTEMPTS}`,'warn');
+            if(attempts.count>=MAX_ATTEMPTS){setLockout();setAttempts({count:0});addLog('ACCOUNT LOCKED','err');showLockout(LOCKOUT_SECONDS);}
+            else{errEl.textContent=`> ACCESS DENIED — ${left} ATTEMPT${left!==1?'S':''} REMAINING`;attEl.textContent=`[ ${attempts.count}/${MAX_ATTEMPTS} ATTEMPTS USED ]`;}
         }
-    } catch (e) {
-        errEl.textContent = '> SYSTEM ERROR — TRY AGAIN';
-        console.error(e);
-    } finally {
-        btnEl.disabled = false;
-        btnEl.textContent = '[ ENTER SYSTEM ]';
-        document.getElementById('adminPass').value = '';
-    }
+    }catch(e){errEl.textContent='> SYSTEM ERROR — TRY AGAIN';console.error(e);}
+    finally{btnEl.disabled=false;btnEl.textContent='[ ENTER SYSTEM ]';document.getElementById('adminPass').value='';}
 }
 
-function showLockout(seconds) {
-    const lockEl = document.getElementById('lockoutMsg');
-    const btnEl  = document.getElementById('loginBtn');
-    const errEl  = document.getElementById('loginErr');
-    errEl.textContent = '';
-    btnEl.disabled = true;
-
-    let remaining = seconds;
-    lockEl.style.display = 'block';
-
-    const tick = () => {
-        const m = String(Math.floor(remaining / 60)).padStart(2, '0');
-        const s = String(remaining % 60).padStart(2, '0');
-        lockEl.textContent = `⛔ LOCKED — WAIT ${m}:${s} BEFORE RETRY`;
-        if (remaining-- > 0) {
-            setTimeout(tick, 1000);
-        } else {
-            lockEl.style.display = 'none';
-            btnEl.disabled = false;
-            document.getElementById('loginAttempts').textContent = '';
-        }
-    };
+function showLockout(seconds){
+    const lockEl=document.getElementById('lockoutMsg'),btnEl=document.getElementById('loginBtn'),errEl=document.getElementById('loginErr');
+    errEl.textContent='';btnEl.disabled=true;let remaining=seconds;lockEl.style.display='block';
+    const tick=()=>{const m=String(Math.floor(remaining/60)).padStart(2,'0'),s=String(remaining%60).padStart(2,'0');lockEl.textContent=`⛔ LOCKED — WAIT ${m}:${s} BEFORE RETRY`;if(remaining-->0)setTimeout(tick,1000);else{lockEl.style.display='none';btnEl.disabled=false;document.getElementById('loginAttempts').textContent='';}};
     tick();
 }
 
-/* ════════════════════════════════════════════════
-   ADMIN PANEL
-════════════════════════════════════════════════ */
-function showAdmin(sess) {
-    document.getElementById('loginWrap').style.display = 'none';
+function showAdmin(sess){
+    document.getElementById('loginWrap').style.display='none';
     document.getElementById('adminWrap').classList.add('show');
-
-    document.getElementById('adminUserDisplay').textContent = `[ ${sess.user.toUpperCase()} ]`;
-    document.getElementById('sessionId').textContent = sess.token.slice(0, 12) + '…';
-    document.getElementById('loginTime').textContent = sess.loginAt;
-
-    renderGameTable();
-    startSessionTimer(sess);
-
-    addLog('Admin panel loaded');
+    document.getElementById('adminUserDisplay').textContent=`[ ${sess.user.toUpperCase()} ]`;
+    document.getElementById('sessionId').textContent=sess.token.slice(0,12)+'…';
+    document.getElementById('loginTime').textContent=sess.loginAt;
+    renderGameTable();updateStats();startSessionTimer(sess);startAdminCharAnim();
+    addLog('Admin panel loaded — Game catalog ready');
     addLog(`Session expires in ${SESSION_MINUTES} minutes`);
 }
 
-function doLogout() {
-    addLog('LOGOUT — session terminated', 'warn');
-    clearSession();
-    location.reload();
+function doLogout(){addLog('LOGOUT — session terminated','warn');clearSession();location.reload();}
+
+function startSessionTimer(sess){
+    const timerEl=document.getElementById('sessionTimer');
+    const interval=setInterval(()=>{
+        const remaining=Math.max(0,sess.exp-Date.now());
+        if(remaining===0){clearInterval(interval);addLog('SESSION EXPIRED — auto logout','err');setTimeout(()=>{clearSession();location.reload();},2000);return;}
+        const m=String(Math.floor(remaining/60000)).padStart(2,'0'),s=String(Math.floor((remaining%60000)/1000)).padStart(2,'0');
+        timerEl.textContent=`${m}:${s}`;
+    },1000);
 }
 
-/* ── Session countdown timer ── */
-function startSessionTimer(sess) {
-    const timerEl = document.getElementById('sessionTimer');
-    const interval = setInterval(() => {
-        const remaining = Math.max(0, sess.exp - Date.now());
-        if (remaining === 0) {
-            clearInterval(interval);
-            addLog('SESSION EXPIRED — auto logout', 'err');
-            setTimeout(() => { clearSession(); location.reload(); }, 2000);
-            return;
-        }
-        const m = String(Math.floor(remaining / 60000)).padStart(2, '0');
-        const s = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
-        timerEl.textContent = `${m}:${s}`;
-    }, 1000);
+/* ── PIXEL CHAR in NAV ── */
+function startAdminCharAnim(){
+    const canvas=document.getElementById('adminCharCanvas');if(!canvas)return;
+    const ctx=canvas.getContext('2d');const SC=3;
+    const C={_:null,S:'#f5c88a',H:'#5a3e1b',G:'#2a7a3a',T:'#1a5a2a',R:'#00e5ff',B:'#3a2a1a',D:'#8b6b4a',N:'#080c10'};
+    const frames=[
+        [[C._,C.N,C.N,C.N,C.N,C._],[C.N,C.H,C.S,C.S,C.H,C.N],[C.N,C.S,C.R,C.S,C.S,C.N],[C.N,C.S,C.S,C.S,C.S,C.N],[C._,C.N,C.N,C.N,C.N,C._],[C.N,C.G,C.G,C.G,C.G,C.N],[C.N,C.T,C.G,C.G,C.T,C.N],[C._,C.N,C.N,C.N,C.N,C._],[C._,C.B,C.N,C.N,C.B,C._],[C.N,C.D,C.N,C.N,C.D,C.N]],
+        [[C._,C.N,C.N,C.N,C.N,C._],[C.N,C.H,C.S,C.S,C.H,C.N],[C.N,C.S,C.S,C.S,C.R,C.N],[C.N,C.S,C.S,C.S,C.S,C.N],[C._,C.N,C.N,C.N,C.N,C._],[C.N,C.G,C.G,C.G,C.G,C.N],[C.N,C.T,C.G,C.G,C.T,C.N],[C._,C.N,C.N,C.N,C.N,C._],[C._,C.B,C.N,C.N,C.B,C._],[C._,C.N,C.D,C.D,C.N,C._]]
+    ];
+    function draw(f){ctx.clearRect(0,0,canvas.width,canvas.height);frames[f].forEach((row,ry)=>row.forEach((color,rx)=>{if(!color)return;ctx.fillStyle=color;ctx.fillRect(rx*SC,ry*SC,SC,SC);}));}
+    let f=0;setInterval(()=>{draw(f);f=(f+1)%2;},250);
 }
 
-/* ── Game Table ── */
-const GAMES_ADMIN = [
-    { title: 'Minecraft Parkun 2D',          genre: 'Arcade',         platforms: ['TapTap'] },
-    { title: 'THE ONE FOR ZOMBIE',            genre: 'Action',         platforms: ['TapTap'] },
-    { title: 'Desa Karya Investasi Zombie',   genre: 'Simulation',     platforms: ['TapTap', 'Itch.io'] },
-    { title: 'Gerbang Parkun 2D',            genre: 'Platformer',     platforms: ['Itch.io', 'TapTap'] },
-    { title: 'Desa Cipta Karya Chapter 2',   genre: 'Simulation',     platforms: ['TapTap', 'Itch.io', 'Amazon'] },
-    { title: 'The Undeads (Roblox)',          genre: 'Survival',       platforms: ['Roblox'] },
-    { title: 'Frequency Fury Obby',           genre: 'Arcade',         platforms: ['Roblox'] }
-];
-
-const GENRE_BADGE = {
-    'Arcade':     'badge-arcade',
-    'Action':     'badge-action',
-    'Simulation': 'badge-sim',
-    'Platformer': 'badge-platform',
-    'Survival':   'badge-survival'
-};
-
-function renderGameTable() {
-    const tbody = document.getElementById('gameTableBody');
-    tbody.innerHTML = GAMES_ADMIN.map((g, i) => `
-        <tr>
-            <td style="color:var(--cyan);font-family:'Press Start 2P',monospace;font-size:0.5em;">${String(i + 1).padStart(2, '0')}</td>
-            <td>${escHtml(g.title)}</td>
-            <td><span class="badge ${GENRE_BADGE[g.genre] || ''}">${escHtml(g.genre)}</span></td>
-            <td>${g.platforms.map(p => `<span style="margin-right:6px;color:#4a7a8a;">${escHtml(p)}</span>`).join('')}</td>
-            <td>
-                <a href="../index.html" target="_blank" class="btn-small">VIEW</a>
-            </td>
-        </tr>
-    `).join('');
-}
-
-/* ════════════════════════════════════════════════
-   INIT — Check existing session
-════════════════════════════════════════════════ */
-(function init() {
-    /* Allow Enter key on login */
-    ['adminUser', 'adminPass'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('keydown', e => {
-            if (e.key === 'Enter') doLogin();
-        });
-    });
-
-    /* Check lockout on load */
-    const remaining = isLockedOut();
-    if (remaining) showLockout(remaining);
-
-    /* Restore session if valid */
-    if (isSessionValid()) {
-        const sess = getSession();
-        addLog(`Session restored — user: ${sess.user}`);
-        showAdmin(sess);
-    } else {
-        clearSession();
-        addLog('Admin panel initialized — awaiting authentication');
-    }
-
-    /* Block right-click + F12 on admin */
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    document.addEventListener('keydown', e => {
-        if (e.key === 'F12' ||
-            (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) ||
-            (e.ctrlKey && e.key === 'U')) {
-            e.preventDefault();
-        }
-    });
+/* ── INIT ── */
+(function init(){
+    ['adminUser','adminPass'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});});
+    const remaining=isLockedOut();if(remaining)showLockout(remaining);
+    if(isSessionValid()){const sess=getSession();addLog(`Session restored — user: ${sess.user}`);showAdmin(sess);}
+    else{clearSession();addLog('Admin panel initialized — awaiting authentication');}
+    document.addEventListener('contextmenu',e=>e.preventDefault());
+    document.addEventListener('keydown',e=>{if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key))||(e.ctrlKey&&e.key==='U'))e.preventDefault();});
 })();
 </script>
 </body>

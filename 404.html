@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 — GAME OVER | Grid Survival</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+        :root {
+            --cyan:   #00e5ff;
+            --green:  #00ff41;
+            --yellow: #ffe600;
+            --red:    #ff3c3c;
+            --purple: #c86fdf;
+            --bg:     #080c10;
+            --panel:  #0d1117;
+            --font-pixel: 'Press Start 2P', monospace;
+            --font-mono: 'VT323', monospace;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
+
+        body {
+            font-family: var(--font-mono);
+            background-color: var(--bg);
+            color: var(--cyan);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+        }
+
+        /* ── SCANLINE OVERLAY ── */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent 0px, transparent 3px, rgba(0,255,65,0.015) 3px, rgba(0,255,65,0.015) 4px);
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* ── FLOATING PIXELS BG ── */
+        .bg-pixels {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .px {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--cyan);
+            opacity: 0;
+            animation: floatPx linear infinite;
+        }
+
+        @keyframes floatPx {
+            0%   { opacity: 0; transform: translateY(100vh) rotate(0deg); }
+            10%  { opacity: 0.6; }
+            90%  { opacity: 0.3; }
+            100% { opacity: 0; transform: translateY(-20px) rotate(360deg); }
+        }
+
+        /* ── MAIN CONTAINER ── */
+        .container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        /* ── 404 GLITCH TEXT ── */
+        .glitch-wrap {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .err-404 {
+            font-family: var(--font-pixel);
+            font-size: clamp(48px, 12vw, 96px);
+            color: var(--red);
+            text-shadow:
+                3px 3px 0 #000,
+                0 0 20px var(--red),
+                0 0 40px rgba(255,60,60,0.4);
+            display: inline-block;
+            animation: glitch 2s infinite;
+            position: relative;
+        }
+
+        .err-404::before,
+        .err-404::after {
+            content: '404';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+        }
+        .err-404::before {
+            color: var(--cyan);
+            animation: glitchB 2s infinite;
+            clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+            opacity: 0.7;
+        }
+        .err-404::after {
+            color: var(--purple);
+            animation: glitchC 2s infinite;
+            clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+            opacity: 0.7;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: none; }
+            91% { transform: skewX(-2deg) translateX(-3px); }
+            92% { transform: skewX(2deg) translateX(3px); }
+            93% { transform: none; }
+        }
+        @keyframes glitchB {
+            0%, 90%, 100% { transform: none; }
+            91% { transform: translateX(-5px); }
+            92% { transform: translateX(4px); }
+            93% { transform: none; }
+        }
+        @keyframes glitchC {
+            0%, 90%, 100% { transform: none; }
+            91% { transform: translateX(5px); }
+            92% { transform: translateX(-4px); }
+            93% { transform: none; }
+        }
+
+        /* ── GAME OVER TEXT ── */
+        .game-over {
+            font-family: var(--font-pixel);
+            font-size: clamp(10px, 3vw, 18px);
+            color: var(--yellow);
+            letter-spacing: 4px;
+            text-shadow: 2px 2px 0 #000, 0 0 15px var(--yellow);
+            animation: blink 1.2s steps(1) infinite;
+            margin-bottom: 30px;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* ── PIXEL CHARACTER STAGE ── */
+        .stage {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 0;
+            margin: 20px auto;
+            height: 140px;
+            position: relative;
+        }
+
+        /* ── PIXEL CHARACTER (zombie pixel art via CSS) ── */
+        canvas#character {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        /* ── MESSAGE BOX ── */
+        .msg-box {
+            border: 2px solid var(--cyan);
+            box-shadow: 4px 4px 0 #000, 0 0 10px rgba(0,229,255,0.2);
+            background: var(--panel);
+            padding: 20px 24px;
+            margin: 0 auto 28px;
+            max-width: 500px;
+            text-align: left;
+            position: relative;
+        }
+        .msg-box::before {
+            content: '▌SYSTEM';
+            position: absolute;
+            top: -10px; left: 12px;
+            background: var(--panel);
+            padding: 0 6px;
+            font-family: var(--font-pixel);
+            font-size: 8px;
+            color: var(--cyan);
+        }
+
+        .msg-line {
+            font-family: var(--font-mono);
+            font-size: 20px;
+            color: var(--green);
+            line-height: 1.5;
+            margin-bottom: 4px;
+        }
+        .msg-line .dim   { color: #2a4a5a; }
+        .msg-line .warn  { color: var(--yellow); }
+        .msg-line .err   { color: var(--red); }
+
+        /* ── BUTTONS ── */
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-home {
+            font-family: var(--font-pixel);
+            font-size: clamp(7px, 1.5vw, 10px);
+            background: transparent;
+            color: var(--green);
+            border: 2px solid var(--green);
+            box-shadow: 4px 4px 0 #000, 0 0 10px rgba(0,255,65,0.15);
+            padding: 14px 22px;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-block;
+            transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
+            position: relative;
+        }
+        .btn-home::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--green);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.2s;
+            z-index: -1;
+        }
+        .btn-home:hover {
+            color: #000;
+            background: var(--green);
+            box-shadow: 6px 6px 0 #000, 0 0 20px rgba(0,255,65,0.4);
+            transform: translate(-2px, -2px);
+        }
+        .btn-home.secondary {
+            color: var(--cyan);
+            border-color: var(--cyan);
+        }
+        .btn-home.secondary:hover {
+            color: #000;
+            background: var(--cyan);
+            box-shadow: 6px 6px 0 #000, 0 0 20px rgba(0,229,255,0.4);
+        }
+
+        /* ── PROGRESS BAR (loading effect) ── */
+        .progress-wrap {
+            margin: 0 auto 24px;
+            max-width: 400px;
+        }
+        .progress-label {
+            font-family: var(--font-pixel);
+            font-size: 7px;
+            color: #2a4a5a;
+            text-align: left;
+            margin-bottom: 6px;
+        }
+        .progress-bar {
+            height: 12px;
+            border: 2px solid #1e3040;
+            background: #0d1117;
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0;
+            background: repeating-linear-gradient(90deg, var(--red) 0, var(--red) 8px, #c00 8px, #c00 10px);
+            animation: fill404 1.8s steps(20) forwards 0.3s;
+        }
+        @keyframes fill404 { to { width: 100%; } }
+
+        .progress-bar::after {
+            content: 'ERROR';
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: var(--font-pixel);
+            font-size: 6px;
+            color: var(--red);
+        }
+
+        /* ── FOOTER NOTE ── */
+        .footer-note {
+            font-family: var(--font-mono);
+            font-size: 16px;
+            color: #2a4a5a;
+            margin-top: 24px;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 480px) {
+            .btn-group { flex-direction: column; align-items: center; }
+            .btn-home { width: 220px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Floating pixel bg -->
+<div class="bg-pixels" id="bgPixels"></div>
+
+<div class="container">
+
+    <!-- 404 Title -->
+    <div class="glitch-wrap">
+        <div class="err-404">404</div>
+    </div>
+    <div class="game-over">— GAME OVER —</div>
+
+    <!-- Pixel character animation canvas -->
+    <div class="stage">
+        <canvas id="character" width="160" height="120"></canvas>
+    </div>
+
+    <!-- Progress / loading bar -->
+    <div class="progress-wrap">
+        <div class="progress-label">LOADING PAGE... FATAL ERROR</div>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+    </div>
+
+    <!-- Message box -->
+    <div class="msg-box">
+        <div class="msg-line"><span class="dim">$</span> GET /page-not-found</div>
+        <div class="msg-line"><span class="err">ERR:</span> 404 — Halaman tidak ditemukan</div>
+        <div class="msg-line"><span class="warn">INF:</span> Zombie mungkin sudah memakannya.</div>
+        <div class="msg-line"><span class="dim">$</span> Kembali ke base camp...</div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="btn-group">
+        <a href="/" class="btn-home">▶ RESPAWN (HOME)</a>
+        <a href="/#games" class="btn-home secondary">▶ LIHAT GAMES</a>
+    </div>
+
+    <div class="footer-note">grid-survival.netlify.app &nbsp;|&nbsp; © 2025 Grid Survival</div>
+</div>
+
+<script>
+/* ── FLOATING PIXELS ── */
+const bg = document.getElementById('bgPixels');
+for (let i = 0; i < 30; i++) {
+    const px = document.createElement('div');
+    px.className = 'px';
+    const colors = ['#00e5ff','#00ff41','#ffe600','#ff3c3c','#c86fdf'];
+    px.style.cssText = `
+        left: ${Math.random()*100}%;
+        background: ${colors[Math.floor(Math.random()*colors.length)]};
+        width: ${[4,6,8][Math.floor(Math.random()*3)]}px;
+        height: ${[4,6,8][Math.floor(Math.random()*3)]}px;
+        animation-duration: ${4 + Math.random()*8}s;
+        animation-delay: ${Math.random()*6}s;
+    `;
+    bg.appendChild(px);
+}
+
+/* ── PIXEL CHARACTER ANIMATION (zombie/survivor walking) ── */
+const canvas = document.getElementById('character');
+const ctx = canvas.getContext('2d');
+const SCALE = 5;
+
+// Pixel art frames — tiny 8x12 sprite, 2 walk frames
+// Colors: head=skin, body=green(survivor jacket), legs=brown
+const C = {
+    _: null,           // transparent
+    S: '#f5c88a',      // skin
+    H: '#5a3e1b',      // hair / dark
+    G: '#2a7a3a',      // jacket green
+    T: '#1a5a2a',      // jacket shadow
+    R: '#c86fdf',      // accent (eye glow)
+    B: '#3a2a1a',      // pants dark
+    D: '#8b6b4a',      // pants mid
+    W: '#e0e0e0',      // shirt white
+    X: '#ff3c3c',      // red detail
+    Y: '#ffe600',      // yellow
+    N: '#080c10',      // outline
+};
+
+// Frame 1 & 2 of a walking zombie/survivor (8x14 grid)
+const frames = [
+    [
+        [C._,C.N,C.N,C.N,C.N,C.N,C._,C._],
+        [C.N,C.H,C.H,C.S,C.H,C.H,C.N,C._],
+        [C.N,C.S,C.R,C.S,C.S,C.H,C.N,C._],
+        [C.N,C.S,C.S,C.S,C.S,C.S,C.N,C._],
+        [C.N,C.S,C.S,C.S,C.S,C.S,C.N,C._],
+        [C._,C.N,C.N,C.N,C.N,C.N,C._,C._],
+        [C.N,C.G,C.G,C.G,C.G,C.G,C.N,C._],
+        [C.N,C.G,C.X,C.G,C.G,C.G,C.N,C._],
+        [C.N,C.T,C.G,C.G,C.G,C.T,C.N,C._],
+        [C._,C.N,C.N,C.N,C.N,C.N,C._,C._],
+        [C._,C.N,C.B,C.N,C.N,C.B,C.N,C._],
+        [C._,C.N,C.D,C.N,C.N,C.D,C.N,C._],
+        [C.N,C.D,C.N,C._,C._,C.N,C.B,C.N],
+        [C.N,C.B,C.N,C._,C._,C.N,C.N,C.N],
+    ],
+    [
+        [C._,C.N,C.N,C.N,C.N,C.N,C._,C._],
+        [C.N,C.H,C.H,C.S,C.H,C.H,C.N,C._],
+        [C.N,C.S,C.S,C.S,C.R,C.H,C.N,C._],
+        [C.N,C.S,C.S,C.S,C.S,C.S,C.N,C._],
+        [C.N,C.S,C.S,C.S,C.S,C.S,C.N,C._],
+        [C._,C.N,C.N,C.N,C.N,C.N,C._,C._],
+        [C.N,C.G,C.G,C.G,C.G,C.G,C.N,C._],
+        [C.N,C.G,C.G,C.X,C.G,C.G,C.N,C._],
+        [C.N,C.T,C.G,C.G,C.G,C.T,C.N,C._],
+        [C._,C.N,C.N,C.N,C.N,C.N,C._,C._],
+        [C._,C.N,C.B,C.N,C.N,C.B,C.N,C._],
+        [C._,C.N,C.D,C.N,C.N,C.D,C.N,C._],
+        [C._,C._,C.N,C.B,C.N,C._,C.N,C._],
+        [C._,C._,C.N,C.N,C.N,C._,C._,C._],
+    ]
+];
+
+// Second character: zombie (darker, shambling)
+const Z = {
+    _: null,
+    S: '#7aad70',  // zombie green skin
+    H: '#2a3a1a',  // dark
+    G: '#3a3a3a',  // ragged shirt
+    T: '#252525',
+    R: '#ff3c3c',  // red eyes
+    B: '#2a1a1a',
+    D: '#4a3a2a',
+    W: '#555',
+    X: '#884444',
+    N: '#080c10',
+};
+
+const zombieFrames = [
+    [
+        [Z._,Z.N,Z.N,Z.N,Z.N,Z.N,Z._,Z._],
+        [Z.N,Z.H,Z.H,Z.S,Z.H,Z.H,Z.N,Z._],
+        [Z.N,Z.S,Z.R,Z.S,Z.S,Z.H,Z.N,Z._],
+        [Z.N,Z.S,Z.S,Z.S,Z.S,Z.S,Z.N,Z._],
+        [Z.N,Z.S,Z.S,Z.X,Z.S,Z.S,Z.N,Z._],
+        [Z._,Z.N,Z.N,Z.N,Z.N,Z.N,Z._,Z._],
+        [Z.N,Z.G,Z.G,Z.G,Z.G,Z.G,Z.N,Z._],
+        [Z.N,Z.T,Z.G,Z.G,Z.G,Z.T,Z.N,Z._],
+        [Z.N,Z.T,Z.T,Z.G,Z.T,Z.T,Z.N,Z._],
+        [Z._,Z.N,Z.N,Z.N,Z.N,Z.N,Z._,Z._],
+        [Z._,Z.N,Z.B,Z.N,Z.N,Z.B,Z.N,Z._],
+        [Z._,Z.N,Z.D,Z.N,Z.N,Z.D,Z.N,Z._],
+        [Z.N,Z.D,Z.N,Z._,Z.N,Z.D,Z.N,Z._],
+        [Z.N,Z.B,Z.N,Z._,Z.N,Z.N,Z._,Z._],
+    ],
+    [
+        [Z._,Z.N,Z.N,Z.N,Z.N,Z.N,Z._,Z._],
+        [Z.N,Z.H,Z.H,Z.S,Z.H,Z.H,Z.N,Z._],
+        [Z.N,Z.S,Z.S,Z.S,Z.R,Z.H,Z.N,Z._],
+        [Z.N,Z.S,Z.S,Z.S,Z.S,Z.S,Z.N,Z._],
+        [Z.N,Z.X,Z.S,Z.S,Z.S,Z.S,Z.N,Z._],
+        [Z._,Z.N,Z.N,Z.N,Z.N,Z.N,Z._,Z._],
+        [Z.N,Z.G,Z.G,Z.G,Z.G,Z.G,Z.N,Z._],
+        [Z.N,Z.T,Z.G,Z.G,Z.T,Z.G,Z.N,Z._],
+        [Z.N,Z.T,Z.T,Z.G,Z.T,Z.T,Z.N,Z._],
+        [Z._,Z.N,Z.N,Z.N,Z.N,Z.N,Z._,Z._],
+        [Z._,Z.N,Z.B,Z.N,Z.N,Z.B,Z.N,Z._],
+        [Z._,Z.N,Z.D,Z.N,Z.N,Z.D,Z.N,Z._],
+        [Z._,Z._,Z.N,Z.B,Z.N,Z._,Z.N,Z._],
+        [Z._,Z._,Z.N,Z.N,Z.N,Z._,Z._,Z._],
+    ]
+];
+
+function drawSprite(frameData, offsetX, offsetY, scale) {
+    frameData.forEach((row, ry) => {
+        row.forEach((color, rx) => {
+            if (!color) return;
+            ctx.fillStyle = color;
+            ctx.fillRect(offsetX + rx * scale, offsetY + ry * scale, scale, scale);
+        });
+    });
+}
+
+let frame = 0;
+let survivorX = -50;
+let zombieX = canvas.width + 50;
+const SURVIVOR_Y = 10;
+const ZOMBIE_Y = 10;
+const SPEED = 1.2;
+const ZOMBIE_SPEED = 0.7;
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Move survivor right
+    survivorX += SPEED;
+    if (survivorX > canvas.width + 50) survivorX = -50;
+
+    // Move zombie right (chasing)
+    zombieX += ZOMBIE_SPEED;
+    if (zombieX > canvas.width + 50) zombieX = -80;
+
+    // Draw ground line
+    ctx.fillStyle = '#1e3040';
+    ctx.fillRect(0, canvas.height - 4, canvas.width, 2);
+
+    const f = Math.floor(frame / 8) % 2;
+
+    // Draw zombie first (behind)
+    drawSprite(zombieFrames[f], Math.floor(zombieX), ZOMBIE_Y, SCALE - 1);
+
+    // Draw survivor (in front)
+    drawSprite(frames[f], Math.floor(survivorX), SURVIVOR_Y, SCALE);
+
+    frame++;
+    requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+</body>
+</html>

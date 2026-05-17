@@ -13,7 +13,7 @@ const CORS = {
 };
 
 const BOT_NAME     = 'Grid CS Bot';
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_MODEL = 'gemini-3-flash-preview';
 
 // Rate limit sederhana (in-memory, reset tiap deploy)
 const lastRequest = {};

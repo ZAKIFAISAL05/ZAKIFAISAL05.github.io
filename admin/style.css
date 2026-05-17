@@ -1,0 +1,386 @@
+/* admin/style.css — Grid Survival Admin Panel */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap');
+
+:root {
+    --green:   #00ff41;
+    --cyan:    #00e5ff;
+    --yellow:  #ffe600;
+    --red:     #ff3c3c;
+    --bg:      #060a0e;
+    --panel:   #0d1117;
+    --border:  #1a2a3a;
+    --font-px: 'Press Start 2P', monospace;
+    --font-mo: 'VT323', monospace;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: var(--font-mo);
+    background: var(--bg);
+    color: #b0d8e8;
+    min-height: 100vh;
+    font-size: 18px;
+    background-image: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px
+    );
+}
+
+/* ── LOGIN SCREEN ── */
+.login-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-box {
+    background: var(--panel);
+    border: 2px solid var(--cyan);
+    box-shadow: 6px 6px 0 #000, 0 0 30px rgba(0,229,255,.15);
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    position: relative;
+}
+
+.login-box::before {
+    content: '╔══════════════════╗';
+    font-family: monospace;
+    font-size: 0.9em;
+    color: var(--cyan);
+    opacity: 0.2;
+    display: block;
+    position: absolute;
+    top: 8px; left: 0; right: 0;
+}
+.login-box::after {
+    content: '╚══════════════════╝';
+    font-family: monospace;
+    font-size: 0.9em;
+    color: var(--cyan);
+    opacity: 0.2;
+    display: block;
+    position: absolute;
+    bottom: 8px; left: 0; right: 0;
+}
+
+.login-title {
+    font-family: var(--font-px);
+    color: var(--green);
+    font-size: 0.8em;
+    margin-bottom: 8px;
+    text-shadow: 0 0 10px var(--green), 3px 3px 0 #000;
+    letter-spacing: 2px;
+}
+
+.login-sub {
+    font-size: 1em;
+    color: #4a7a8a;
+    margin-bottom: 30px;
+}
+
+.login-field {
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.login-field label {
+    display: block;
+    font-family: var(--font-px);
+    font-size: 0.5em;
+    color: var(--cyan);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+.login-field input {
+    width: 100%;
+    padding: 12px 14px;
+    background: #060a0e;
+    border: 2px solid var(--border);
+    color: #b0d8e8;
+    font-family: var(--font-mo);
+    font-size: 1.1em;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    letter-spacing: 1px;
+}
+
+.login-field input:focus {
+    border-color: var(--cyan);
+    box-shadow: 0 0 8px rgba(0,229,255,.25);
+}
+
+.login-field input[type="password"] {
+    letter-spacing: 4px;
+    font-size: 1.3em;
+}
+
+.btn-login {
+    width: 100%;
+    margin-top: 10px;
+    padding: 14px;
+    background: transparent;
+    border: 3px solid var(--green);
+    color: var(--green);
+    font-family: var(--font-px);
+    font-size: 0.55em;
+    letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 #000;
+    transition: background 0.1s, color 0.1s, transform 0.1s, box-shadow 0.1s;
+}
+.btn-login:hover {
+    background: var(--green);
+    color: #000;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #000;
+}
+
+.login-err {
+    margin-top: 16px;
+    color: var(--red);
+    font-family: var(--font-px);
+    font-size: 0.5em;
+    letter-spacing: 1px;
+    min-height: 20px;
+    text-shadow: 1px 1px 0 #000;
+}
+
+.login-attempts {
+    margin-top: 10px;
+    font-size: 0.85em;
+    color: #4a5a6a;
+}
+
+/* Lockout timer */
+.lockout-msg {
+    color: var(--red);
+    font-family: var(--font-px);
+    font-size: 0.55em;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px var(--red);
+    margin-top: 12px;
+    line-height: 2;
+}
+
+/* ── ADMIN PANEL ── */
+.admin-wrap {
+    display: none;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.admin-wrap.show { display: flex; }
+
+/* Admin Nav */
+.admin-nav {
+    background: var(--panel);
+    border-bottom: 3px solid var(--cyan);
+    box-shadow: 0 3px 0 #000;
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky; top: 0; z-index: 100;
+}
+
+.admin-nav-title {
+    font-family: var(--font-px);
+    color: var(--green);
+    font-size: 0.6em;
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px var(--green), 2px 2px 0 #000;
+}
+
+.admin-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.admin-user {
+    font-size: 0.85em;
+    color: #4a7a8a;
+}
+
+.btn-logout {
+    font-family: var(--font-px);
+    font-size: 0.45em;
+    padding: 8px 14px;
+    background: transparent;
+    border: 2px solid var(--red);
+    color: var(--red);
+    cursor: pointer;
+    box-shadow: 2px 2px 0 #000;
+    transition: background 0.1s, color 0.1s, transform 0.1s, box-shadow 0.1s;
+    letter-spacing: 1px;
+}
+.btn-logout:hover {
+    background: var(--red);
+    color: #fff;
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 #000;
+}
+
+/* Admin Main */
+.admin-main {
+    flex: 1;
+    padding: 30px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.admin-section-title {
+    font-family: var(--font-px);
+    color: var(--cyan);
+    font-size: 0.6em;
+    letter-spacing: 3px;
+    text-shadow: 0 0 8px var(--cyan), 2px 2px 0 #000;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+}
+
+/* Stats Cards */
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background: var(--panel);
+    border: 2px solid var(--border);
+    box-shadow: 3px 3px 0 #000;
+    padding: 20px 18px;
+    text-align: center;
+}
+
+.stat-card .stat-num {
+    font-family: var(--font-px);
+    font-size: 1.4em;
+    color: var(--yellow);
+    text-shadow: 0 0 10px var(--yellow), 2px 2px 0 #000;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.stat-card .stat-label {
+    font-size: 0.85em;
+    color: #4a7a8a;
+    letter-spacing: 1px;
+}
+
+/* Game List Table */
+.admin-table-wrap {
+    background: var(--panel);
+    border: 2px solid var(--border);
+    box-shadow: 4px 4px 0 #000;
+    overflow: hidden;
+    margin-bottom: 28px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th {
+    font-family: var(--font-px);
+    font-size: 0.45em;
+    color: var(--cyan);
+    padding: 14px 16px;
+    text-align: left;
+    background: rgba(0,229,255,.06);
+    border-bottom: 2px solid var(--border);
+    letter-spacing: 1px;
+}
+
+.admin-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.95em;
+    color: #b0d8e8;
+    vertical-align: middle;
+}
+
+.admin-table tr:last-child td { border-bottom: none; }
+
+.admin-table tr:hover td { background: rgba(0,229,255,.03); }
+
+.badge {
+    display: inline-block;
+    padding: 3px 8px;
+    font-family: var(--font-px);
+    font-size: 0.4em;
+    letter-spacing: 1px;
+    border: 2px solid;
+    box-shadow: 1px 1px 0 #000;
+}
+
+.badge-arcade    { color: var(--yellow); border-color: var(--yellow); }
+.badge-action    { color: var(--red);    border-color: var(--red); }
+.badge-sim       { color: var(--green);  border-color: var(--green); }
+.badge-platform  { color: var(--cyan);   border-color: var(--cyan); }
+.badge-survival  { color: #ff8c00;      border-color: #ff8c00; }
+
+.btn-small {
+    font-family: var(--font-px);
+    font-size: 0.4em;
+    padding: 6px 10px;
+    background: transparent;
+    border: 2px solid var(--cyan);
+    color: var(--cyan);
+    cursor: pointer;
+    box-shadow: 2px 2px 0 #000;
+    letter-spacing: 1px;
+    transition: background 0.1s, color 0.1s;
+    text-decoration: none;
+}
+.btn-small:hover { background: var(--cyan); color: #000; }
+
+/* Log Section */
+.admin-log {
+    background: var(--panel);
+    border: 2px solid var(--border);
+    box-shadow: 4px 4px 0 #000;
+    padding: 20px;
+    font-family: monospace;
+    font-size: 0.9em;
+    color: var(--green);
+    max-height: 220px;
+    overflow-y: auto;
+    line-height: 1.8;
+}
+
+.log-line { margin-bottom: 2px; }
+.log-line .ts { color: #3a6a7a; margin-right: 10px; }
+.log-line .evt { color: var(--green); }
+.log-line .evt-warn { color: var(--yellow); }
+.log-line .evt-err  { color: var(--red); }
+
+/* Session info */
+.session-bar {
+    background: rgba(0,229,255,.04);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    margin-bottom: 24px;
+    font-size: 0.9em;
+    color: #4a7a8a;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+.session-bar span { color: var(--cyan); }
+
+@media (max-width: 600px) {
+    .admin-main { padding: 20px 14px; }
+    .admin-table th, .admin-table td { padding: 10px; font-size: 0.85em; }
+}

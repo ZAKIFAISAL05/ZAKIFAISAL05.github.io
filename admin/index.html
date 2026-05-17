@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>ADMIN // Grid Survival</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     LOGIN SCREEN
+════════════════════════════════════════════ -->
+<div class="login-wrap" id="loginWrap">
+    <div class="login-box">
+        <div class="login-title">⬛ ADMIN ACCESS ⬛</div>
+        <div class="login-sub">[ GRID SURVIVAL STUDIO ]</div>
+
+        <div class="login-field">
+            <label for="adminUser">USERNAME</label>
+            <input type="text" id="adminUser" autocomplete="off" spellcheck="false"
+                   placeholder="ENTER USERNAME" maxlength="32">
+        </div>
+
+        <div class="login-field">
+            <label for="adminPass">PASSWORD</label>
+            <input type="password" id="adminPass" autocomplete="off"
+                   placeholder="••••••••" maxlength="64">
+        </div>
+
+        <button class="btn-login" id="loginBtn" onclick="doLogin()">
+            [ ENTER SYSTEM ]
+        </button>
+
+        <div class="login-err" id="loginErr"></div>
+        <div class="login-attempts" id="loginAttempts"></div>
+        <div class="lockout-msg" id="lockoutMsg" style="display:none;"></div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     ADMIN PANEL
+════════════════════════════════════════════ -->
+<div class="admin-wrap" id="adminWrap">
+
+    <!-- Top Nav -->
+    <nav class="admin-nav">
+        <div class="admin-nav-title">▓ GRID SURVIVAL ADMIN ▓</div>
+        <div class="admin-nav-right">
+            <span class="admin-user" id="adminUserDisplay"></span>
+            <button class="btn-logout" onclick="doLogout()">[ LOGOUT ]</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+
+        <!-- Session Info -->
+        <div class="session-bar">
+            <div>SESSION: <span id="sessionId">—</span></div>
+            <div>LOGIN: <span id="loginTime">—</span></div>
+            <div>IP: <span id="clientIp">PRIVATE</span></div>
+            <div>STATUS: <span style="color:var(--green)">● ACTIVE</span></div>
+        </div>
+
+        <!-- Stats -->
+        <div class="admin-section-title">▌ DASHBOARD OVERVIEW</div>
+
+        <div class="admin-stats">
+            <div class="stat-card">
+                <span class="stat-num">7</span>
+                <div class="stat-label">TOTAL GAMES</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-num">4</span>
+                <div class="stat-label">PLATFORMS</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-num">2</span>
+                <div class="stat-label">ROBLOX GAMES</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-num" id="sessionTimer">00:00</span>
+                <div class="stat-label">SESSION TIME</div>
+            </div>
+        </div>
+
+        <!-- Game List -->
+        <div class="admin-section-title">▌ GAME CATALOG</div>
+
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>GAME TITLE</th>
+                        <th>GENRE</th>
+                        <th>PLATFORMS</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody id="gameTableBody">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="admin-section-title">▌ ACTIVITY LOG</div>
+
+        <div class="admin-log" id="activityLog">
+            <!-- Populated by JS -->
+        </div>
+
+    </main>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   SECURITY CONFIG
+   ⚠  Change these before deploying!
+   ⚠  For production: move auth to a server-side backend.
+════════════════════════════════════════════════ */
+const ADMIN_CREDENTIALS = {
+    // SHA-256 hash of password "GridAdmin2025!"
+    // Generate new hash: https://emn178.github.io/online-tools/sha256.html
+    username: 'admin',
+    passHash: '3e1b2c4d5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c'
+    // ^ REPLACE THIS with real SHA-256 hash of your chosen password
+};
+
+const MAX_ATTEMPTS    = 5;    // Max login attempts before lockout
+const LOCKOUT_SECONDS = 300;  // 5-minute lockout
+const SESSION_MINUTES = 60;   // Session expiry in minutes
+const SESSION_KEY      = 'gs_admin_session';
+const ATTEMPT_KEY      = 'gs_admin_attempts';
+const LOCKOUT_KEY      = 'gs_admin_lockout';
+
+/* ── Simple SHA-256 (browser-native SubtleCrypto) ── */
+async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256',
+        new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf))
+        .map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/* ── Generate random token ── */
+function randToken() {
+    const arr = new Uint8Array(16);
+    crypto.getRandomValues(arr);
+    return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/* ── Rate-limit helpers ── */
+function getAttempts() {
+    try { return JSON.parse(sessionStorage.getItem(ATTEMPT_KEY)) || { count: 0 }; }
+    catch { return { count: 0 }; }
+}
+function setAttempts(data) { sessionStorage.setItem(ATTEMPT_KEY, JSON.stringify(data)); }
+
+function isLockedOut() {
+    const lockout = sessionStorage.getItem(LOCKOUT_KEY);
+    if (!lockout) return false;
+    const remaining = parseInt(lockout) - Date.now();
+    return remaining > 0 ? Math.ceil(remaining / 1000) : false;
+}
+function setLockout() {
+    sessionStorage.setItem(LOCKOUT_KEY, Date.now() + LOCKOUT_SECONDS * 1000);
+}
+
+/* ── Session helpers ── */
+function getSession() {
+    try { return JSON.parse(sessionStorage.getItem(SESSION_KEY)); }
+    catch { return null; }
+}
+function setSession(user) {
+    const sess = {
+        user,
+        token: randToken(),
+        exp: Date.now() + SESSION_MINUTES * 60 * 1000,
+        loginAt: new Date().toLocaleTimeString('id-ID')
+    };
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(sess));
+    return sess;
+}
+function clearSession() { sessionStorage.removeItem(SESSION_KEY); }
+
+function isSessionValid() {
+    const s = getSession();
+    return s && Date.now() < s.exp;
+}
+
+/* ── Log helpers ── */
+const logLines = [];
+function addLog(msg, type = 'evt') {
+    const ts = new Date().toLocaleTimeString('id-ID', { hour12: false });
+    logLines.push({ ts, msg, type });
+    renderLog();
+}
+function renderLog() {
+    const el = document.getElementById('activityLog');
+    if (!el) return;
+    el.innerHTML = logLines.slice(-30).reverse().map(l =>
+        `<div class="log-line">
+            <span class="ts">[${l.ts}]</span>
+            <span class="${l.type === 'warn' ? 'evt-warn' : l.type === 'err' ? 'evt-err' : 'evt'}">${escHtml(l.msg)}</span>
+        </div>`
+    ).join('');
+}
+
+function escHtml(str) {
+    return str.replace(/[&<>"']/g, c =>
+        ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+/* ════════════════════════════════════════════════
+   LOGIN LOGIC
+════════════════════════════════════════════════ */
+async function doLogin() {
+    const errEl     = document.getElementById('loginErr');
+    const attEl     = document.getElementById('loginAttempts');
+    const lockEl    = document.getElementById('lockoutMsg');
+    const btnEl     = document.getElementById('loginBtn');
+    errEl.textContent = '';
+
+    /* Check lockout */
+    const remaining = isLockedOut();
+    if (remaining) {
+        showLockout(remaining);
+        return;
+    }
+
+    const user = document.getElementById('adminUser').value.trim();
+    const pass = document.getElementById('adminPass').value;
+
+    if (!user || !pass) {
+        errEl.textContent = '> ERROR: FIELDS CANNOT BE EMPTY';
+        return;
+    }
+
+    /* Disable button during hash */
+    btnEl.disabled = true;
+    btnEl.textContent = '[ AUTHENTICATING... ]';
+
+    try {
+        const hash = await sha256(pass);
+        const attempts = getAttempts();
+
+        if (user === ADMIN_CREDENTIALS.username && hash === ADMIN_CREDENTIALS.passHash) {
+            /* ✅ SUCCESS */
+            setAttempts({ count: 0 });
+            sessionStorage.removeItem(LOCKOUT_KEY);
+            const sess = setSession(user);
+
+            addLog(`LOGIN OK — user: ${user} | session: ${sess.token.slice(0,8)}…`);
+            showAdmin(sess);
+        } else {
+            /* ❌ FAIL */
+            attempts.count = (attempts.count || 0) + 1;
+            setAttempts(attempts);
+
+            const left = MAX_ATTEMPTS - attempts.count;
+            addLog(`LOGIN FAILED — user: ${user} | attempt ${attempts.count}/${MAX_ATTEMPTS}`, 'warn');
+
+            if (attempts.count >= MAX_ATTEMPTS) {
+                setLockout();
+                setAttempts({ count: 0 });
+                addLog(`ACCOUNT LOCKED — too many failed attempts`, 'err');
+                showLockout(LOCKOUT_SECONDS);
+            } else {
+                errEl.textContent = `> ACCESS DENIED — ${left} ATTEMPT${left !== 1 ? 'S' : ''} REMAINING`;
+                attEl.textContent = `[ ${attempts.count}/${MAX_ATTEMPTS} ATTEMPTS USED ]`;
+            }
+        }
+    } catch (e) {
+        errEl.textContent = '> SYSTEM ERROR — TRY AGAIN';
+        console.error(e);
+    } finally {
+        btnEl.disabled = false;
+        btnEl.textContent = '[ ENTER SYSTEM ]';
+        document.getElementById('adminPass').value = '';
+    }
+}
+
+function showLockout(seconds) {
+    const lockEl = document.getElementById('lockoutMsg');
+    const btnEl  = document.getElementById('loginBtn');
+    const errEl  = document.getElementById('loginErr');
+    errEl.textContent = '';
+    btnEl.disabled = true;
+
+    let remaining = seconds;
+    lockEl.style.display = 'block';
+
+    const tick = () => {
+        const m = String(Math.floor(remaining / 60)).padStart(2, '0');
+        const s = String(remaining % 60).padStart(2, '0');
+        lockEl.textContent = `⛔ LOCKED — WAIT ${m}:${s} BEFORE RETRY`;
+        if (remaining-- > 0) {
+            setTimeout(tick, 1000);
+        } else {
+            lockEl.style.display = 'none';
+            btnEl.disabled = false;
+            document.getElementById('loginAttempts').textContent = '';
+        }
+    };
+    tick();
+}
+
+/* ════════════════════════════════════════════════
+   ADMIN PANEL
+════════════════════════════════════════════════ */
+function showAdmin(sess) {
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('adminWrap').classList.add('show');
+
+    document.getElementById('adminUserDisplay').textContent = `[ ${sess.user.toUpperCase()} ]`;
+    document.getElementById('sessionId').textContent = sess.token.slice(0, 12) + '…';
+    document.getElementById('loginTime').textContent = sess.loginAt;
+
+    renderGameTable();
+    startSessionTimer(sess);
+
+    addLog('Admin panel loaded');
+    addLog(`Session expires in ${SESSION_MINUTES} minutes`);
+}
+
+function doLogout() {
+    addLog('LOGOUT — session terminated', 'warn');
+    clearSession();
+    location.reload();
+}
+
+/* ── Session countdown timer ── */
+function startSessionTimer(sess) {
+    const timerEl = document.getElementById('sessionTimer');
+    const interval = setInterval(() => {
+        const remaining = Math.max(0, sess.exp - Date.now());
+        if (remaining === 0) {
+            clearInterval(interval);
+            addLog('SESSION EXPIRED — auto logout', 'err');
+            setTimeout(() => { clearSession(); location.reload(); }, 2000);
+            return;
+        }
+        const m = String(Math.floor(remaining / 60000)).padStart(2, '0');
+        const s = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
+        timerEl.textContent = `${m}:${s}`;
+    }, 1000);
+}
+
+/* ── Game Table ── */
+const GAMES_ADMIN = [
+    { title: 'Minecraft Parkun 2D',          genre: 'Arcade',         platforms: ['TapTap'] },
+    { title: 'THE ONE FOR ZOMBIE',            genre: 'Action',         platforms: ['TapTap'] },
+    { title: 'Desa Karya Investasi Zombie',   genre: 'Simulation',     platforms: ['TapTap', 'Itch.io'] },
+    { title: 'Gerbang Parkun 2D',            genre: 'Platformer',     platforms: ['Itch.io', 'TapTap'] },
+    { title: 'Desa Cipta Karya Chapter 2',   genre: 'Simulation',     platforms: ['TapTap', 'Itch.io', 'Amazon'] },
+    { title: 'The Undeads (Roblox)',          genre: 'Survival',       platforms: ['Roblox'] },
+    { title: 'Frequency Fury Obby',           genre: 'Arcade',         platforms: ['Roblox'] }
+];
+
+const GENRE_BADGE = {
+    'Arcade':     'badge-arcade',
+    'Action':     'badge-action',
+    'Simulation': 'badge-sim',
+    'Platformer': 'badge-platform',
+    'Survival':   'badge-survival'
+};
+
+function renderGameTable() {
+    const tbody = document.getElementById('gameTableBody');
+    tbody.innerHTML = GAMES_ADMIN.map((g, i) => `
+        <tr>
+            <td style="color:var(--cyan);font-family:'Press Start 2P',monospace;font-size:0.5em;">${String(i + 1).padStart(2, '0')}</td>
+            <td>${escHtml(g.title)}</td>
+            <td><span class="badge ${GENRE_BADGE[g.genre] || ''}">${escHtml(g.genre)}</span></td>
+            <td>${g.platforms.map(p => `<span style="margin-right:6px;color:#4a7a8a;">${escHtml(p)}</span>`).join('')}</td>
+            <td>
+                <a href="../index.html" target="_blank" class="btn-small">VIEW</a>
+            </td>
+        </tr>
+    `).join('');
+}
+
+/* ════════════════════════════════════════════════
+   INIT — Check existing session
+════════════════════════════════════════════════ */
+(function init() {
+    /* Allow Enter key on login */
+    ['adminUser', 'adminPass'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('keydown', e => {
+            if (e.key === 'Enter') doLogin();
+        });
+    });
+
+    /* Check lockout on load */
+    const remaining = isLockedOut();
+    if (remaining) showLockout(remaining);
+
+    /* Restore session if valid */
+    if (isSessionValid()) {
+        const sess = getSession();
+        addLog(`Session restored — user: ${sess.user}`);
+        showAdmin(sess);
+    } else {
+        clearSession();
+        addLog('Admin panel initialized — awaiting authentication');
+    }
+
+    /* Block right-click + F12 on admin */
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+        if (e.key === 'F12' ||
+            (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) ||
+            (e.ctrlKey && e.key === 'U')) {
+            e.preventDefault();
+        }
+    });
+})();
+</script>
+</body>
+</html>

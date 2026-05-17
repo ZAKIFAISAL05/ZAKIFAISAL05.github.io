@@ -4,34 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Grid Survival — Studio Game Indie Indonesia. Pengembang game mobile dan PC: Survival, RPG, Strategy, dan Roblox.">
-    <meta name="theme-color" content="#00e5ff">
+    <meta name="theme-color" content="#9b59b6">
     <title>Grid Survival — Studio Game Indie</title>
-
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
           integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
           crossorigin="anonymous" referrerpolicy="no-referrer">
-
-    <!-- Main CSS (includes theme + mascot + stats + filter + extras) -->
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
-<!-- ══ PARTICLE CANVAS ══ -->
 <canvas id="pcanvas"></canvas>
-
-<!-- ══ TOAST ══ -->
 <div id="toast"></div>
 
-<!-- ══ EASTER EGG OVERLAY (Konami Code: ↑↑↓↓←→←→BA) ══ -->
 <div id="easter-egg">
     <div class="ee-title">🎮 CHEAT CODE ACTIVATED! 🎮<br>KAMU MENEMUKAN EASTER EGG!<br>GRID SURVIVAL SALUT PADAMU!</div>
     <div class="ee-sub">[ KLIK MANA SAJA UNTUK TUTUP ]</div>
 </div>
 
-<!-- ══════════════════════
-     NAVIGATION
-══════════════════════ -->
+<!-- NAVIGATION -->
 <nav>
     <a href="#" class="nav-studio-name">
         <img src="assets/img/studio_logo.png" alt="Grid Survival Logo" class="nav-logo-image">
@@ -61,9 +51,7 @@
     </ul>
 </div>
 
-<!-- ══════════════════════
-     HERO
-══════════════════════ -->
+<!-- HERO -->
 <section id="hero" class="hero" aria-label="Hero section">
     <div class="hero-corner hero-corner-tl"></div>
     <div class="hero-corner hero-corner-tr"></div>
@@ -77,9 +65,7 @@
     <a href="#games" class="btn-primary-scroll">▶ LIHAT SEMUA GAME</a>
 </section>
 
-<!-- ══════════════════════
-     STATS COUNTER
-══════════════════════ -->
+<!-- STATS -->
 <div id="stats-section" aria-label="Studio statistics">
     <div class="stat-card">
         <span class="stat-number" data-target="7" data-suffix="">0</span>
@@ -99,13 +85,9 @@
     </div>
 </div>
 
-<!-- ══════════════════════
-     GAMES SECTION
-══════════════════════ -->
+<!-- GAMES SECTION -->
 <section id="games" class="section-padding" aria-label="Game catalog">
     <h2 class="section-header-title">PROYEK GAME KAMI</h2>
-
-    <!-- Genre Filter Tabs -->
     <div class="filter-tabs" role="tablist">
         <button class="filter-tab active" data-genre="all">SEMUA</button>
         <button class="filter-tab" data-genre="arcade">ARCADE</button>
@@ -114,7 +96,6 @@
         <button class="filter-tab" data-genre="platformer">PLATFORMER</button>
         <button class="filter-tab" data-genre="roblox">ROBLOX</button>
     </div>
-
     <div class="games-grid">
         <div class="game-card" data-game-id="minecraft-parkour-2d" data-genre="arcade" tabindex="0" role="button" aria-label="Minecraft Parkun 2D">
             <div class="game-image-wrapper"><img src="assets/img/mc_parkun_thumb.jpg" alt="Minecraft Parkun 2D" class="game-image" loading="lazy"></div>
@@ -124,7 +105,6 @@
                 <p class="game-dev">Dev: Grid Survival | Genre: Arcade</p>
             </div>
         </div>
-
         <div class="game-card" data-game-id="the-one-for-zombie" data-genre="action" tabindex="0" role="button" aria-label="THE ONE FOR ZOMBIE">
             <div class="game-image-wrapper"><img src="assets/img/one_zombie_thumb.jpg" alt="THE ONE FOR ZOMBIE" class="game-image" loading="lazy"></div>
             <div class="game-info">
@@ -133,7 +113,6 @@
                 <p class="game-dev">Dev: Grid Survival | Genre: Action</p>
             </div>
         </div>
-
         <div class="game-card" data-game-id="desa-karya-investasi-zombie" data-genre="simulation" tabindex="0" role="button" aria-label="Desa Investasi Zombie">
             <div class="game-image-wrapper"><img src="assets/img/desa_invest_thumb.jpg" alt="Desa Investasi Zombie" class="game-image" loading="lazy"></div>
             <div class="game-info">
@@ -142,7 +121,6 @@
                 <p class="game-dev">Dev: Grid Survival | Genre: Simulation</p>
             </div>
         </div>
-
         <div class="game-card" data-game-id="gerbang-parkun-2d" data-genre="platformer" tabindex="0" role="button" aria-label="Gerbang Parkun 2D">
             <div class="game-image-wrapper"><img src="assets/img/gerbang_parkun_thumb.jpg" alt="Gerbang Parkun 2D" class="game-image" loading="lazy"></div>
             <div class="game-info">
@@ -151,7 +129,6 @@
                 <p class="game-dev">Dev: Grid Survival | Genre: Platformer</p>
             </div>
         </div>
-
         <div class="game-card" data-game-id="desa-cipta-karya-ch2" data-genre="simulation" tabindex="0" role="button" aria-label="Desa Cipta Karya Chapter 2">
             <div class="game-image-wrapper"><img src="assets/img/cipta_karya2_thumb.jpg" alt="Desa Cipta Karya Chapter 2" class="game-image" loading="lazy"></div>
             <div class="game-info">
@@ -160,7 +137,6 @@
                 <p class="game-dev">Dev: Grid Survival | Genre: Simulation</p>
             </div>
         </div>
-
         <div class="game-card" data-game-id="the-undeads-roblox" data-genre="roblox action" tabindex="0" role="button" aria-label="The Undeads Roblox">
             <div class="game-image-wrapper"><img src="assets/img/undeads_roblox_thumb.jpg" alt="The Undeads Roblox" class="game-image" loading="lazy"></div>
             <div class="game-info">
@@ -169,7 +145,6 @@
                 <p class="game-dev">Dev: Grid Survival | Genre: Survival, Action</p>
             </div>
         </div>
-
         <div class="game-card" data-game-id="frequency-fury-obby" data-genre="roblox arcade platformer" tabindex="0" role="button" aria-label="Frequency Fury Obby">
             <div class="game-image-wrapper"><img src="assets/img/frequency_fury_thumb.jpg" alt="Frequency Fury Obby" class="game-image" loading="lazy"></div>
             <div class="game-info">
@@ -181,45 +156,29 @@
     </div>
 </section>
 
-<!-- ══════════════════════
-     ABOUT SECTION
-══════════════════════ -->
+<!-- ABOUT SECTION -->
 <section id="about" class="about-section" aria-label="About us">
     <h2 class="section-header-title">TENTANG GRID SURVIVAL</h2>
     <p>Kami adalah studio game indie yang bersemangat menciptakan pengalaman bermain yang unik dan menantang. Dari Indonesia, kami fokus pada genre Survival, RPG, dan Strategy — dengan sentuhan cerita yang dalam di setiap gameplay. Semoga game kami menghiburmu!</p>
-    <br><br>
-    <p style="font-size:0.85em;color:var(--text-muted);font-family:var(--font-pixel);letter-spacing:1px;line-height:2;">
-        💡 TIP: Coba ketik <span style="color:var(--pixel-yellow)">↑↑↓↓←→←→BA</span> untuk easter egg!
+    <p class="about-tip">
+        💡 TIP: Coba ketik <span class="about-tip-highlight">↑↑↓↓←→←→BA</span> untuk easter egg!
     </p>
-    <br>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px;">
-        <button onclick="openReportModal('bug')"
-            style="font-family:var(--font-pixel);font-size:0.45em;padding:12px 18px;background:transparent;border:2px solid var(--pixel-red);color:var(--pixel-red);cursor:pointer;box-shadow:3px 3px 0 #000;letter-spacing:1px;">
-            🐛 LAPORKAN BUG
-        </button>
-        <button onclick="openReportModal('saran')"
-            style="font-family:var(--font-pixel);font-size:0.45em;padding:12px 18px;background:transparent;border:2px solid var(--pixel-yellow);color:var(--pixel-yellow);cursor:pointer;box-shadow:3px 3px 0 #000;letter-spacing:1px;">
-            💡 KIRIM SARAN
-        </button>
+    <div class="about-actions">
+        <button class="btn-bug" onclick="openReportModal('bug')">🐛 LAPORKAN BUG</button>
+        <button class="btn-saran" onclick="openReportModal('saran')">💡 KIRIM SARAN</button>
     </div>
 </section>
 
-<!-- ══════════════════════
-     FOOTER / CONTACT
-══════════════════════ -->
+<!-- FOOTER / CONTACT -->
 <footer id="contact">
     <div class="footer-content">
         <h3>▓ GRID SURVIVAL ▓</h3>
         <p>Menciptakan game digital yang layak untuk dimainkan.</p>
-        <p style="margin-top:10px;">
-            Email: <a href="mailto:dzakifaisal11@gmail.com" style="color:var(--pixel-cyan);text-decoration:none;">dzakifaisal11@gmail.com</a>
+        <p class="footer-contact-p">
+            Email: <a href="mailto:dzakifaisal11@gmail.com" class="footer-email">dzakifaisal11@gmail.com</a>
         </p>
-        <div style="margin-top:16px;">
-            <a href="cs/" style="font-family:var(--font-pixel);font-size:0.45em;padding:10px 18px;background:linear-gradient(135deg,#6c63ff,#48bfe3);color:#fff;border:none;border-radius:4px;cursor:pointer;text-decoration:none;box-shadow:3px 3px 0 #000;letter-spacing:1px;display:inline-block;">
-                💬 BUKA CUSTOMER SERVICE
-            </a>
-        </div>
-        <div class="social-icons" style="margin-top:20px;">
+        <a href="cs/" class="footer-cs-link">💬 BUKA CUSTOMER SERVICE</a>
+        <div class="social-icons">
             <a href="https://whatsapp.com/channel/0029VaAxK4O2975D8utbc927" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
             <a href="https://www.youtube.com/@ZAKI_FAISAL_05_OFFICIAL" target="_blank" rel="noopener" title="YouTube"><i class="fab fa-youtube"></i></a>
             <a href="https://discord.gg/f8jW6B3X" target="_blank" rel="noopener" title="Discord"><i class="fab fa-discord"></i></a>
@@ -229,9 +188,7 @@
     <p class="footer-copy">&copy; 2025 Grid Survival. All Rights Reserved.</p>
 </footer>
 
-<!-- ══════════════════════
-     GAME MODAL
-══════════════════════ -->
+<!-- GAME MODAL -->
 <div id="gameModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-content">
         <span class="close-modal" id="closeModalBtn" role="button" tabindex="0" aria-label="Close">&times;</span>
@@ -260,9 +217,7 @@
     </div>
 </div>
 
-<!-- ══════════════════════
-     MASCOT CHARACTER
-══════════════════════ -->
+<!-- MASCOT -->
 <div id="mascot-wrap">
     <div class="speech-bubble" id="mascot-bubble">
         <span id="btext"></span><span class="bcursor">▌</span>
@@ -274,12 +229,8 @@
     <div class="mshadow"></div>
 </div>
 
-<!-- SCROLL TO TOP -->
 <button id="scrollTopBtn" aria-label="Scroll to top">▲</button>
 
-<!-- ══════════════════════
-     SCRIPTS
-══════════════════════ -->
 <script src="assets/js/gameData.js"></script>
 <script src="assets/js/main.js"></script>
 <script src="assets/js/extras.js"></script>

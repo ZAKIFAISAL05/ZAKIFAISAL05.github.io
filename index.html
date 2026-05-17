@@ -190,6 +190,17 @@
     <p style="font-size:0.85em;color:var(--text-muted);font-family:var(--font-pixel);letter-spacing:1px;line-height:2;">
         💡 TIP: Coba ketik <span style="color:var(--pixel-yellow)">↑↑↓↓←→←→BA</span> untuk easter egg!
     </p>
+    <br>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px;">
+        <button onclick="openReportModal('bug')"
+            style="font-family:var(--font-pixel);font-size:0.45em;padding:12px 18px;background:transparent;border:2px solid var(--pixel-red);color:var(--pixel-red);cursor:pointer;box-shadow:3px 3px 0 #000;letter-spacing:1px;">
+            🐛 LAPORKAN BUG
+        </button>
+        <button onclick="openReportModal('saran')"
+            style="font-family:var(--font-pixel);font-size:0.45em;padding:12px 18px;background:transparent;border:2px solid var(--pixel-yellow);color:var(--pixel-yellow);cursor:pointer;box-shadow:3px 3px 0 #000;letter-spacing:1px;">
+            💡 KIRIM SARAN
+        </button>
+    </div>
 </section>
 
 <!-- ══════════════════════
@@ -266,6 +277,7 @@
 <script src="assets/js/gameData.js"></script>
 <script src="assets/js/main.js"></script>
 <script src="assets/js/extras.js"></script>
+<script src="assets/js/cs-chat.js"></script>
 
 </body>
 </html>

@@ -300,6 +300,15 @@
             </table>
         </div>
 
+        <!-- Reports -->
+        <div class="admin-section-title">▌ LAPORAN BUG & SARAN</div>
+        <div class="action-bar">
+            <button class="btn-export" onclick="renderReports()" style="border-color:var(--cyan);color:var(--cyan);">🔄 REFRESH</button>
+            <button class="btn-export" onclick="clearDoneReports()" style="border-color:var(--red);color:var(--red);">🗑 HAPUS SELESAI</button>
+            <span style="font-family:var(--font-mo);font-size:16px;color:#4a7a8a;" id="reportCount">Memuat...</span>
+        </div>
+        <div id="reports-panel"></div>
+
         <!-- Log -->
         <div class="admin-section-title">▌ ACTIVITY LOG</div>
         <div class="admin-log" id="activityLog"></div>
@@ -508,6 +517,7 @@ function showAdmin(sess){
     document.getElementById('sessionId').textContent=sess.token.slice(0,12)+'…';
     document.getElementById('loginTime').textContent=sess.loginAt;
     renderGameTable();updateStats();startSessionTimer(sess);startAdminCharAnim();
+    renderReports();
     addLog('Admin panel loaded — Game catalog ready');
     addLog(`Session expires in ${SESSION_MINUTES} minutes`);
 }
@@ -535,6 +545,51 @@ function startAdminCharAnim(){
     ];
     function draw(f){ctx.clearRect(0,0,canvas.width,canvas.height);frames[f].forEach((row,ry)=>row.forEach((color,rx)=>{if(!color)return;ctx.fillStyle=color;ctx.fillRect(rx*SC,ry*SC,SC,SC);}));}
     let f=0;setInterval(()=>{draw(f);f=(f+1)%2;},250);
+}
+
+/* ── REPORTS ── */
+const REPORT_STORE='gs_reports';
+function getReports(){try{return JSON.parse(localStorage.getItem(REPORT_STORE))||[];}catch{return[];}}
+function saveReports(arr){localStorage.setItem(REPORT_STORE,JSON.stringify(arr));}
+
+function renderReports(){
+    const panel=document.getElementById('reports-panel');
+    const countEl=document.getElementById('reportCount');
+    if(!panel)return;
+    const all=getReports();
+    if(countEl)countEl.textContent=`${all.length} laporan (${all.filter(r=>!r.done).length} belum selesai)`;
+    if(!all.length){panel.innerHTML='<div class="report-empty">[ BELUM ADA LAPORAN ]</div>';return;}
+    panel.innerHTML=all.map(r=>`
+<div class="report-item${r.done?' done':''}" id="ri-${r.id}">
+    <div class="report-item-header">
+        <span class="report-item-type ${r.type}">${r.type==='bug'?'🐛 BUG':'💡 SARAN'}</span>
+        <span class="report-item-game">${escHtml(r.game||'—')}</span>
+        ${r.offline?'<span style="font-family:var(--font-px);font-size:0.35em;color:#ffe600;border:1px solid #ffe600;padding:2px 6px;">OFFLINE</span>':''}
+        ${r.done?'<span style="font-family:var(--font-px);font-size:0.35em;color:#00ff41;border:1px solid #00ff41;padding:2px 6px;">✓ SELESAI</span>':''}
+        <span class="report-item-time">${escHtml(r.time||'')}</span>
+    </div>
+    <div class="report-item-desc">📝 ${escHtml(r.desc)}</div>
+    ${r.summary&&r.summary!==r.desc?`<div class="report-item-ai">🤖 AI: ${escHtml(r.summary)}</div>`:''}
+    ${r.contact?`<div class="report-item-contact">📱 Kontak: ${escHtml(r.contact)}</div>`:''}
+    <div class="report-item-actions">
+        ${!r.done?`<button class="btn-mark-done" onclick="markReportDone(${r.id})">✓ TANDAI SELESAI</button>`:''}
+        <button class="btn-del-report" onclick="deleteReport(${r.id})">🗑 HAPUS</button>
+    </div>
+</div>`).join('');
+}
+
+function markReportDone(id){
+    const all=getReports().map(r=>r.id===id?{...r,done:true}:r);
+    saveReports(all);addLog(`Report #${id} ditandai selesai`);renderReports();
+}
+function deleteReport(id){
+    const r=getReports().find(x=>x.id===id);
+    const all=getReports().filter(x=>x.id!==id);
+    saveReports(all);addLog(`Report dihapus — ${r?r.type+': '+r.game:'#'+id}`,'warn');renderReports();
+}
+function clearDoneReports(){
+    const all=getReports().filter(r=>!r.done);
+    saveReports(all);addLog('Semua laporan selesai dihapus');renderReports();
 }
 
 /* ── INIT ── */

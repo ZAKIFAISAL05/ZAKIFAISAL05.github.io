@@ -42,7 +42,7 @@ async function callGemini(apiKey, systemPrompt, history, userMessage) {
       system_instruction: { parts: [{ text: systemPrompt }] },
       contents,
       generationConfig: {
-        maxOutputTokens: 220,   // Jawaban singkat = cepat
+        maxOutputTokens: 350,   // Cukup untuk jawaban lengkap, tetap cepat
         temperature:     0.55,  // Lebih konsisten, tidak ngelantur
         topP:            0.8,
       },
@@ -72,7 +72,7 @@ function buildSystemPrompt(tanggal, gameList) {
 Tanggal: ${tanggal} WIB.
 Game: ${gameList}
 
-GAYA: Profesional, ramah, to-the-point. JANGAN bertele-tele. Jawab langsung tanpa basa-basi berlebihan. Gunakan bahasa Indonesia baku tapi santai. Maksimal 3-4 kalimat per balasan kecuali perlu detail teknis.
+GAYA: Profesional, ramah, to-the-point. JANGAN bertele-tele. Jawab langsung tanpa basa-basi berlebihan. Gunakan bahasa Indonesia baku tapi santai. Maksimal 3-4 kalimat per balasan kecuali perlu detail teknis. WAJIB: Selalu selesaikan kalimat terakhirmu — jangan pernah berhenti di tengah kalimat.
 
 TUGAS UTAMA:
 - Info game, cara download, genre, platform (TapTap / Itch.io / Roblox)

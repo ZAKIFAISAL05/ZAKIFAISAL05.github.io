@@ -12,9 +12,9 @@ const CORS = {
 
 const BOT_NAME      = 'Grid CS Bot';
 const GEMINI_MODELS = [
-  'gemini-3-flash-preview',   // model utama (dicoba pertama)
+  'gemini-2.5-flash',         // model utama — gratis, cepat, stabil 2025
   'gemini-2.0-flash',         // fallback 1
-  'gemini-1.5-flash',         // fallback 2
+  'gemini-2.5-flash-lite',    // fallback 2 — paling ringan
 ];
 const RATE_MS      = 1500;
 const lastRequest  = {};

@@ -302,15 +302,19 @@ body {
 .report-card-label { font-family: var(--font-title); font-size: 0.95rem; color: var(--text); display: block; }
 .report-card-sub   { font-size: 0.74rem; color: var(--muted); display: block; margin-top: 2px; font-weight: 600; }
 
-/* ── INPUT BAR ── */
-.input-bar {
+/* ── INPUT AREA WRAP ── */
+.input-area-wrap {
+    flex-shrink: 0;
     background: var(--surface);
     border-top: 3px solid var(--border);
-    padding: 12px 16px 16px;
+}
+
+/* ── INPUT BAR ── */
+.input-bar {
+    padding: 10px 16px 16px;
     display: flex;
     gap: 10px;
     align-items: flex-end;
-    flex-shrink: 0;
 }
 .input-bar textarea {
     flex: 1;
@@ -604,4 +608,189 @@ body {
     font-size: 0.72rem;
     color: var(--muted);
     text-align: center;
+}
+
+/* ── ATTACH BUTTON ── */
+.attach-btn {
+    width: 44px; height: 44px;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: var(--border-r-sm);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.attach-btn:hover { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+/* ── UPLOAD PREVIEW BAR (above input) ── */
+.upload-preview-bar {
+    background: var(--surface2);
+    border-bottom: 2px solid var(--border);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.upload-preview-inner {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+.preview-item {
+    position: relative;
+    width: 56px; height: 56px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+}
+.preview-item img {
+    width: 100%; height: 100%; object-fit: cover;
+}
+.preview-video-icon {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 3px;
+    color: var(--brand);
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 4px;
+    text-align: center;
+    line-height: 1.2;
+}
+.preview-remove {
+    position: absolute; top: 2px; right: 2px;
+    width: 18px; height: 18px;
+    background: rgba(0,0,0,0.7);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 0.65rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+}
+.upload-clear-btn {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+.upload-clear-btn:hover { background: rgba(231,76,60,0.15); color: var(--c-red); border-color: var(--c-red); }
+
+/* ── BUBBLE MEDIA (gambar/video dalam chat bubble) ── */
+.bubble-media {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.bubble-img {
+    width: 140px; height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+    cursor: zoom-in;
+    border: 2px solid rgba(255,255,255,0.1);
+    transition: transform 0.15s;
+}
+.bubble-img:hover { transform: scale(1.03); }
+.bubble-video {
+    width: 220px;
+    max-height: 150px;
+    border-radius: 10px;
+    background: #000;
+}
+
+/* ── LIGHTBOX ── */
+.lightbox {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+}
+.lightbox img {
+    max-width: 100%; max-height: 90vh;
+    border-radius: 12px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+}
+.lb-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+.lb-close:hover { background: rgba(231,76,60,0.7); }
+
+/* ── MODAL UPLOAD ── */
+.modal-upload-area {
+    background: var(--surface2);
+    border: 2px dashed var(--border);
+    border-radius: var(--border-r-sm);
+    padding: 14px;
+    text-align: center;
+}
+.modal-upload-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--brand);
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 6px 0;
+    transition: opacity 0.15s;
+}
+.modal-upload-label:hover { opacity: 0.75; }
+.modal-upload-label span { color: var(--muted); font-weight: 600; }
+.modal-upload-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    justify-content: center;
+}
+.preview-item-sm {
+    position: relative;
+    width: 52px; height: 52px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+}
+.preview-item-sm img { width: 100%; height: 100%; object-fit: cover; }
+.preview-video-icon-sm {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.55rem; font-weight: 700;
+    color: var(--brand);
+    padding: 4px;
+    text-align: center;
+}
+
+/* ── REPORT CARD ICON (SVG) ── */
+.report-card-icon-svg {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--brand);
 }

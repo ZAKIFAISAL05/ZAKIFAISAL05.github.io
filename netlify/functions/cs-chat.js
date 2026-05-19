@@ -17,7 +17,7 @@ const GEMINI_MODEL = 'gemini-3-flash-preview';
 
 // Rate limit sederhana (in-memory, reset tiap deploy)
 const lastRequest = {};
-const RATE_MS     = 6000;
+const RATE_MS     = 2000;
 
 function getNowWIB() {
   return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
@@ -43,7 +43,7 @@ async function callGemini(apiKey, systemPrompt, history, userMessage) {
   const body = {
     system_instruction: { parts: [{ text: systemPrompt }] },
     contents,
-    generationConfig: { maxOutputTokens: 800, temperature: 0.8 },
+    generationConfig: { maxOutputTokens: 400, temperature: 0.7 },
   };
 
   const res  = await fetch(url, {
@@ -131,7 +131,7 @@ exports.handler = async function (event) {
 
 Hari ini: ${namaHari}, ${tanggal} (WIB).
 
-Gaya bicara kamu: ramah, sopan, santai, dan friendly. Pakai bahasa Indonesia yang natural dan mudah dipahami. Jawab selengkap yang dibutuhkan — jangan potong penjelasan kalau memang perlu panjang. Kalau pertanyaannya singkat, jawab singkat; kalau butuh penjelasan detail, berikan detail lengkap.
+Gaya bicara kamu: ramah, sopan, santai, dan friendly. Pakai bahasa Indonesia yang natural dan mudah dipahami. Jawab selengkap yang dibutuhkan. Kalau pertanyaannya singkat, jawab singkat; kalau butuh detail, berikan penjelasan lengkap.
 
 Daftar game Grid Survival saat ini: ${gameListText}
 
@@ -148,7 +148,30 @@ Kamu TIDAK bisa:
 - Memberikan kompensasi atau item gratis
 - Mengakses data akun pemain
 
-Kalau ada yang lapor bug atau error, minta mereka isi form laporan di website (tombol "Laporkan Bug") dan yakinkan laporan akan diproses tim. Kalau ada saran, apresiasi dan sampaikan akan diteruskan ke developer.
+=== PENTING: LAPORAN BUG & SARAN LANGSUNG LEWAT CHAT ===
+Kalau ada yang mau lapor bug atau kirim saran, JANGAN suruh mereka pergi ke form website. Kamu yang handle langsung di sini. Proses yang harus kamu ikuti:
+
+1. Kalau user bilang ada bug/error atau mau lapor masalah:
+   - Tanya game mana yang bermasalah (kalau belum disebutkan)
+   - Minta deskripsi bug yang jelas (apa yang terjadi, langkah reproduksi)
+   - Tanya apakah ada gambar/video bukti (bisa dikirim lewat tombol lampiran)
+   - Tanya email mereka untuk konfirmasi tiket (opsional tapi dianjurkan)
+   - Setelah dapat info cukup, konfirmasi ke user bahwa laporannya siap diteruskan ke developer
+
+2. Kalau user mau kirim saran:
+   - Dengarkan dan tanya detail saran mereka
+   - Apresiasi ide mereka dengan tulus
+   - Tanya email kalau mereka mau dapat update
+   - Setelah dapat info cukup, konfirmasi siap diteruskan
+
+3. Saat info laporan sudah lengkap (paling tidak ada deskripsi yang jelas), balas dengan tag khusus ini di AKHIR pesanmu (jangan ditampilkan ke user, ini untuk sistem):
+   [SUBMIT_REPORT:{"type":"bug","game":"nama game","desc":"deskripsi lengkap","email":"email@user.com","contact":""}]
+   Atau untuk saran:
+   [SUBMIT_REPORT:{"type":"saran","game":"nama game","desc":"isi saran","email":"email@user.com","contact":""}]
+
+INGAT: Kamu CS yang proaktif. Kamu yang kumpulkan info dan teruskan ke developer — user tidak perlu kemana-mana.
+
+Kalau ada lampiran gambar/video yang dikirim user, sebutkan bahwa bukti visual mereka sudah diterima dan akan diteruskan bersama laporan.
 
 Kontak tambahan: Email dzakifaisal11@gmail.com | Discord: discord.gg/f8jW6B3X | WA Channel: whatsapp.com/channel/0029VaAxK4O2975D8utbc927`;
 
@@ -158,10 +181,18 @@ Kontak tambahan: Email dzakifaisal11@gmail.com | Discord: discord.gg/f8jW6B3X | 
     text: h.text,
   }));
 
+  // Tambahkan info lampiran ke pesan user kalau ada
+  const { attachments } = body;
+  let userMessage = text.trim();
+  if (attachments && attachments.length) {
+    const fileNames = attachments.map(a => a.name).join(', ');
+    userMessage += `\n[User melampirkan ${attachments.length} file bukti: ${fileNames}]`;
+  }
+
   let reply = '';
   for (const key of apiKeys) {
     try {
-      reply = await callGemini(key, systemPrompt, geminiHistory, text.trim());
+      reply = await callGemini(key, systemPrompt, geminiHistory, userMessage);
       if (reply) break;
     } catch (e) {
       console.error('Gemini CS error:', e.message);
@@ -176,12 +207,36 @@ Kontak tambahan: Email dzakifaisal11@gmail.com | Discord: discord.gg/f8jW6B3X | 
     reply = fallbacks[Math.floor(Math.random() * fallbacks.length)];
   }
 
+  // Ekstrak tag SUBMIT_REPORT jika ada
+  let reportSubmitted = false;
+  let reportPayload   = null;
+  const submitMatch = reply.match(/\[SUBMIT_REPORT:(\{.*?\})\]/s);
+  if (submitMatch) {
+    try {
+      reportPayload   = JSON.parse(submitMatch[1]);
+      // Sertakan attachment info (nama file) ke payload
+      if (body.attachments && body.attachments.length) {
+        reportPayload.attachmentNames = body.attachments.map(a => a.name).join(', ');
+        reportPayload.desc += '\n\n[Bukti: ' + reportPayload.attachmentNames + ']';
+      }
+      reportSubmitted = true;
+    } catch(e) { console.error('SUBMIT_REPORT parse error:', e.message); }
+    // Hapus tag dari reply sebelum dikirim ke user
+    reply = reply.replace(/\[SUBMIT_REPORT:.*?\]/s, '').trim();
+  }
+
+  // Tambahkan konteks lampiran ke pesan user kalau ada
+  const { attachments } = body;
+  if (attachments && attachments.length && !reply) {
+    reply = 'Oke, bukti visualnya sudah aku terima! Ceritain juga ya bug atau masalah yang kamu temukan supaya aku bisa terusin ke tim developer.';
+  }
+
   // Format bold WhatsApp style
   reply = reply.replace(/\*\*([^*]+)\*\*/g, '*$1*');
 
   return {
     statusCode: 200,
     headers: CORS,
-    body: JSON.stringify({ ok: true, reply, from: BOT_NAME }),
+    body: JSON.stringify({ ok: true, reply, from: BOT_NAME, reportSubmitted, reportPayload }),
   };
 };

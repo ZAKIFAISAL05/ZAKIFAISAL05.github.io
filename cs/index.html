@@ -22,13 +22,13 @@
         </span>
     </div>
     <div class="topbar-actions">
-        <button class="topbar-btn" id="btn-tts"   title="TTS Aktif">🔊</button>
-        <button class="topbar-btn" id="btn-sound" title="Suara Aktif">🔔</button>
-        <button class="topbar-btn" id="btn-report-top" title="Lapor Bug / Saran">🐛</button>
+        <button class="topbar-btn" id="btn-tts"   title="TTS Aktif">TTS</button>
+        <button class="topbar-btn" id="btn-sound" title="Suara Aktif">SFX</button>
+        <button class="topbar-btn" id="btn-report-top" title="Lapor Bug / Saran">Bug</button>
     </div>
 </div>
 
-<!-- CHAT -->
+<!-- CHAT MESSAGES -->
 <div class="chat-wrap">
     <div class="messages" id="messages">
         <div class="date-sep">Hari ini</div>
@@ -38,12 +38,16 @@
         <div class="quick-section" id="quick-chips"></div>
         <div class="report-cards" id="report-cards-area">
             <div class="report-card" id="btn-open-bug">
-                <span class="report-card-icon">🐛</span>
+                <span class="report-card-icon-svg">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </span>
                 <span class="report-card-label">Lapor Bug</span>
                 <span class="report-card-sub">Ada error di game?</span>
             </div>
             <div class="report-card" id="btn-open-saran">
-                <span class="report-card-icon">💡</span>
+                <span class="report-card-icon-svg">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </span>
                 <span class="report-card-label">Kirim Saran</span>
                 <span class="report-card-sub">Punya ide keren?</span>
             </div>
@@ -53,31 +57,50 @@
 
 <!-- LIHAT SEMUA GAME BAR -->
 <div class="see-all-bar">
-    <a href="../#games" class="see-all-btn">🎮 Lihat Semua Game</a>
+    <a href="../#games" class="see-all-btn">Lihat Semua Game</a>
 </div>
 
-<!-- INPUT BAR -->
-<div class="input-bar">
-    <textarea id="msg-input" placeholder="Ketik pesan..." rows="1" maxlength="500"></textarea>
-    <button class="send-btn" id="send-btn" aria-label="Kirim">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-        </svg>
-    </button>
+<!-- INPUT AREA (preview + input dalam satu wrapper) -->
+<div class="input-area-wrap">
+
+    <!-- Preview file yang mau dikirim -->
+    <div class="upload-preview-bar" id="upload-preview-bar" style="display:none;">
+        <div class="upload-preview-inner" id="upload-preview-inner"></div>
+        <button class="upload-clear-btn" id="upload-clear-btn">Hapus</button>
+    </div>
+
+    <!-- Input bar -->
+    <div class="input-bar">
+        <label class="attach-btn" for="file-input" title="Lampirkan gambar / video bukti">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66L9.41 17.41A2 2 0 0 1 6.59 14.59l8.49-8.48"/>
+            </svg>
+            <input type="file" id="file-input" accept="image/*,video/*" multiple style="display:none">
+        </label>
+        <textarea id="msg-input" placeholder="Ketik pesan..." rows="1" maxlength="500"></textarea>
+        <button class="send-btn" id="send-btn" aria-label="Kirim">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+        </button>
+    </div>
+
 </div>
 
 <!-- REPORT MODAL -->
 <div class="modal-bg" id="modal-bg">
     <div class="modal-card">
         <div class="modal-header">
-            <div class="modal-icon bug" id="modal-icon">🐛</div>
+            <div class="modal-icon bug" id="modal-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
             <span class="modal-title-text" id="modal-title">Laporan Bug / Error</span>
             <button class="modal-close" id="btn-close-modal">✕</button>
         </div>
 
         <div class="type-toggle">
-            <button class="type-btn active" data-type="bug">🐛 Bug / Error</button>
-            <button class="type-btn" data-type="saran">💡 Saran</button>
+            <button class="type-btn active" data-type="bug">Bug / Error</button>
+            <button class="type-btn" data-type="saran">Saran</button>
         </div>
 
         <div id="modal-form">
@@ -100,6 +123,17 @@
                 <textarea id="r-desc" rows="4" placeholder="Ceritakan bug yang kamu temukan..." maxlength="1000"></textarea>
             </div>
             <div class="field">
+                <label>Bukti (gambar / video)</label>
+                <div class="modal-upload-area" id="modal-upload-area">
+                    <label for="modal-file-input" class="modal-upload-label">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66L9.41 17.41A2 2 0 0 1 6.59 14.59l8.49-8.48"/></svg>
+                        <span>Pilih gambar / video (opsional)</span>
+                        <input type="file" id="modal-file-input" accept="image/*,video/*" multiple style="display:none">
+                    </label>
+                    <div class="modal-upload-preview" id="modal-upload-preview"></div>
+                </div>
+            </div>
+            <div class="field">
                 <label>Email kamu <span style="color:var(--muted);font-weight:400;">(untuk konfirmasi tiket)</span></label>
                 <input type="email" id="r-email" placeholder="contoh@gmail.com">
             </div>
@@ -111,7 +145,9 @@
         </div>
 
         <div class="modal-success" id="modal-success">
-            <div class="success-icon">✅</div>
+            <div class="success-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
             <span class="success-title" id="success-title">Laporan Terkirim!</span>
             <span class="success-msg" id="success-msg">Terima kasih! Tim kami akan segera menangani laporanmu.</span>
             <div class="ticket-box" id="ticket-box" style="display:none">

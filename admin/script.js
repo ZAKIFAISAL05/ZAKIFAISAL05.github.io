@@ -31,7 +31,7 @@ function setAttempts(d)   { sessionStorage.setItem(ATTEMPT_KEY, JSON.stringify(d
 function isLockedOut()    { const l = sessionStorage.getItem(LOCKOUT_KEY); if (!l) return false; const r = parseInt(l) - Date.now(); return r > 0 ? Math.ceil(r/1000) : false; }
 function setLockout()     { sessionStorage.setItem(LOCKOUT_KEY, Date.now() + LOCKOUT_SECONDS * 1000); }
 function getSession()     { try { return JSON.parse(sessionStorage.getItem(SESSION_KEY)); } catch { return null; } }
-function setSession(user) { const s = {user, token:randToken(), exp:Date.now()+SESSION_MINUTES*60*1000, loginAt:new Date().toLocaleTimeString('id-ID'), adminToken: document.getElementById('adminPass')?.value || ''}; sessionStorage.setItem(SESSION_KEY, JSON.stringify(s)); return s; }
+function setSession(user, pass) { const s = {user, token:randToken(), exp:Date.now()+SESSION_MINUTES*60*1000, loginAt:new Date().toLocaleTimeString('id-ID'), adminToken: pass || ''}; sessionStorage.setItem(SESSION_KEY, JSON.stringify(s)); return s; }
 function clearSession()   { sessionStorage.removeItem(SESSION_KEY); }
 function isSessionValid() { const s = getSession(); return s && Date.now() < s.exp; }
 
@@ -339,7 +339,7 @@ async function doLogin() {
     if (user === ADMIN_CREDENTIALS.username && hash === ADMIN_CREDENTIALS.passHash) {
       setAttempts({count:0});
       sessionStorage.removeItem(LOCKOUT_KEY);
-      const sess = setSession(user);
+      const sess = setSession(user, pass);
       addLog(`LOGIN OK — user: ${user} | session: ${sess.token.slice(0,8)}…`);
       showAdmin(sess);
     } else {
@@ -429,12 +429,9 @@ function startAdminCharAnim() {
 }
 
 /* ── TICKETS (server-side via Netlify Blobs) ── */
-const TICKET_API   = '/.netlify/functions/ticket';
-const ADMIN_TICKET_KEY = process?.env?.ADMIN_TICKET_KEY || ''; // Dipasang dari env, bukan di sini
+const TICKET_API = '/.netlify/functions/ticket';
 
-// Admin key disimpan di sessionStorage setelah login (diambil dari env var via API atau hardcoded sementara)
-// Cara aman: set ADMIN_TICKET_KEY di Netlify env vars, lalu admin masukkan key saat login
-// Sementara: pakai session token (kata sandi admin sebagai bukti)
+// adminToken = password yang diketik saat login (dikirim ke server untuk diverifikasi hashnya)
 function getAdminToken() {
   const s = getSession();
   return s ? s.adminToken || '' : '';

@@ -53,10 +53,20 @@ async function getTicket(store, id) {
 }
 async function saveTicket(store, ticket) { await store.set('ticket:' + ticket.id, JSON.stringify(ticket)); }
 
-function verifyAdmin(adminToken) {
-  const key = process.env.ADMIN_TICKET_KEY;
-  if (!key) return false;
-  return adminToken === key;
+// Hash SHA-256 password admin — sama dengan yang ada di admin/script.js ADMIN_CREDENTIALS.passHash
+const ADMIN_PASS_HASH = '821bc6e7ed5ec0007c1d7b88e8ffdd428df9ae1444325fd5c97a372773b31df4';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function verifyAdmin(adminToken) {
+  if (!adminToken) return false;
+  try {
+    const hash = await sha256(adminToken);
+    return hash === ADMIN_PASS_HASH;
+  } catch { return false; }
 }
 
 exports.handler = async (event) => {
@@ -72,7 +82,7 @@ exports.handler = async (event) => {
 
     // Admin: list semua tiket
     if (q.admin === '1' && q.list === '1') {
-      if (!verifyAdmin(q.adminToken)) return { statusCode: 403, headers: CORS, body: JSON.stringify({ error: 'Akses ditolak' }) };
+      if (!(await verifyAdmin(q.adminToken))) return { statusCode: 403, headers: CORS, body: JSON.stringify({ error: 'Akses ditolak' }) };
       const idx = await getIndex(store);
       // Ambil detail tiket untuk setiap index entry
       const tickets = await Promise.all(idx.map(async (entry) => {
@@ -84,7 +94,7 @@ exports.handler = async (event) => {
 
     // Admin: ambil tiket by ID
     if (q.admin === '1' && q.id) {
-      if (!verifyAdmin(q.adminToken)) return { statusCode: 403, headers: CORS, body: JSON.stringify({ error: 'Akses ditolak' }) };
+      if (!(await verifyAdmin(q.adminToken))) return { statusCode: 403, headers: CORS, body: JSON.stringify({ error: 'Akses ditolak' }) };
       const ticket = await getTicket(store, q.id);
       if (!ticket) return { statusCode: 404, headers: CORS, body: JSON.stringify({ error: 'Tiket tidak ditemukan' }) };
       return { statusCode: 200, headers: CORS, body: JSON.stringify({ ok: true, ticket }) };
@@ -153,7 +163,7 @@ exports.handler = async (event) => {
     // Update status tiket (hanya admin / WA bot)
     if (action === 'update_status') {
       const { id, status, adminToken, devNote } = body;
-      if (!verifyAdmin(adminToken)) return { statusCode: 403, headers: CORS, body: JSON.stringify({ error: 'Akses ditolak' }) };
+      if (!(await verifyAdmin(adminToken))) return { statusCode: 403, headers: CORS, body: JSON.stringify({ error: 'Akses ditolak' }) };
       if (!id || !status || !STATUS[status]) return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Data tidak valid' }) };
 
       const ticket = await getTicket(store, id);
@@ -176,7 +186,7 @@ exports.handler = async (event) => {
     // Tutup tiket (selesai)
     if (action === 'close') {
       const { id, adminToken } = body;
-      if (!verifyAdmin(adminToken)) return { statusCode: 403, headers: CORS, body: JSON.stringify({ error: 'Akses ditolak' }) };
+      if (!(await verifyAdmin(adminToken))) return { statusCode: 403, headers: CORS, body: JSON.stringify({ error: 'Akses ditolak' }) };
 
       const ticket = await getTicket(store, id);
       if (!ticket) return { statusCode: 404, headers: CORS, body: JSON.stringify({ error: 'Tiket tidak ditemukan' }) };

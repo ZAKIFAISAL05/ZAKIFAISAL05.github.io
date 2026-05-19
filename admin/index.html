@@ -49,7 +49,7 @@
         <div class="session-bar">
             <div>SESSION: <span id="sessionId">—</span></div>
             <div>LOGIN: <span id="loginTime">—</span></div>
-            <div>IP: <span>PRIVATE</span></div>
+            <div>STORAGE: <span style="color:var(--c-green);">● Server (Netlify Blobs)</span></div>
             <div>STATUS: <span style="color:var(--c-green);">● ACTIVE</span></div>
         </div>
 
@@ -62,8 +62,8 @@
             <div class="stat-card"><span class="stat-num" id="sessionTimer">00:00</span><div class="stat-label">Session Time</div></div>
         </div>
 
-        <!-- Add Game -->
-        <div class="admin-section-title">▌ Tambah Game Baru</div>
+        <!-- Add / Edit Game -->
+        <div class="admin-section-title" data-form>▌ Tambah Game Baru</div>
         <div id="alertBox" class="alert"></div>
         <div class="add-form">
             <div class="form-field">
@@ -119,16 +119,18 @@
                 </div>
                 <button class="btn-add-platform" onclick="addPlatformRow()">+ Tambah Platform</button>
             </div>
-            <div class="form-field full">
-                <button class="btn-add-game" onclick="submitAddGame()">▶ Simpan Game ke Katalog</button>
+            <div class="form-field full" style="display:flex;gap:12px;flex-wrap:wrap;">
+                <button class="btn-add-game" id="btn-add-game" onclick="submitAddGame()" style="flex:1;min-width:200px;">▶ Simpan Game ke Katalog</button>
+                <button class="btn-small" id="btn-cancel-edit" onclick="resetForm()" style="display:none;padding:14px 20px;font-size:0.95em;">✕ Batal Edit</button>
             </div>
         </div>
 
         <!-- Game Catalog -->
         <div class="admin-section-title">▌ Game Catalog</div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
+            <button class="btn-small" onclick="renderGameTable()">🔄 Refresh</button>
             <button class="btn-small" onclick="exportGameData()">⬇ Export gameData.js</button>
-            <span style="font-size:13px;color:var(--text-muted);">Export untuk update file assets/js/gameData.js</span>
+            <span style="font-size:13px;color:var(--text-muted);">Data tersimpan permanen di server Netlify</span>
         </div>
         <div class="admin-table-wrap">
             <table class="admin-table">

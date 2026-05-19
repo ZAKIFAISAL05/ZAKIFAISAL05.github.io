@@ -43,7 +43,7 @@ async function callGemini(apiKey, systemPrompt, history, userMessage) {
   const body = {
     system_instruction: { parts: [{ text: systemPrompt }] },
     contents,
-    generationConfig: { maxOutputTokens: 300, temperature: 0.8 },
+    generationConfig: { maxOutputTokens: 800, temperature: 0.8 },
   };
 
   const res  = await fetch(url, {
@@ -111,31 +111,49 @@ exports.handler = async function (event) {
   const namaHari = getNamaHari(nowWIB);
   const tanggal  = getTanggal(nowWIB);
 
-  const systemPrompt = `Kamu adalah ${BOT_NAME}, customer service resmi Grid Survival — studio game indie dari Indonesia.
+  // Ambil daftar game terbaru dari Blobs
+  let gameListText = 'Minecraft Parkun 2D, THE ONE FOR ZOMBIE, Desa Investasi Zombie, Gerbang Parkun 2D, Desa Cipta Karya Ch2, The Undeads (Roblox), Frequency Fury Obby (Roblox)';
+  try {
+    const { getStore } = require('@netlify/blobs');
+    const siteID = process.env.NETLIFY_SITE_ID || process.env.SITE_ID;
+    const token  = process.env.NETLIFY_AUTH_TOKEN || process.env.NETLIFY_TOKEN;
+    const opts   = { name: 'grid-survival', consistency: 'strong' };
+    if (siteID && token) { opts.siteID = siteID; opts.token = token; }
+    const store  = getStore(opts);
+    const raw    = await store.get('game-catalog');
+    if (raw) {
+      const games = JSON.parse(raw);
+      gameListText = games.map(g => `${g.title} (${g.genre})`).join(', ');
+    }
+  } catch (_) { /* pakai fallback di atas */ }
+
+  const systemPrompt = `Kamu adalah ${BOT_NAME}, customer service resmi Grid Survival — studio game indie dari Indonesia yang berdiri sejak 2021.
 
 Hari ini: ${namaHari}, ${tanggal} (WIB).
 
-Gaya bicara kamu: ramah, sopan, tapi tetap santai dan friendly. Pakai bahasa Indonesia yang natural. Jawab singkat dan jelas, maks 3-4 kalimat kecuali perlu lebih panjang.
+Gaya bicara kamu: ramah, sopan, santai, dan friendly. Pakai bahasa Indonesia yang natural dan mudah dipahami. Jawab selengkap yang dibutuhkan — jangan potong penjelasan kalau memang perlu panjang. Kalau pertanyaannya singkat, jawab singkat; kalau butuh penjelasan detail, berikan detail lengkap.
+
+Daftar game Grid Survival saat ini: ${gameListText}
 
 Kamu BISA membantu soal:
-- Informasi game Grid Survival (Minecraft Parkun 2D, THE ONE FOR ZOMBIE, Desa Investasi Zombie, Gerbang Parkun 2D, Desa Cipta Karya Ch2, The Undeads Roblox, Frequency Fury Obby)
-- Download game (platform: TapTap, Itch.io, Roblox)
-- Cara main, tips & trik game
-- Bug / error yang dialami pemain
+- Informasi lengkap tiap game (genre, cara main, tips & trik, platform tersedia)
+- Link download game (TapTap, Itch.io, Roblox)
+- Troubleshooting bug / error yang dialami pemain
 - Saran dan masukan untuk game
-- Info studio Grid Survival
+- Info studio Grid Survival, tim developer, sejarah studio
+- Pertanyaan umum seputar game indie Indonesia
 
 Kamu TIDAK bisa:
 - Membuat perubahan langsung di game
 - Memberikan kompensasi atau item gratis
 - Mengakses data akun pemain
 
-Kalau ada yang lapor bug atau error, minta mereka isi form di website (tombol "Laporkan Bug") dan yakinkan laporan akan diproses. Kalau ada saran, apresiasi dan catat bahwa saran diteruskan ke tim developer.
+Kalau ada yang lapor bug atau error, minta mereka isi form laporan di website (tombol "Laporkan Bug") dan yakinkan laporan akan diproses tim. Kalau ada saran, apresiasi dan sampaikan akan diteruskan ke developer.
 
 Kontak tambahan: Email dzakifaisal11@gmail.com | Discord: discord.gg/f8jW6B3X | WA Channel: whatsapp.com/channel/0029VaAxK4O2975D8utbc927`;
 
   // Konversi history (maks 6 pesan terakhir)
-  const geminiHistory = (history || []).slice(-6).map(h => ({
+  const geminiHistory = (history || []).slice(-10).map(h => ({
     role: h.role === 'bot' ? 'model' : 'user',
     text: h.text,
   }));

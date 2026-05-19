@@ -537,3 +537,26 @@ body {
     .report-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
     .modal-card { padding: 20px; border-radius: var(--border-r-sm); }
 }
+
+/* ── LIHAT SEMUA GAME BAR ── */
+.see-all-bar {
+    display: flex;
+    justify-content: center;
+    padding: 8px 16px 4px;
+    background: var(--bg);
+}
+.see-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 0.5px;
+    padding: 8px 20px;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: opacity 0.18s, transform 0.18s;
+}
+.see-all-btn:hover { opacity: 0.88; transform: translateY(-1px); }

@@ -16,3 +16,8 @@
   for = "/admin/*"
   [headers.values]
     X-Robots-Tag = "noindex"
+
+[[headers]]
+  for = "/tiket/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

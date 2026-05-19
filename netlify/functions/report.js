@@ -3,10 +3,13 @@
 //  POST { type, game, desc, contact, email, ticketId }
 //  1. Generate / terima ticketId
 //  2. AI summarize via Gemini
-//  3. Kirim notif WA admin via Fonnte
-//  4. Kirim email konfirmasi ke user (jika ada email)
-//  5. Kirim email notif ke admin
+//  3. Simpan tiket ke Netlify Blobs (via ticket function logic)
+//  4. Kirim notif WA admin via Fonnte
+//  5. Kirim email konfirmasi ke user (jika ada email)
+//  6. Kirim email notif ke admin
 // ============================================================
+
+const { getStore } = require('@netlify/blobs');
 
 const CORS = {
   'Access-Control-Allow-Origin':  '*',
@@ -16,6 +19,51 @@ const CORS = {
 };
 
 const GEMINI_MODEL = 'gemini-2.5-flash';
+
+/* ── TICKET BLOBS HELPERS ── */
+function createTicketStore() {
+  const siteID = process.env.NETLIFY_SITE_ID || process.env.SITE_ID;
+  const tok    = process.env.NETLIFY_AUTH_TOKEN || process.env.NETLIFY_TOKEN;
+  const opts   = { name: 'grid-survival', consistency: 'strong' };
+  if (siteID && tok) { opts.siteID = siteID; opts.token = tok; }
+  return getStore(opts);
+}
+
+async function saveTicketToBlobs({ id, type, game, desc, email, contact, summary }) {
+  try {
+    const store = createTicketStore();
+    const COUNTER_KEY = 'ticket-counter';
+    const TICKETS_KEY = 'ticket-list';
+
+    const rawCounter = await store.get(COUNTER_KEY).catch(() => null);
+    const num = rawCounter ? parseInt(rawCounter) + 1 : 1;
+    await store.set(COUNTER_KEY, String(num));
+
+    const token = Array.from({ length: 24 }, () =>
+      Math.floor(Math.random() * 36).toString(36)
+    ).join('').toUpperCase();
+
+    const now = new Date().toISOString();
+    const fullTicket = {
+      id, num, token, type, game: game || '—', desc, email: email || '',
+      contact: contact || '', summary: summary || desc,
+      status: 'received', statusLabel: 'Diterima',
+      statusStep: 0, createdAt: now, updatedAt: now, done: false, devNote: ''
+    };
+
+    await store.set('ticket:' + id, JSON.stringify(fullTicket));
+
+    const rawIdx = await store.get(TICKETS_KEY).catch(() => null);
+    const idx = rawIdx ? JSON.parse(rawIdx) : [];
+    idx.unshift({ id, num, token, status: 'received', createdAt: now, done: false });
+    await store.set(TICKETS_KEY, JSON.stringify(idx));
+
+    return { num, token, ticketUrl: '/tiket/?token=' + token };
+  } catch (e) {
+    console.error('Gagal simpan tiket ke Blobs:', e.message);
+    return null;
+  }
+}
 
 async function callGemini(apiKey, prompt) {
   const url  = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
@@ -192,12 +240,17 @@ exports.handler = async function (event) {
     }
   }
 
-  // 2. WA admin via Fonnte
+  // 2. Simpan tiket ke Netlify Blobs (nomor urut + token)
+  const ticketData = await saveTicketToBlobs({ id: ticketId, type, game: gameLabel, desc: desc.trim(), email, contact, summary });
+  const ticketNum  = ticketData?.num || '—';
+  const ticketUrl  = ticketData ? `https://zakifaisal05.netlify.app${ticketData.ticketUrl}` : '';
+
+  // 3. WA admin via Fonnte
   if (fonnteToken && adminTarget) {
     const waMsg =
 `━━━━━━━━━━━━━━━━━━━━
 ${typeLabel} — GRID SURVIVAL
-Tiket: *#${ticketId}*
+Tiket: *#${ticketNum}* (${ticketId})
 ━━━━━━━━━━━━━━━━━━━━
 📅 *Waktu:* ${waktuWIB}
 🎮 *Game:* ${gameLabel}
@@ -209,25 +262,34 @@ ${summary}
 
 📧 *Email:* ${email || '—'}
 📱 *Kontak:* ${contact || '—'}
+━━━━━━━━━━━━━━━━━━━━
+Update status tiket via /admin atau balas pesan ini dengan:
+STATUS ${ticketId} seen|confirmed|done
 ━━━━━━━━━━━━━━━━━━━━`;
     await sendFonnte(fonnteToken, adminTarget, waMsg);
   }
 
-  // 3. Email ke user (kalau ada email)
+  // 4. Email ke user (kalau ada email)
   if (resendKey && email && email.includes('@')) {
-    const subjUser = `[#${ticketId}] ${type === 'bug' ? 'Bug Dilaporkan' : 'Saran Diterima'} — Grid Survival`;
-    await sendEmail(resendKey, email, subjUser, emailUserHtml(ticketId, type, gameLabel, desc.trim(), waktuWIB));
+    const subjUser = `[Tiket #${ticketNum}] ${type === 'bug' ? 'Bug Dilaporkan' : 'Saran Diterima'} — Grid Survival`;
+    const htmlUser = emailUserHtml(ticketId, type, gameLabel, desc.trim(), waktuWIB)
+      .replace('</div>\n</body>', `
+  <div class="body" style="padding-top:0;">
+    <a href="${ticketUrl}" style="display:block;text-align:center;background:#7c4dff;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:0.95rem;">🔍 Pantau Status Tiket Kamu</a>
+  </div>
+</div>\n</body>`);
+    await sendEmail(resendKey, email, subjUser, htmlUser);
   }
 
-  // 4. Email notif ke admin
+  // 5. Email notif ke admin
   if (resendKey) {
-    const subjAdmin = `[${typeLabel}] #${ticketId} — ${gameLabel}`;
+    const subjAdmin = `[${typeLabel}] Tiket #${ticketNum} — ${gameLabel}`;
     await sendEmail(resendKey, adminEmail, subjAdmin, emailAdminHtml(ticketId, type, gameLabel, desc.trim(), contact, email, summary, waktuWIB));
   }
 
   return {
     statusCode: 200,
     headers: CORS,
-    body: JSON.stringify({ ok: true, summary, ticketId, message: 'Laporan berhasil dikirim!' }),
+    body: JSON.stringify({ ok: true, summary, ticketId, ticketNum, ticketUrl: ticketData?.ticketUrl || '', message: 'Laporan berhasil dikirim!' }),
   };
 };

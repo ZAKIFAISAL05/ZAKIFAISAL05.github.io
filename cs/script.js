@@ -490,7 +490,7 @@ function submitReport() {
             summary: data.summary || desc,
             time: new Date().toLocaleString('id-ID'), done: false
         });
-        showSuccess(data.ok, false, ticketId, !!email);
+        showSuccess(data.ok, false, ticketId, !!email, data.ticketNum, data.ticketUrl);
         modalFiles = [];
     })
     .catch(function() {
@@ -501,38 +501,43 @@ function submitReport() {
             summary: desc,
             time: new Date().toLocaleString('id-ID'), done: false, offline: true
         });
-        showSuccess(false, true, ticketId, false);
+        showSuccess(false, true, ticketId, false, null, null);
         modalFiles = [];
     });
 }
 
-function showSuccess(ok, offline, ticketId, hasEmail) {
+function showSuccess(ok, offline, ticketId, hasEmail, ticketNum, ticketUrl) {
     document.getElementById('modal-form').style.display = 'none';
     var s = document.getElementById('modal-success');
     s.classList.add('show');
 
     var ticketBox  = document.getElementById('ticket-box');
-    var ticketNum  = document.getElementById('ticket-number');
+    var ticketNum_ = document.getElementById('ticket-number');
     var ticketNote = document.getElementById('ticket-note');
 
     if (ok) {
         document.getElementById('success-title').textContent = currentType === 'bug' ? '🐛 Bug Dilaporkan!' : '💡 Saran Terkirim!';
-        document.getElementById('success-msg').textContent   = 'Terima kasih! Tim kami akan segera menangani laporanmu. Notifikasi sudah dikirim ke admin via WhatsApp.';
+        document.getElementById('success-msg').textContent   = 'Terima kasih! Tim kami akan segera menangani laporanmu.';
         if (ticketId) {
             ticketBox.style.display = 'flex';
-            ticketNum.textContent   = '#' + ticketId;
-            ticketNote.textContent  = hasEmail ? 'Konfirmasi dikirim ke email kamu. Simpan nomor ini.' : 'Simpan nomor tiket ini untuk follow-up.';
+            ticketNum_.textContent  = ticketNum ? 'Tiket #' + ticketNum : '#' + ticketId;
+            var noteText = hasEmail ? 'Konfirmasi + link tiket dikirim ke email kamu.' : 'Simpan nomor tiket ini untuk follow-up.';
+            if (ticketUrl) {
+                ticketNote.innerHTML = noteText + ' <a href="' + ticketUrl + '" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:600;">Pantau Status →</a>';
+            } else {
+                ticketNote.textContent = noteText;
+            }
         }
     } else if (offline) {
         document.getElementById('success-title').textContent = '📦 Tersimpan Lokal';
         document.getElementById('success-msg').textContent   = 'Laporan tersimpan. Koneksi server bermasalah — coba kirim ulang nanti.';
-        if (ticketId) { ticketBox.style.display = 'flex'; ticketNum.textContent = '#' + ticketId; ticketNote.textContent = 'Nomor tiket lokal.'; }
+        if (ticketId) { ticketBox.style.display = 'flex'; ticketNum_.textContent = '#' + ticketId; ticketNote.textContent = 'Nomor tiket lokal.'; }
     } else {
         document.getElementById('success-title').textContent = '⚠️ Gagal Mengirim';
         document.getElementById('success-msg').textContent   = 'Coba lagi nanti atau hubungi kami via Discord.';
     }
 
-    setTimeout(closeModal, 5000);
+    setTimeout(closeModal, 7000);
 }
 
 /* ── LOCAL STORAGE ── */

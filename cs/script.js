@@ -537,7 +537,70 @@ function showSuccess(ok, offline, ticketId, hasEmail, ticketNum, ticketUrl) {
         document.getElementById('success-msg').textContent   = 'Coba lagi nanti atau hubungi kami via Discord.';
     }
 
-    setTimeout(closeModal, 7000);
+    // Kirim juga bubble konfirmasi ke chat setelah modal tertutup
+    var delay = ok ? 7500 : 3500;
+    setTimeout(function() {
+        closeModal();
+        postTicketBubble(ok, offline, ticketId, ticketNum, ticketUrl, hasEmail);
+    }, delay);
+}
+
+/* ── BUBBLE TIKET DI CHAT ── */
+function postTicketBubble(ok, offline, ticketId, ticketNum, ticketUrl, hasEmail) {
+    var msgs = document.getElementById('messages');
+    if (!msgs) return;
+
+    var row = document.createElement('div');
+    row.className = 'msg-row bot';
+
+    var numLabel = ticketNum ? 'Tiket #' + ticketNum : (ticketId ? '#' + ticketId : '');
+
+    // Pastikan URL selalu absolute
+    var fullUrl = '';
+    if (ticketUrl) {
+        if (ticketUrl.startsWith('http')) {
+            fullUrl = ticketUrl;
+        } else {
+            fullUrl = window.location.protocol + '//' + window.location.host + (ticketUrl.startsWith('/') ? '' : '/') + ticketUrl;
+        }
+    }
+
+    var inner = '';
+    if (ok && ticketId) {
+        inner =
+            '<div style="font-weight:700;margin-bottom:10px;font-size:0.95rem;">' + (currentType === 'bug' ? '🐛 Laporan Bug Diterima!' : '💡 Saran Diterima!') + '</div>' +
+            '<div style="background:linear-gradient(135deg,rgba(124,77,255,.3),rgba(0,229,255,.15));' +
+            'border:1px solid rgba(124,77,255,.5);border-radius:12px;padding:14px 16px;margin:6px 0;text-align:center;">' +
+                '<div style="font-size:0.65rem;opacity:.65;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">Nomor Tiket Kamu</div>' +
+                '<div style="font-size:1.5rem;font-weight:800;letter-spacing:3px;color:#fff;">' + numLabel + '</div>' +
+            '</div>' +
+            (fullUrl
+                ? '<a href="' + fullUrl + '" target="_blank" style="display:block;text-align:center;' +
+                  'background:linear-gradient(135deg,#7c4dff,#5c35cc);color:#fff;' +
+                  'text-decoration:none;padding:11px 16px;border-radius:10px;font-weight:700;font-size:0.9rem;' +
+                  'margin-top:8px;letter-spacing:0.3px;box-shadow:0 4px 14px rgba(124,77,255,.4);">' +
+                  '🔍 Pantau Status Tiket →</a>'
+                : '') +
+            '<div style="font-size:0.72rem;opacity:.55;margin-top:10px;line-height:1.5;">' +
+            (hasEmail ? '📧 Link tiket juga dikirim ke emailmu.' : '🔒 Bookmark link ini — hanya kamu yang bisa akses tiket ini.') +
+            '</div>';
+    } else if (offline) {
+        inner = '📦 Laporanmu tersimpan lokal. ' + (numLabel ? 'ID sementara: <strong>' + numLabel + '</strong>. ' : '') + 'Coba kirim ulang saat koneksi stabil ya.';
+    } else {
+        inner = '⚠️ Laporan gagal terkirim. Coba lagi atau hubungi kami via Discord/Email.';
+    }
+
+    row.innerHTML =
+        '<div class="msg-avatar"><img src="../assets/img/studio_logo.png" alt="CS"></div>' +
+        '<div class="msg-content">' +
+            '<div class="msg-name">Grid CS Bot</div>' +
+            '<div class="msg-bubble">' + inner + '</div>' +
+            '<div class="msg-meta"><span class="msg-time">' + now() + '</span></div>' +
+        '</div>';
+
+    msgs.appendChild(row);
+    msgs.scrollTop = msgs.scrollHeight;
+    playPing();
 }
 
 /* ── LOCAL STORAGE ── */

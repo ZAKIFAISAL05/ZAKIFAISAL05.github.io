@@ -1,6 +1,6 @@
 // ============================================================
 //  cs/script.js — Grid Survival Customer Service Chat
-//  CS bisa langsung handle laporan bug/saran + upload bukti
+//  CS bisa handle chat AI + laporan bug/saran langsung
 // ============================================================
 'use strict';
 
@@ -12,17 +12,14 @@ var isWaiting       = false;
 var sessionId       = 'cs_' + Math.random().toString(36).slice(2, 9);
 var ttsEnabled      = true;
 var soundEnabled    = true;
-var pendingFiles    = []; // file yg mau dikirim bareng pesan
-
-// Mode laporan via chat (null = normal, 'bug' = lagi ngumpulin info bug, 'saran' = saran)
-var reportMode      = null;
-var reportData      = {};
+var pendingFiles    = [];
 
 var QUICK = [
     { label: 'Info game apa saja?',  text: 'Ceritain dong game-game dari Grid Survival!' },
     { label: 'Cara download game',   text: 'Gimana cara download game kalian?' },
+    { label: '🐛 Lapor Bug',         text: '__BUG__' },
+    { label: '💡 Kirim Saran',       text: '__SARAN__' },
     { label: 'Kontak tim',           text: 'Gimana cara menghubungi tim Grid Survival?' },
-    { label: 'Siapa Grid Survival?', text: 'Ceritain dong tentang studio Grid Survival!' },
 ];
 
 /* ── TIME ── */
@@ -56,13 +53,13 @@ function speakText(text) {
     if (!plain) return;
     var utt  = new SpeechSynthesisUtterance(plain);
     utt.lang = 'id-ID'; utt.rate = 1.05; utt.pitch = 1.0;
-    var voices   = window.speechSynthesis.getVoices();
-    var idVoice  = voices.find(function(v) { return v.lang.startsWith('id'); });
+    var voices  = window.speechSynthesis.getVoices();
+    var idVoice = voices.find(function(v) { return v.lang.startsWith('id'); });
     if (idVoice) utt.voice = idVoice;
     window.speechSynthesis.speak(utt);
 }
 
-/* ── TOGGLE ── */
+/* ── TOGGLE TTS/SFX ── */
 function initToggles() {
     var btnTts   = document.getElementById('btn-tts');
     var btnSound = document.getElementById('btn-sound');
@@ -106,7 +103,6 @@ function addMsg(role, text, time, mediaList) {
         ? '<button class="tts-replay" title="Putar suara" onclick="speakText(\'' + text.replace(/'/g, "\\'").replace(/\n/g,' ') + '\')">▶</button>'
         : '';
 
-    // Media preview dalam bubble
     var mediaHtml = '';
     if (mediaList && mediaList.length) {
         mediaHtml = '<div class="bubble-media">';
@@ -134,7 +130,7 @@ function addMsg(role, text, time, mediaList) {
     if (role === 'bot') { playPing(); speakText(text); }
 }
 
-/* ── LIGHTBOX untuk gambar ── */
+/* ── LIGHTBOX ── */
 function openLightbox(src) {
     var lb = document.createElement('div');
     lb.className = 'lightbox';
@@ -162,14 +158,21 @@ function hideTyping() {
 /* ── QUICK REPLIES ── */
 function buildQuick() {
     var area = document.getElementById('quick-chips');
+    if (!area) return;
     QUICK.forEach(function(q) {
         var btn = document.createElement('button');
         btn.className   = 'quick-chip';
         btn.textContent = q.label;
-        btn.onclick = function() { sendMsg(q.text); hideQuickArea(); };
+        btn.onclick = function() {
+            if (q.text === '__BUG__')   { openModal('bug');   return; }
+            if (q.text === '__SARAN__') { openModal('saran'); return; }
+            sendMsg(q.text);
+            hideQuickArea();
+        };
         area.appendChild(btn);
     });
 }
+
 function hideQuickArea() {
     var qa = document.getElementById('quick-area');
     if (qa) qa.style.display = 'none';
@@ -180,39 +183,40 @@ function sendWelcome() {
     setTimeout(function() {
         addMsg('bot',
             'Halo! Selamat datang di **Customer Service Grid Survival**.\n\n' +
-            'Ada yang bisa aku bantu? Kamu bisa tanya info game, cara download, atau lapor bug dan kirim saran langsung di sini — ' +
-            'aku yang akan terusin ke tim developer!',
+            'Ada yang bisa aku bantu? Kamu bisa tanya info game, cara download, atau **lapor bug / kirim saran** langsung di sini — ' +
+            'aku yang terusin ke tim developer!',
             now()
         );
     }, 600);
 }
 
-/* ── FILE HANDLING (chat input) ── */
+/* ── FILE HANDLING ── */
 function initFileInput() {
     var fileInput    = document.getElementById('file-input');
-    var previewBar   = document.getElementById('upload-preview-bar');
-    var previewInner = document.getElementById('upload-preview-inner');
     var clearBtn     = document.getElementById('upload-clear-btn');
+    if (!fileInput) return;
 
     fileInput.addEventListener('change', function() {
-        var files = Array.from(fileInput.files);
-        files.forEach(function(f) {
-            if (pendingFiles.length >= 5) return; // maks 5 file
+        Array.from(fileInput.files).forEach(function(f) {
+            if (pendingFiles.length >= 5) return;
             pendingFiles.push(f);
         });
         fileInput.value = '';
         renderPendingPreviews();
     });
 
-    clearBtn.addEventListener('click', function() {
-        pendingFiles = [];
-        renderPendingPreviews();
-    });
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+            pendingFiles = [];
+            renderPendingPreviews();
+        });
+    }
 }
 
 function renderPendingPreviews() {
     var bar   = document.getElementById('upload-preview-bar');
     var inner = document.getElementById('upload-preview-inner');
+    if (!bar || !inner) return;
     inner.innerHTML = '';
     if (!pendingFiles.length) { bar.style.display = 'none'; return; }
     bar.style.display = 'flex';
@@ -239,7 +243,6 @@ function renderPendingPreviews() {
     });
 }
 
-/* ── Konversi file ke base64 ── */
 function fileToBase64(file) {
     return new Promise(function(resolve, reject) {
         var r = new FileReader();
@@ -257,7 +260,6 @@ function sendMsg(text, forcedFiles) {
 
     text = (text || '').trim();
 
-    // Buat object URL untuk preview lokal
     var mediaList = files.map(function(f) {
         return { type: f.type.startsWith('image/') ? 'image' : 'video', url: URL.createObjectURL(f), file: f };
     });
@@ -268,15 +270,14 @@ function sendMsg(text, forcedFiles) {
     var inp = document.getElementById('msg-input');
     if (inp) { inp.value = ''; inp.style.height = 'auto'; }
 
-    // Reset pending files
     pendingFiles = [];
     renderPendingPreviews();
 
     isWaiting = true;
-    document.getElementById('send-btn').disabled = true;
+    var sendBtn = document.getElementById('send-btn');
+    if (sendBtn) sendBtn.disabled = true;
     showTyping();
 
-    // Konversi file ke base64 kalau ada
     var filePromises = mediaList.map(function(m) {
         return fileToBase64(m.file).then(function(b64) {
             return { name: m.file.name, type: m.file.type, base64: b64 };
@@ -294,9 +295,7 @@ function sendMsg(text, forcedFiles) {
                 history: chatHistory.slice(-10).map(function(h) {
                     return { role: h.role === 'bot' ? 'model' : 'user', text: h.text };
                 }),
-                attachments: attachments,
-                reportMode: reportMode,
-                reportData: reportData
+                attachments: attachments
             })
         });
     })
@@ -304,7 +303,7 @@ function sendMsg(text, forcedFiles) {
     .then(function(data) {
         hideTyping();
         isWaiting = false;
-        document.getElementById('send-btn').disabled = false;
+        if (sendBtn) sendBtn.disabled = false;
 
         if (data.rateLimited) {
             addMsg('bot', 'Sabar ya, tunggu beberapa detik sebelum kirim pesan lagi.', now());
@@ -315,41 +314,12 @@ function sendMsg(text, forcedFiles) {
         addMsg('bot', reply, now());
         chatHistory.push({ role: 'bot', text: reply });
         if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
-
-        // Cek kalau AI bilang laporan sudah dikirim ke developer
-        if (data.reportSubmitted && data.reportPayload) {
-            submitReportFromChat(data.reportPayload);
-        }
     })
     .catch(function() {
         hideTyping();
         isWaiting = false;
-        document.getElementById('send-btn').disabled = false;
+        if (sendBtn) sendBtn.disabled = false;
         addMsg('bot', 'Koneksi bermasalah. Coba refresh halaman atau hubungi kami via Discord/Email ya.', now());
-    });
-}
-
-/* ── Submit laporan ke backend dari chat ── */
-function submitReportFromChat(payload) {
-    var ticketId = 'GS-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,5).toUpperCase();
-    fetch(REPORT_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Object.assign({}, payload, { ticketId: ticketId }))
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        saveReportLocal({ id: ticketId, type: payload.type, game: payload.game || '—', desc: payload.desc, time: new Date().toLocaleString('id-ID'), done: false });
-        if (data.ok) {
-            addMsg('bot',
-                'Laporan kamu sudah aku terusin ke tim developer dengan nomor tiket **#' + ticketId + '**.\n\n' +
-                'Simpan nomor ini untuk follow-up ya' + (payload.email ? ' — konfirmasi juga dikirim ke emailmu.' : '.'),
-                now()
-            );
-        }
-    })
-    .catch(function() {
-        // Laporan gagal ke server, tapi sudah tersimpan lokal
     });
 }
 
@@ -357,6 +327,7 @@ function submitReportFromChat(payload) {
 function initInput() {
     var inp = document.getElementById('msg-input');
     var btn = document.getElementById('send-btn');
+    if (!inp || !btn) return;
     btn.addEventListener('click', function() { sendMsg(inp.value); hideQuickArea(); });
     inp.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -371,47 +342,67 @@ function initInput() {
     });
 }
 
-/* ── TICKET ── */
+/* ── TICKET GENERATOR ── */
 function generateTicket() {
     return 'GS-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,5).toUpperCase();
 }
 
-/* ── REPORT MODAL (untuk akses via tombol Bug di topbar) ── */
+/* ══════════════════════════════════════════
+   REPORT MODAL — Form lengkap + kirim ke WA
+══════════════════════════════════════════ */
+var modalFiles = [];
+
 function openModal(type) {
     currentType = type || 'bug';
     switchType(currentType);
-    document.getElementById('modal-form').style.display    = 'block';
+
+    // Reset form
+    document.getElementById('modal-form').style.display   = 'block';
     document.getElementById('modal-success').classList.remove('show');
     document.getElementById('r-desc').value    = '';
     document.getElementById('r-contact').value = '';
     document.getElementById('r-email').value   = '';
     document.getElementById('r-game').value    = '';
-    document.getElementById('r-submit').disabled    = false;
-    document.getElementById('r-submit').textContent = currentType === 'bug' ? 'Kirim Laporan Bug' : 'Kirim Saran';
-    document.getElementById('modal-upload-preview').innerHTML = '';
+    var submitBtn = document.getElementById('r-submit');
+    submitBtn.disabled    = false;
+    submitBtn.textContent = currentType === 'bug' ? 'Kirim Laporan Bug' : 'Kirim Saran';
+
+    // Reset file preview modal
+    modalFiles = [];
+    var mPrev = document.getElementById('modal-upload-preview');
+    if (mPrev) mPrev.innerHTML = '';
+
+    // Bersihkan error highlight
+    ['r-desc','r-email'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) { el.style.borderColor = ''; el.style.boxShadow = ''; }
+    });
+
     document.getElementById('modal-bg').classList.add('open');
 }
-function closeModal() { document.getElementById('modal-bg').classList.remove('open'); }
+
+function closeModal() {
+    document.getElementById('modal-bg').classList.remove('open');
+}
+
 function switchType(type) {
     currentType = type;
     document.querySelectorAll('.type-btn').forEach(function(b) {
         b.classList.toggle('active', b.getAttribute('data-type') === type);
     });
     var isBug = type === 'bug';
-    document.getElementById('modal-icon').className    = 'modal-icon ' + type;
-    document.getElementById('modal-title').textContent = isBug ? 'Laporan Bug / Error' : 'Kirim Saran';
+    document.getElementById('modal-icon').className     = 'modal-icon ' + type;
+    document.getElementById('modal-title').textContent  = isBug ? 'Laporan Bug / Error' : 'Kirim Saran';
     document.getElementById('r-desc-label').textContent = isBug ? 'Deskripsi bug / error *' : 'Isi saran / masukan *';
-    document.getElementById('r-desc').placeholder = isBug
+    document.getElementById('r-desc').placeholder       = isBug
         ? 'Ceritakan bug yang kamu temukan...'
         : 'Tulis saran atau masukan kamu...';
     document.getElementById('r-submit').textContent = isBug ? 'Kirim Laporan Bug' : 'Kirim Saran';
 }
 
 /* ── MODAL FILE UPLOAD ── */
-var modalFiles = [];
 function initModalFileInput() {
-    var mInput   = document.getElementById('modal-file-input');
-    var mPreview = document.getElementById('modal-upload-preview');
+    var mInput = document.getElementById('modal-file-input');
     if (!mInput) return;
     mInput.addEventListener('change', function() {
         Array.from(mInput.files).forEach(function(f) {
@@ -421,8 +412,10 @@ function initModalFileInput() {
         renderModalPreviews();
     });
 }
+
 function renderModalPreviews() {
     var mPreview = document.getElementById('modal-upload-preview');
+    if (!mPreview) return;
     mPreview.innerHTML = '';
     modalFiles.forEach(function(f, i) {
         var item = document.createElement('div');
@@ -444,6 +437,7 @@ function renderModalPreviews() {
     });
 }
 
+/* ── SUBMIT REPORT (kirim ke backend → WA + Email) ── */
 function submitReport() {
     var desc    = document.getElementById('r-desc').value.trim();
     var game    = document.getElementById('r-game').value;
@@ -451,6 +445,7 @@ function submitReport() {
     var email   = document.getElementById('r-email').value.trim();
     var btn     = document.getElementById('r-submit');
 
+    // Validasi deskripsi
     if (!desc || desc.length < 10) {
         var descEl = document.getElementById('r-desc');
         descEl.focus();
@@ -464,7 +459,7 @@ function submitReport() {
     btn.disabled    = true;
     btn.textContent = 'Mengirim...';
 
-    // Konversi modalFiles ke base64
+    // Konversi file ke base64
     var filePromises = modalFiles.map(function(f) {
         return fileToBase64(f).then(function(b64) {
             return { name: f.name, type: f.type, base64: b64 };
@@ -475,17 +470,37 @@ function submitReport() {
         return fetch(REPORT_ENDPOINT, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: currentType, game: game, desc: desc, contact: contact, email: email, ticketId: ticketId, attachments: attachments })
+            body: JSON.stringify({
+                type:        currentType,
+                game:        game,
+                desc:        desc,
+                contact:     contact,
+                email:       email,
+                ticketId:    ticketId,
+                attachments: attachments
+            })
         });
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
-        saveReportLocal({ id: ticketId, type: currentType, game: game || '—', desc: desc, contact: contact, email: email, summary: data.summary || desc, time: new Date().toLocaleString('id-ID'), done: false });
+        saveReportLocal({
+            id: ticketId, type: currentType,
+            game: game || '—', desc: desc,
+            contact: contact, email: email,
+            summary: data.summary || desc,
+            time: new Date().toLocaleString('id-ID'), done: false
+        });
         showSuccess(data.ok, false, ticketId, !!email);
         modalFiles = [];
     })
     .catch(function() {
-        saveReportLocal({ id: ticketId, type: currentType, game: game || '—', desc: desc, contact: contact, email: email, summary: desc, time: new Date().toLocaleString('id-ID'), done: false, offline: true });
+        saveReportLocal({
+            id: ticketId, type: currentType,
+            game: game || '—', desc: desc,
+            contact: contact, email: email,
+            summary: desc,
+            time: new Date().toLocaleString('id-ID'), done: false, offline: true
+        });
         showSuccess(false, true, ticketId, false);
         modalFiles = [];
     });
@@ -495,28 +510,32 @@ function showSuccess(ok, offline, ticketId, hasEmail) {
     document.getElementById('modal-form').style.display = 'none';
     var s = document.getElementById('modal-success');
     s.classList.add('show');
+
     var ticketBox  = document.getElementById('ticket-box');
     var ticketNum  = document.getElementById('ticket-number');
     var ticketNote = document.getElementById('ticket-note');
+
     if (ok) {
-        document.getElementById('success-title').textContent = currentType === 'bug' ? 'Bug Dilaporkan!' : 'Saran Terkirim!';
-        document.getElementById('success-msg').textContent   = 'Terima kasih! Tim kami akan segera menangani laporanmu.';
+        document.getElementById('success-title').textContent = currentType === 'bug' ? '🐛 Bug Dilaporkan!' : '💡 Saran Terkirim!';
+        document.getElementById('success-msg').textContent   = 'Terima kasih! Tim kami akan segera menangani laporanmu. Notifikasi sudah dikirim ke admin via WhatsApp.';
         if (ticketId) {
             ticketBox.style.display = 'flex';
             ticketNum.textContent   = '#' + ticketId;
             ticketNote.textContent  = hasEmail ? 'Konfirmasi dikirim ke email kamu. Simpan nomor ini.' : 'Simpan nomor tiket ini untuk follow-up.';
         }
     } else if (offline) {
-        document.getElementById('success-title').textContent = 'Tersimpan Lokal';
-        document.getElementById('success-msg').textContent   = 'Laporan tersimpan. Koneksi server bermasalah saat ini.';
+        document.getElementById('success-title').textContent = '📦 Tersimpan Lokal';
+        document.getElementById('success-msg').textContent   = 'Laporan tersimpan. Koneksi server bermasalah — coba kirim ulang nanti.';
         if (ticketId) { ticketBox.style.display = 'flex'; ticketNum.textContent = '#' + ticketId; ticketNote.textContent = 'Nomor tiket lokal.'; }
     } else {
-        document.getElementById('success-title').textContent = 'Gagal Mengirim';
+        document.getElementById('success-title').textContent = '⚠️ Gagal Mengirim';
         document.getElementById('success-msg').textContent   = 'Coba lagi nanti atau hubungi kami via Discord.';
     }
+
     setTimeout(closeModal, 5000);
 }
 
+/* ── LOCAL STORAGE ── */
 function saveReportLocal(r) {
     try {
         var all = JSON.parse(localStorage.getItem('gs_reports') || '[]');
@@ -525,7 +544,9 @@ function saveReportLocal(r) {
     } catch(e) {}
 }
 
-/* ── INIT ── */
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', function() {
     buildQuick();
     initInput();
@@ -539,37 +560,38 @@ document.addEventListener('DOMContentLoaded', function() {
         window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
     }
 
+    // Modal backdrop close
     document.getElementById('modal-bg').addEventListener('click', function(e) {
         if (e.target === this) closeModal();
     });
-    document.getElementById('btn-report-top').addEventListener('click', function() { openModal('bug'); });
-    document.getElementById('r-submit').addEventListener('click', submitReport);
-    document.getElementById('btn-open-bug').addEventListener('click', function() {
-        // Lapor bug langsung lewat chat
+
+    // Tombol Bug di topbar
+    var btnReportTop = document.getElementById('btn-report-top');
+    if (btnReportTop) btnReportTop.addEventListener('click', function() { openModal('bug'); });
+
+    // Kartu cepat di quick area
+    var btnOpenBug = document.getElementById('btn-open-bug');
+    if (btnOpenBug) btnOpenBug.addEventListener('click', function() {
         hideQuickArea();
-        addMsg('bot',
-            'Oke, aku bantu lapor bug ke tim developer.\n\n' +
-            'Ceritain dulu: **bug apa yang kamu temukan?** Kalau ada gambar atau video buktinya, bisa kamu kirim sekalian pakai tombol lampiran di bawah.',
-            now()
-        );
-        reportMode = 'bug';
-        reportData = {};
-    });
-    document.getElementById('btn-open-saran').addEventListener('click', function() {
-        // Kirim saran langsung lewat chat
-        hideQuickArea();
-        addMsg('bot',
-            'Oke, aku siap tampung saranmu untuk tim developer!\n\n' +
-            '**Saran apa yang mau kamu kasih?** Boleh detail sebanyak-banyaknya ya — semua masukan sangat berharga.',
-            now()
-        );
-        reportMode = 'saran';
-        reportData = {};
+        openModal('bug');
     });
 
+    var btnOpenSaran = document.getElementById('btn-open-saran');
+    if (btnOpenSaran) btnOpenSaran.addEventListener('click', function() {
+        hideQuickArea();
+        openModal('saran');
+    });
+
+    // Type toggle di dalam modal
     document.querySelectorAll('.type-btn').forEach(function(btn) {
         btn.addEventListener('click', function() { switchType(btn.getAttribute('data-type')); });
     });
+
+    // Tombol close modal
     var closeBtn = document.getElementById('btn-close-modal');
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+    // Submit report
+    var submitBtn = document.getElementById('r-submit');
+    if (submitBtn) submitBtn.addEventListener('click', submitReport);
 });

@@ -101,8 +101,12 @@ function buildHTML() {
                     '<textarea id="r-desc" rows="4" placeholder="Ceritakan bug yang kamu temukan, langkah-langkahnya, dan apa yang terjadi..." maxlength="1000"></textarea>' +
                 '</div>' +
                 '<div class="rfield">' +
-                    '<label>KONTAK KAMU (opsional)</label>' +
-                    '<input type="text" id="r-contact" placeholder="WA / Discord / Email kamu..." maxlength="100">' +
+                    '<label>EMAIL KAMU <span style="font-weight:400;opacity:0.6;">(untuk konfirmasi tiket)</span></label>' +
+                    '<input type="email" id="r-email" placeholder="contoh@gmail.com" maxlength="100">' +
+                '</div>' +
+                '<div class="rfield">' +
+                    '<label>KONTAK LAIN <span style="font-weight:400;opacity:0.6;">(opsional — WA / Discord)</span></label>' +
+                    '<input type="text" id="r-contact" placeholder="WA / Discord..." maxlength="100">' +
                 '</div>' +
                 '<button class="btn-report-submit" id="r-submit">▶ KIRIM LAPORAN</button>' +
             '</div>' +
@@ -110,7 +114,11 @@ function buildHTML() {
             '<div class="report-result" id="report-result">' +
                 '<span class="report-result-icon" id="r-result-icon">✅</span>' +
                 '<span class="report-result-title" id="r-result-title">LAPORAN TERKIRIM!</span>' +
-                '<span class="report-result-msg" id="r-result-msg">Terima kasih! Tim kami akan segera menanganinya.</span>' +
+                '<span class="report-result-msg" id="r-result-msg">Terima kasih! Notifikasi sudah dikirim ke admin via WhatsApp.</span>' +
+                '<div class="report-ticket-box" id="report-ticket-box" style="display:none;">' +
+                    '<span style="font-size:0.7rem;opacity:0.6;text-transform:uppercase;letter-spacing:1px;">Nomor Tiket</span>' +
+                    '<span class="report-ticket-num" id="report-ticket-num">#GS-000000</span>' +
+                '</div>' +
             '</div>' +
         '</div>';
     document.body.appendChild(modal);
@@ -300,9 +308,11 @@ function openReportModal(type) {
     $('report-result').classList.remove('show');
     $('r-desc').value = '';
     $('r-contact').value = '';
+    $('r-email').value = '';
     $('r-game').value = '';
     $('r-submit').disabled = false;
     $('r-submit').textContent = '▶ KIRIM LAPORAN';
+    var rtb = $('report-ticket-box'); if (rtb) rtb.style.display = 'none';
 
     setReportType(currentReportType);
     modal.classList.add('open');
@@ -356,6 +366,7 @@ function submitReport() {
     var desc    = $('r-desc').value.trim();
     var game    = $('r-game').value;
     var contact = $('r-contact').value.trim();
+    var email   = $('r-email') ? $('r-email').value.trim() : '';
     var btn     = $('r-submit');
 
     if (!desc || desc.length < 10) {
@@ -365,14 +376,17 @@ function submitReport() {
         return;
     }
 
+    var ticketId = 'GS-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,5).toUpperCase();
     btn.disabled    = true;
     btn.textContent = '▶ MENGIRIM...';
 
     var payload = {
-        type:    currentReportType,
-        game:    game,
-        desc:    desc,
-        contact: contact
+        type:     currentReportType,
+        game:     game,
+        desc:     desc,
+        contact:  contact,
+        email:    email,
+        ticketId: ticketId
     };
 
     fetch(REPORT_ENDPOINT, {
@@ -382,13 +396,13 @@ function submitReport() {
     })
     .then(function(r){ return r.json(); })
     .then(function(data) {
-        // Simpan lokal juga (untuk admin panel offline)
         saveReportLocal({
-            id:       Date.now(),
+            id:       ticketId,
             type:     currentReportType,
             game:     game || 'Tidak disebutkan',
             desc:     desc,
             contact:  contact,
+            email:    email,
             summary:  data.summary || desc,
             time:     new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
             done:     false
@@ -402,7 +416,9 @@ function submitReport() {
             $('r-result-icon').textContent  = currentReportType === 'bug' ? '🐛✅' : '💡✅';
             $('r-result-title').textContent = currentReportType === 'bug' ? 'BUG DILAPORKAN!' : 'SARAN TERKIRIM!';
             $('r-result-title').style.color = currentReportType === 'bug' ? '#00ff41' : '#ffe600';
-            $('r-result-msg').textContent   = data.message || 'Terima kasih! Tim kami akan segera menanganinya.';
+            $('r-result-msg').textContent   = 'Laporan kamu sudah masuk! Admin sudah dapat notifikasi via WhatsApp.';
+            var rtb = $('report-ticket-box');
+            if (rtb) { rtb.style.display = 'flex'; $('report-ticket-num').textContent = '#' + ticketId; }
         } else {
             $('r-result-icon').textContent  = '⚠️';
             $('r-result-title').textContent = 'GAGAL MENGIRIM';

@@ -553,7 +553,7 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: var(--accent);
+    background: var(--brand);
     color: #fff;
     font-weight: 700;
     font-size: 0.82rem;
@@ -588,7 +588,7 @@ body {
     gap: 4px;
     margin-top: 14px;
     background: var(--surface);
-    border: 1.5px solid var(--accent);
+    border: 1.5px solid var(--brand);
     border-radius: 10px;
     padding: 12px 20px;
 }
@@ -601,7 +601,7 @@ body {
 .ticket-number {
     font-size: 1.15rem;
     font-weight: 800;
-    color: var(--accent);
+    color: var(--brand);
     letter-spacing: 1.5px;
 }
 .ticket-note {

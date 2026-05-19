@@ -225,8 +225,7 @@ Kontak tambahan: Email dzakifaisal11@gmail.com | Discord: discord.gg/f8jW6B3X | 
     reply = reply.replace(/\[SUBMIT_REPORT:.*?\]/s, '').trim();
   }
 
-  // Tambahkan konteks lampiran ke pesan user kalau ada
-  const { attachments } = body;
+  // Tambahkan konteks lampiran ke pesan user kalau ada (fallback jika reply kosong)
   if (attachments && attachments.length && !reply) {
     reply = 'Oke, bukti visualnya sudah aku terima! Ceritain juga ya bug atau masalah yang kamu temukan supaya aku bisa terusin ke tim developer.';
   }

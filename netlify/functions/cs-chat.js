@@ -10,8 +10,12 @@ const CORS = {
   'Content-Type':                 'application/json',
 };
 
-const BOT_NAME     = 'Grid CS Bot';
-const GEMINI_MODEL = 'gemini-3-flash-preview';
+const BOT_NAME      = 'Grid CS Bot';
+const GEMINI_MODELS = [
+  'gemini-3-flash-preview',   // model utama (dicoba pertama)
+  'gemini-2.0-flash',         // fallback 1
+  'gemini-1.5-flash',         // fallback 2
+];
 const RATE_MS      = 1500;
 const lastRequest  = {};
 
@@ -25,8 +29,8 @@ function getTanggal(d) {
 
 // Gemini NON-streaming (Netlify Functions tidak support true streaming response)
 // Tapi kita optimalkan: token kecil + prompt singkat = cepat
-async function callGemini(apiKey, systemPrompt, history, userMessage) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+async function callGemini(apiKey, model, systemPrompt, history, userMessage) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   const contents = [];
   // Maksimal 6 history terakhir saja supaya request lebih ringan
@@ -164,19 +168,24 @@ exports.handler = async function (event) {
     userMessage += `\n[User melampirkan ${attachments.length} file: ${attachments.map(a => a.name).join(', ')}]`;
   }
 
-  // Coba tiap API key
+  // Coba tiap kombinasi model + API key (model utama dulu, kalau gagal fallback)
   let reply = '';
-  for (const key of apiKeys) {
-    try {
-      reply = await callGemini(key, systemPrompt, geminiHistory, userMessage);
-      if (reply) break;
-    } catch (e) {
-      console.error('Gemini error:', e.message);
+  outer: for (const model of GEMINI_MODELS) {
+    for (const key of apiKeys) {
+      try {
+        reply = await callGemini(key, model, systemPrompt, geminiHistory, userMessage);
+        if (reply) break outer;
+      } catch (e) {
+        console.error(`Gemini error [${model}]:`, e.message);
+      }
     }
   }
 
   if (!reply) {
+    console.error('ALL GEMINI MODELS FAILED — keys available:', apiKeys.length, '| models tried:', GEMINI_MODELS.join(', '));
     reply = 'Maaf, CS sedang mengalami gangguan. Hubungi kami via Email: dzakifaisal11@gmail.com atau Discord: discord.gg/f8jW6B3X 🙏';
+  } else {
+    console.log('Gemini reply OK, length:', reply.length);
   }
 
   // Ekstrak tag SUBMIT_REPORT

@@ -66,8 +66,8 @@ function initToggles() {
     if (btnTts) {
         btnTts.addEventListener('click', function() {
             ttsEnabled = !ttsEnabled;
-            btnTts.title   = ttsEnabled ? 'TTS Aktif' : 'TTS Mati';
-            btnTts.style.opacity = ttsEnabled ? '1' : '0.4';
+            btnTts.title = ttsEnabled ? 'TTS Aktif' : 'TTS Mati';
+            btnTts.classList.toggle('off', !ttsEnabled);
             if (!ttsEnabled) window.speechSynthesis && window.speechSynthesis.cancel();
         });
     }
@@ -75,7 +75,7 @@ function initToggles() {
         btnSound.addEventListener('click', function() {
             soundEnabled = !soundEnabled;
             btnSound.title = soundEnabled ? 'Suara Aktif' : 'Suara Mati';
-            btnSound.style.opacity = soundEnabled ? '1' : '0.4';
+            btnSound.classList.toggle('off', !soundEnabled);
         });
     }
 }

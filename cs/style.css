@@ -115,16 +115,20 @@ body {
 .topbar-actions { display: flex; gap: 8px; align-items: center; }
 .topbar-btn {
     width: 36px; height: 36px;
-    border: 2px solid var(--border);
+    border: 1.5px solid var(--border);
     background: var(--surface2);
     border-radius: var(--border-r-sm);
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    color: var(--muted);
-    font-size: 1rem;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    color: var(--text);
+    transition: background 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
+    flex-shrink: 0;
 }
+.topbar-btn svg { display: block; pointer-events: none; }
 .topbar-btn:hover { background: var(--brand); color: #fff; border-color: var(--brand); }
+.topbar-btn.off { opacity: 0.35; }
+.topbar-btn#btn-report-top { color: var(--brand); border-color: var(--brand); }
+.topbar-btn#btn-report-top:hover { background: var(--brand); color: #fff; }
 
 /* ── CHAT AREA ── */
 .chat-wrap {

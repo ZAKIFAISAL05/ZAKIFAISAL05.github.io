@@ -18,6 +18,22 @@ const CORS = {
 
 const STORE_KEY = 'game-catalog';
 
+// Helper: buat store dengan fallback ke env vars manual
+function createStore() {
+  const siteID = process.env.NETLIFY_SITE_ID || process.env.SITE_ID;
+  const token  = process.env.NETLIFY_AUTH_TOKEN || process.env.NETLIFY_TOKEN;
+
+  const opts = { name: 'grid-survival', consistency: 'strong' };
+
+  // Kalau env vars tersedia, inject manual (berguna saat netlify dev atau env tidak ter-inject)
+  if (siteID && token) {
+    opts.siteID = siteID;
+    opts.token  = token;
+  }
+
+  return getStore(opts);
+}
+
 // Game default — hanya dipakai kalau belum ada data di Blobs sama sekali
 const DEFAULT_GAMES = [
   { id:'minecraft-parkour-2d',       title:'Minecraft Parkun 2D',         genre:'Arcade',     desc:'Petualangan parkour seru 2D terinspirasi Minecraft.',    icon:'assets/img/mc_parkun_logo.png',     platforms:[{name:'TapTap (Mobile)',url:'https://www.taptap.io/app/236072',cls:'btn-taptap'}] },
@@ -48,9 +64,10 @@ exports.handler = async (event, context) => {
 
   let store;
   try {
-    store = getStore({ name: 'grid-survival', consistency: 'strong' });
+    store = createStore();
   } catch (e) {
-    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Storage unavailable: ' + e.message }) };
+    console.error("[games.js] Gagal init Blobs store:", e.message);
+    return { statusCode: 503, headers: CORS, body: JSON.stringify({ error: "Storage tidak tersedia. Pastikan NETLIFY_SITE_ID dan NETLIFY_AUTH_TOKEN sudah di-set di Netlify dashboard.", detail: e.message }) };
   }
 
   // ── GET: ambil semua game ──

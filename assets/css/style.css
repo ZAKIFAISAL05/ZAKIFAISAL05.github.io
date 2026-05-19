@@ -1597,3 +1597,56 @@ footer p {
 @media (min-width: 1200px) {
     .games-grid { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* ── HERO BUTTONS ROW ── */
+.hero-btns {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: heroTitleIn 1s ease 0.3s both;
+}
+.hero-btns .btn-primary-scroll { animation: none; }
+
+.btn-cs-hero {
+    display: inline-block;
+    padding: 16px 36px;
+    background: var(--c-purple);
+    color: #fff;
+    font-family: var(--font-title);
+    font-size: 1.15em;
+    text-decoration: none;
+    border: 4px solid #000;
+    border-radius: var(--border-r);
+    box-shadow: 5px 5px 0 #000;
+    transition: transform 0.1s, box-shadow 0.1s;
+    letter-spacing: 1px;
+}
+.btn-cs-hero:hover  { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 #000; }
+.btn-cs-hero:active { transform: translate(3px,3px);   box-shadow: 2px 2px 0 #000; }
+
+/* ── LANGUAGE TOGGLE ── */
+#langToggle {
+    background: var(--c-yellow);
+    border: 3px solid #000;
+    border-radius: var(--border-r-sm);
+    color: #000;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.85em;
+    padding: 6px 12px;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 #000;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: transform 0.1s, box-shadow 0.1s;
+    white-space: nowrap;
+}
+#langToggle:hover  { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #000; }
+#langToggle:active { transform: translate(2px,2px);   box-shadow: 1px 1px 0 #000; }
+
+@media (max-width: 500px) {
+    .hero-btns { flex-direction: column; align-items: center; }
+    #langToggle { font-size: 0.78em; padding: 5px 10px; }
+}

@@ -22,6 +22,8 @@
         </span>
     </div>
     <div class="topbar-actions">
+        <button class="topbar-btn" id="btn-tts"   title="TTS Aktif">🔊</button>
+        <button class="topbar-btn" id="btn-sound" title="Suara Aktif">🔔</button>
         <button class="topbar-btn" id="btn-report-top" title="Lapor Bug / Saran">🐛</button>
     </div>
 </div>
@@ -98,8 +100,12 @@
                 <textarea id="r-desc" rows="4" placeholder="Ceritakan bug yang kamu temukan..." maxlength="1000"></textarea>
             </div>
             <div class="field">
-                <label>Kontak kamu <span style="color:var(--muted);font-weight:400;">(opsional)</span></label>
-                <input type="text" id="r-contact" placeholder="WA / Discord / Email...">
+                <label>Email kamu <span style="color:var(--muted);font-weight:400;">(untuk konfirmasi tiket)</span></label>
+                <input type="email" id="r-email" placeholder="contoh@gmail.com">
+            </div>
+            <div class="field">
+                <label>Kontak lain <span style="color:var(--muted);font-weight:400;">(opsional — WA / Discord)</span></label>
+                <input type="text" id="r-contact" placeholder="WA / Discord...">
             </div>
             <button class="submit-btn" id="r-submit">Kirim Laporan Bug</button>
         </div>
@@ -108,6 +114,11 @@
             <div class="success-icon">✅</div>
             <span class="success-title" id="success-title">Laporan Terkirim!</span>
             <span class="success-msg" id="success-msg">Terima kasih! Tim kami akan segera menangani laporanmu.</span>
+            <div class="ticket-box" id="ticket-box" style="display:none">
+                <span class="ticket-label">Nomor Tiket</span>
+                <span class="ticket-number" id="ticket-number">#GS-000000</span>
+                <span class="ticket-note" id="ticket-note">Konfirmasi dikirim ke email kamu</span>
+            </div>
         </div>
     </div>
 </div>

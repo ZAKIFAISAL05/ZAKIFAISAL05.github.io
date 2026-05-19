@@ -28,6 +28,9 @@
         Grid Survival
     </a>
     <div class="nav-right">
+        <button id="langToggle" aria-label="Toggle language" title="Switch language">
+            <span id="lang-label">🇮🇩 ID</span>
+        </button>
         <button id="themeToggle" aria-label="Toggle dark/light mode">
             <span class="t-icon">🌙</span>
             <span class="t-label">DARK</span>
@@ -62,18 +65,21 @@
         <span id="typing-text"></span>
         <span class="cursor">█</span>
     </p>
-    <a href="#games" class="btn-primary-scroll">▶ LIHAT SEMUA GAME</a>
+    <div class="hero-btns">
+        <a href="#games" class="btn-primary-scroll" data-id="btn-see-games">▶ <span data-id="txt-see-games">LIHAT SEMUA GAME</span></a>
+        <a href="cs/" class="btn-cs-hero" data-id="btn-cs">💬 <span data-id="txt-cs">CUSTOMER SERVICE</span></a>
+    </div>
 </section>
 
 <!-- STATS -->
 <div id="stats-section" aria-label="Studio statistics">
     <div class="stat-card">
         <span class="stat-number" data-target="7" data-suffix="">0</span>
-        <span class="stat-label">GAME DIRILIS</span>
+        <span class="stat-label" data-id="stat-released">GAME DIRILIS</span>
     </div>
     <div class="stat-card">
         <span class="stat-number" data-target="50" data-suffix="K+">0</span>
-        <span class="stat-label">TOTAL PEMAIN</span>
+        <span class="stat-label" data-id="stat-players">TOTAL PEMAIN</span>
     </div>
     <div class="stat-card">
         <span class="stat-number" data-target="3" data-suffix="">0</span>
@@ -81,13 +87,13 @@
     </div>
     <div class="stat-card">
         <span class="stat-number" data-target="2021" data-suffix="">0</span>
-        <span class="stat-label">TAHUN BERDIRI</span>
+        <span class="stat-label" data-id="stat-founded">TAHUN BERDIRI</span>
     </div>
 </div>
 
 <!-- GAMES SECTION -->
 <section id="games" class="section-padding" aria-label="Game catalog">
-    <h2 class="section-header-title">PROYEK GAME KAMI</h2>
+    <h2 class="section-header-title" data-id="sec-games">PROYEK GAME KAMI</h2>
     <div class="filter-tabs" role="tablist">
         <button class="filter-tab active" data-genre="all">SEMUA</button>
         <button class="filter-tab" data-genre="arcade">ARCADE</button>
@@ -158,14 +164,14 @@
 
 <!-- ABOUT SECTION -->
 <section id="about" class="about-section" aria-label="About us">
-    <h2 class="section-header-title">TENTANG GRID SURVIVAL</h2>
-    <p>Kami adalah studio game indie yang bersemangat menciptakan pengalaman bermain yang unik dan menantang. Dari Indonesia, kami fokus pada genre Survival, RPG, dan Strategy — dengan sentuhan cerita yang dalam di setiap gameplay. Semoga game kami menghiburmu!</p>
+    <h2 class="section-header-title" data-id="sec-about">TENTANG GRID SURVIVAL</h2>
+    <p data-id="about-desc">Kami adalah studio game indie yang bersemangat menciptakan pengalaman bermain yang unik dan menantang. Dari Indonesia, kami fokus pada genre Survival, RPG, dan Strategy — dengan sentuhan cerita yang dalam di setiap gameplay. Semoga game kami menghiburmu!</p>
     <p class="about-tip">
-        💡 TIP: Coba ketik <span class="about-tip-highlight">↑↑↓↓←→←→BA</span> untuk easter egg!
+        💡 TIP: <span data-id="about-tip">Coba ketik</span> <span class="about-tip-highlight">↑↑↓↓←→←→BA</span> <span data-id="about-tip2">untuk easter egg!</span>
     </p>
     <div class="about-actions">
-        <button class="btn-bug" onclick="openReportModal('bug')">🐛 LAPORKAN BUG</button>
-        <button class="btn-saran" onclick="openReportModal('saran')">💡 KIRIM SARAN</button>
+        <button class="btn-bug" onclick="openReportModal('bug')" data-id="btn-bug">🐛 LAPORKAN BUG</button>
+        <button class="btn-saran" onclick="openReportModal('saran')" data-id="btn-saran">💡 KIRIM SARAN</button>
     </div>
 </section>
 
@@ -177,7 +183,6 @@
         <p class="footer-contact-p">
             Email: <a href="mailto:dzakifaisal11@gmail.com" class="footer-email">dzakifaisal11@gmail.com</a>
         </p>
-        <a href="cs/" class="footer-cs-link">💬 BUKA CUSTOMER SERVICE</a>
         <div class="social-icons">
             <a href="https://whatsapp.com/channel/0029VaAxK4O2975D8utbc927" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
             <a href="https://www.youtube.com/@ZAKI_FAISAL_05_OFFICIAL" target="_blank" rel="noopener" title="YouTube"><i class="fab fa-youtube"></i></a>
@@ -185,7 +190,7 @@
             <a href="https://www.instagram.com/zakifaisal05/" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
         </div>
     </div>
-    <p class="footer-copy">&copy; 2025 Grid Survival. All Rights Reserved.</p>
+    <p class="footer-copy" data-id="footer-copy">&copy; 2025 Grid Survival. All Rights Reserved.</p>
 </footer>
 
 <!-- GAME MODAL -->
@@ -235,6 +240,79 @@
 <script src="assets/js/main.js"></script>
 <script src="assets/js/extras.js"></script>
 <script src="assets/js/cs-chat.js"></script>
+<script>
+// ── LANGUAGE TOGGLE ──
+var LANG = localStorage.getItem('gs_lang') || 'id';
+
+var TRANSLATIONS = {
+  id: {
+    'txt-see-games':  'LIHAT SEMUA GAME',
+    'txt-cs':         'CUSTOMER SERVICE',
+    'stat-released':  'GAME DIRILIS',
+    'stat-players':   'TOTAL PEMAIN',
+    'stat-founded':   'TAHUN BERDIRI',
+    'sec-games':      'PROYEK GAME KAMI',
+    'sec-about':      'TENTANG GRID SURVIVAL',
+    'about-desc':     'Kami adalah studio game indie yang bersemangat menciptakan pengalaman bermain yang unik dan menantang. Dari Indonesia, kami fokus pada genre Survival, RPG, dan Strategy — dengan sentuhan cerita yang dalam di setiap gameplay. Semoga game kami menghiburmu!',
+    'about-tip':      'Coba ketik',
+    'about-tip2':     'untuk easter egg!',
+    'btn-bug':        '🐛 LAPORKAN BUG',
+    'btn-saran':      '💡 KIRIM SARAN',
+    'footer-copy':    '© 2025 Grid Survival. All Rights Reserved.',
+    'lang-label':     '🇮🇩 ID',
+    'nav-home':       'HOME',
+    'nav-games':      'GAMES',
+    'nav-stats':      'STATS',
+    'nav-about':      'ABOUT',
+    'nav-contact':    'CONTACT',
+    'nav-cs':         '💬 CS',
+  },
+  en: {
+    'txt-see-games':  'VIEW ALL GAMES',
+    'txt-cs':         'CUSTOMER SERVICE',
+    'stat-released':  'GAMES RELEASED',
+    'stat-players':   'TOTAL PLAYERS',
+    'stat-founded':   'FOUNDED',
+    'sec-games':      'OUR GAME PROJECTS',
+    'sec-about':      'ABOUT GRID SURVIVAL',
+    'about-desc':     'We are an indie game studio passionate about creating unique and challenging gaming experiences. Based in Indonesia, we focus on Survival, RPG, and Strategy genres — with deep storytelling in every gameplay. Hope our games entertain you!',
+    'about-tip':      'Try typing',
+    'about-tip2':     'for an easter egg!',
+    'btn-bug':        '🐛 REPORT A BUG',
+    'btn-saran':      '💡 SEND FEEDBACK',
+    'footer-copy':    '© 2025 Grid Survival. All Rights Reserved.',
+    'lang-label':     '🇬🇧 EN',
+    'nav-home':       'HOME',
+    'nav-games':      'GAMES',
+    'nav-stats':      'STATS',
+    'nav-about':      'ABOUT',
+    'nav-contact':    'CONTACT',
+    'nav-cs':         '💬 CS',
+  }
+};
+
+function applyLang(lang) {
+  var t = TRANSLATIONS[lang];
+  document.querySelectorAll('[data-id]').forEach(function(el) {
+    var key = el.getAttribute('data-id');
+    if (t[key] !== undefined) el.innerHTML = t[key];
+  });
+  document.getElementById('lang-label').textContent = t['lang-label'];
+  document.documentElement.lang = lang;
+  // Nav menu links
+  var navLinks = document.querySelectorAll('.menu-links li a');
+  var keys = ['nav-home','nav-games','nav-stats','nav-about','nav-contact','nav-cs'];
+  navLinks.forEach(function(a, i) { if (keys[i] && t[keys[i]]) a.textContent = t[keys[i]]; });
+}
+
+document.getElementById('langToggle').addEventListener('click', function() {
+  LANG = LANG === 'id' ? 'en' : 'id';
+  localStorage.setItem('gs_lang', LANG);
+  applyLang(LANG);
+});
+
+applyLang(LANG);
+</script>
 
 </body>
 </html>

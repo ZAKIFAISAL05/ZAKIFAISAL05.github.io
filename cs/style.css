@@ -560,3 +560,48 @@ body {
     transition: opacity 0.18s, transform 0.18s;
 }
 .see-all-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* ── TTS REPLAY BTN ── */
+.msg-meta { display:flex; align-items:center; gap:8px; margin-top:4px; }
+.msg-time { font-size:0.72rem; color:var(--muted); }
+.tts-replay {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.75rem;
+    opacity: 0.5;
+    padding: 0;
+    line-height: 1;
+    transition: opacity 0.15s;
+}
+.tts-replay:hover { opacity: 1; }
+
+/* ── TICKET BOX ── */
+.ticket-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-top: 14px;
+    background: var(--surface);
+    border: 1.5px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 20px;
+}
+.ticket-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.ticket-number {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: 1.5px;
+}
+.ticket-note {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: center;
+}

@@ -9,6 +9,8 @@ var currentType     = 'bug';
 var chatHistory     = [];
 var isWaiting       = false;
 var sessionId       = 'cs_' + Math.random().toString(36).slice(2, 9);
+var ttsEnabled      = true;
+var soundEnabled    = true;
 
 var QUICK = [
     { label: '🎮 Info game apa saja?',  text: 'Ceritain dong game-game dari Grid Survival!' },
@@ -20,6 +22,66 @@ var QUICK = [
 /* ── TIME ── */
 function now() {
     return new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+}
+
+/* ── NOTIF SUARA (ping) ── */
+function playPing() {
+    if (!soundEnabled) return;
+    try {
+        var ctx = new (window.AudioContext || window.webkitAudioContext)();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.35);
+    } catch(e) {}
+}
+
+/* ── TEXT TO SPEECH ── */
+function speakText(text) {
+    if (!ttsEnabled || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    var plain = text
+        .replace(/<[^>]+>/g, '')
+        .replace(/\*\*?([^*]+)\*\*?/g, '$1')
+        .replace(/\n/g, ' ')
+        .trim();
+    if (!plain) return;
+    var utt = new SpeechSynthesisUtterance(plain);
+    utt.lang = 'id-ID';
+    utt.rate = 1.05;
+    utt.pitch = 1.0;
+    // Cari suara Indonesia kalau ada
+    var voices = window.speechSynthesis.getVoices();
+    var idVoice = voices.find(function(v) { return v.lang.startsWith('id'); });
+    if (idVoice) utt.voice = idVoice;
+    window.speechSynthesis.speak(utt);
+}
+
+/* ── TOGGLE CONTROLS ── */
+function initToggles() {
+    var btnTts   = document.getElementById('btn-tts');
+    var btnSound = document.getElementById('btn-sound');
+    if (btnTts) {
+        btnTts.addEventListener('click', function() {
+            ttsEnabled = !ttsEnabled;
+            btnTts.title = ttsEnabled ? 'TTS Aktif' : 'TTS Mati';
+            btnTts.style.opacity = ttsEnabled ? '1' : '0.4';
+            if (!ttsEnabled) window.speechSynthesis && window.speechSynthesis.cancel();
+        });
+    }
+    if (btnSound) {
+        btnSound.addEventListener('click', function() {
+            soundEnabled = !soundEnabled;
+            btnSound.title = soundEnabled ? 'Suara Aktif' : 'Suara Mati';
+            btnSound.style.opacity = soundEnabled ? '1' : '0.4';
+        });
+    }
 }
 
 /* ── RENDER MSG ── */
@@ -41,16 +103,26 @@ function addMsg(role, text, time) {
         ? '<div class="msg-name">Grid CS Bot</div>'
         : '<div class="msg-name">Kamu</div>';
 
+    // Tombol putar ulang TTS untuk pesan bot
+    var ttsBtn = role === 'bot'
+        ? '<button class="tts-replay" title="Putar suara" onclick="speakText(\'' + text.replace(/'/g, "\\'").replace(/\n/g,' ') + '\')">🔊</button>'
+        : '';
+
     row.innerHTML =
         avatarHtml +
         '<div class="msg-content">' +
             nameHtml +
             '<div class="msg-bubble">' + formatted + '</div>' +
-            '<div class="msg-time">' + (time || now()) + '</div>' +
+            '<div class="msg-meta"><span class="msg-time">' + (time || now()) + '</span>' + ttsBtn + '</div>' +
         '</div>';
 
     msgs.appendChild(row);
     msgs.scrollTop = msgs.scrollHeight;
+
+    if (role === 'bot') {
+        playPing();
+        speakText(text);
+    }
 }
 
 /* ── TYPING INDICATOR ── */
@@ -93,7 +165,7 @@ function hideQuickArea() {
 function sendWelcome() {
     setTimeout(function() {
         addMsg('bot',
-            'Halo! 👋 Selamat datang di <strong>Customer Service Grid Survival</strong>.\n\n' +
+            'Halo! 👋 Selamat datang di **Customer Service Grid Survival**.\n\n' +
             'Ada yang bisa aku bantu? Kamu bisa tanya info game, cara download, atau lapor bug/saran langsung di sini! 🎮',
             now()
         );
@@ -122,7 +194,7 @@ function sendMsg(text) {
             text: text,
             from: 'Pengunjung Web',
             userId: sessionId,
-            history: chatHistory.slice(-8).map(function(h) {
+            history: chatHistory.slice(-10).map(function(h) {
                 return { role: h.role === 'bot' ? 'model' : 'user', text: h.text };
             })
         })
@@ -139,7 +211,7 @@ function sendMsg(text) {
         var reply = (data.reply || 'Maaf, coba lagi ya!').trim();
         addMsg('bot', reply, now());
         chatHistory.push({ role: 'bot', text: reply });
-        if (chatHistory.length > 16) chatHistory = chatHistory.slice(-16);
+        if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
     })
     .catch(function() {
         hideTyping();
@@ -167,6 +239,13 @@ function initInput() {
     });
 }
 
+/* ── GENERATE TICKET NUMBER ── */
+function generateTicket() {
+    var ts   = Date.now().toString(36).toUpperCase();
+    var rand = Math.random().toString(36).slice(2, 5).toUpperCase();
+    return 'GS-' + ts + rand;
+}
+
 /* ── REPORT MODAL ── */
 function openModal(type) {
     currentType = type || 'bug';
@@ -175,6 +254,7 @@ function openModal(type) {
     document.getElementById('modal-success').classList.remove('show');
     document.getElementById('r-desc').value    = '';
     document.getElementById('r-contact').value = '';
+    document.getElementById('r-email').value   = '';
     document.getElementById('r-game').value    = '';
     document.getElementById('r-submit').disabled    = false;
     document.getElementById('r-submit').textContent = 'Kirim Laporan';
@@ -203,6 +283,7 @@ function submitReport() {
     var desc    = document.getElementById('r-desc').value.trim();
     var game    = document.getElementById('r-game').value;
     var contact = document.getElementById('r-contact').value.trim();
+    var email   = document.getElementById('r-email').value.trim();
     var btn     = document.getElementById('r-submit');
 
     if (!desc || desc.length < 10) {
@@ -217,43 +298,61 @@ function submitReport() {
         return;
     }
 
+    var ticketId = generateTicket();
     btn.disabled    = true;
     btn.textContent = 'Mengirim...';
 
     fetch(REPORT_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: currentType, game: game, desc: desc, contact: contact })
+        body: JSON.stringify({ type: currentType, game: game, desc: desc, contact: contact, email: email, ticketId: ticketId })
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
-        saveReportLocal({ id: Date.now(), type: currentType, game: game || '—', desc: desc, contact: contact, summary: data.summary || desc, time: new Date().toLocaleString('id-ID'), done: false });
-        showSuccess(data.ok);
+        saveReportLocal({ id: ticketId, type: currentType, game: game || '—', desc: desc, contact: contact, email: email, summary: data.summary || desc, time: new Date().toLocaleString('id-ID'), done: false });
+        showSuccess(data.ok, false, ticketId, !!email);
     })
     .catch(function() {
-        saveReportLocal({ id: Date.now(), type: currentType, game: game || '—', desc: desc, contact: contact, summary: desc, time: new Date().toLocaleString('id-ID'), done: false, offline: true });
-        showSuccess(false, true);
+        saveReportLocal({ id: ticketId, type: currentType, game: game || '—', desc: desc, contact: contact, email: email, summary: desc, time: new Date().toLocaleString('id-ID'), done: false, offline: true });
+        showSuccess(false, true, ticketId, false);
     });
 }
 
-function showSuccess(ok, offline) {
+function showSuccess(ok, offline, ticketId, hasEmail) {
     document.getElementById('modal-form').style.display = 'none';
     var s = document.getElementById('modal-success');
     s.classList.add('show');
+
+    var ticketBox  = document.getElementById('ticket-box');
+    var ticketNum  = document.getElementById('ticket-number');
+    var ticketNote = document.getElementById('ticket-note');
+
     if (ok) {
         document.querySelector('.success-icon').textContent   = currentType === 'bug' ? '✅' : '💡';
         document.getElementById('success-title').textContent = currentType === 'bug' ? 'Bug Dilaporkan!' : 'Saran Terkirim!';
         document.getElementById('success-msg').textContent   = 'Terima kasih! Tim kami akan segera menangani laporanmu.';
+        if (ticketId) {
+            ticketBox.style.display = 'flex';
+            ticketNum.textContent   = '#' + ticketId;
+            ticketNote.textContent  = hasEmail
+                ? 'Konfirmasi dikirim ke email kamu. Simpan nomor ini untuk follow-up.'
+                : 'Simpan nomor tiket ini untuk follow-up ke tim kami.';
+        }
     } else if (offline) {
         document.querySelector('.success-icon').textContent  = '📦';
         document.getElementById('success-title').textContent = 'Tersimpan Lokal';
         document.getElementById('success-msg').textContent   = 'Laporan tersimpan. Koneksi server bermasalah saat ini.';
+        if (ticketId) {
+            ticketBox.style.display = 'flex';
+            ticketNum.textContent   = '#' + ticketId;
+            ticketNote.textContent  = 'Nomor tiket lokal — ulangi kirim saat online.';
+        }
     } else {
         document.querySelector('.success-icon').textContent  = '⚠️';
         document.getElementById('success-title').textContent = 'Gagal Mengirim';
         document.getElementById('success-msg').textContent   = 'Coba lagi nanti atau hubungi kami via Discord.';
     }
-    setTimeout(closeModal, 3000);
+    setTimeout(closeModal, 5000);
 }
 
 function saveReportLocal(r) {
@@ -268,7 +367,16 @@ function saveReportLocal(r) {
 document.addEventListener('DOMContentLoaded', function() {
     buildQuick();
     initInput();
+    initToggles();
     sendWelcome();
+
+    // Load voices (TTS Chrome butuh ini)
+    if (window.speechSynthesis) {
+        window.speechSynthesis.getVoices();
+        window.speechSynthesis.onvoiceschanged = function() {
+            window.speechSynthesis.getVoices();
+        };
+    }
 
     document.getElementById('modal-bg').addEventListener('click', function(e) {
         if (e.target === this) closeModal();
@@ -284,4 +392,6 @@ document.addEventListener('DOMContentLoaded', function() {
             switchType(btn.getAttribute('data-type'));
         });
     });
+    var closeBtn = document.getElementById('btn-close-modal');
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
 });

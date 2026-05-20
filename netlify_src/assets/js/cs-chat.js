@@ -417,19 +417,8 @@ function submitReport() {
             $('r-result-title').textContent = currentReportType === 'bug' ? 'BUG DILAPORKAN!' : 'SARAN TERKIRIM!';
             $('r-result-title').style.color = currentReportType === 'bug' ? '#00ff41' : '#ffe600';
             $('r-result-msg').textContent   = 'Laporan kamu sudah masuk! Admin sudah dapat notifikasi via WhatsApp.';
-            var displayId = (data.ticketNum ? '#' + data.ticketNum + ' — ' : '#') + ticketId;
             var rtb = $('report-ticket-box');
-            if (rtb) { rtb.style.display = 'flex'; $('report-ticket-num').textContent = displayId; }
-            // Tampilkan link pantau tiket
-            if (data.ticketUrl) {
-                var tUrl = data.ticketUrl.startsWith('http') ? data.ticketUrl
-                         : window.location.protocol + '//' + window.location.host + data.ticketUrl;
-                var trackEl = document.createElement('a');
-                trackEl.href = tUrl; trackEl.target = '_blank';
-                trackEl.style.cssText = 'display:block;margin-top:12px;text-align:center;color:#7c4dff;font-size:0.82rem;font-weight:700;text-decoration:none;';
-                trackEl.textContent = '📋 Pantau Status Tiket →';
-                if (rtb) rtb.parentNode.appendChild(trackEl);
-            }
+            if (rtb) { rtb.style.display = 'flex'; $('report-ticket-num').textContent = '#' + ticketId; }
         } else {
             $('r-result-icon').textContent  = '⚠️';
             $('r-result-title').textContent = 'GAGAL MENGIRIM';

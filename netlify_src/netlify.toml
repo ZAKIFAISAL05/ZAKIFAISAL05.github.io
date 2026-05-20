@@ -17,13 +17,7 @@
   [headers.values]
     X-Robots-Tag = "noindex"
 
-# Redirect untuk halaman tiket (SPA-style)
-[[redirects]]
-  from   = "/tiket"
-  to     = "/tiket/index.html"
-  status = 200
-
-[[redirects]]
-  from   = "/tiket/*"
-  to     = "/tiket/index.html"
-  status = 200
+[[headers]]
+  for = "/tiket/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

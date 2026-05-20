@@ -766,24 +766,6 @@ body {
 }
 .modal-upload-label:hover { opacity: 0.75; }
 .modal-upload-label span { color: var(--muted); font-weight: 600; }
-.required-star {
-    color: #e74c3c;
-    font-weight: 700;
-    margin-left: 2px;
-}
-.field-error {
-    display: none;
-    font-size: 0.75rem;
-    color: #e74c3c;
-    margin-top: 5px;
-    padding-left: 2px;
-}
-.field-error.show { display: block; }
-.field input.error {
-    border-color: #e74c3c !important;
-    box-shadow: 0 0 0 3px rgba(231,76,60,0.15) !important;
-}
-
 .modal-upload-preview {
     display: flex;
     flex-wrap: wrap;

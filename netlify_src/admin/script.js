@@ -31,7 +31,7 @@ function setAttempts(d)   { sessionStorage.setItem(ATTEMPT_KEY, JSON.stringify(d
 function isLockedOut()    { const l = sessionStorage.getItem(LOCKOUT_KEY); if (!l) return false; const r = parseInt(l) - Date.now(); return r > 0 ? Math.ceil(r/1000) : false; }
 function setLockout()     { sessionStorage.setItem(LOCKOUT_KEY, Date.now() + LOCKOUT_SECONDS * 1000); }
 function getSession()     { try { return JSON.parse(sessionStorage.getItem(SESSION_KEY)); } catch { return null; } }
-function setSession(user) { const s = {user, token:randToken(), exp:Date.now()+SESSION_MINUTES*60*1000, loginAt:new Date().toLocaleTimeString('id-ID')}; sessionStorage.setItem(SESSION_KEY, JSON.stringify(s)); return s; }
+function setSession(user, pass) { const s = {user, token:randToken(), exp:Date.now()+SESSION_MINUTES*60*1000, loginAt:new Date().toLocaleTimeString('id-ID'), adminToken: pass || ''}; sessionStorage.setItem(SESSION_KEY, JSON.stringify(s)); return s; }
 function clearSession()   { sessionStorage.removeItem(SESSION_KEY); }
 function isSessionValid() { const s = getSession(); return s && Date.now() < s.exp; }
 
@@ -339,7 +339,7 @@ async function doLogin() {
     if (user === ADMIN_CREDENTIALS.username && hash === ADMIN_CREDENTIALS.passHash) {
       setAttempts({count:0});
       sessionStorage.removeItem(LOCKOUT_KEY);
-      const sess = setSession(user);
+      const sess = setSession(user, pass);
       addLog(`LOGIN OK — user: ${user} | session: ${sess.token.slice(0,8)}…`);
       showAdmin(sess);
     } else {
@@ -428,42 +428,143 @@ function startAdminCharAnim() {
   let f=0; setInterval(()=>{draw(f);f=(f+1)%2;},250);
 }
 
-/* ── REPORTS (tetap localStorage — data report dari user browser) ── */
-function getReports()     { try { return JSON.parse(localStorage.getItem(REPORT_STORE))||[]; } catch { return []; } }
-function saveReports(arr) { localStorage.setItem(REPORT_STORE, JSON.stringify(arr)); }
+/* ── TICKETS (server-side via Netlify Blobs) ── */
+const TICKET_API = '/.netlify/functions/ticket';
 
-function renderReports() {
-  const panel   = document.getElementById('reports-panel');
-  const countEl = document.getElementById('reportCount');
-  if (!panel) return;
-  const all = getReports();
-  if (countEl) countEl.textContent = `${all.length} laporan (${all.filter(r=>!r.done).length} belum selesai)`;
-  if (!all.length) {
-    panel.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted);font-weight:600;">Belum ada laporan.</div>';
-    return;
-  }
-  panel.innerHTML = all.map(r => `
-<div style="background:var(--bg-card);border:2px solid rgba(155,89,182,0.2);border-radius:var(--border-r);padding:18px;margin-bottom:12px;${r.done?'opacity:0.55;':''}">
-  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-    <span style="font-family:var(--font-title);font-size:0.9em;color:${r.type==='bug'?'var(--c-red)':'var(--c-yellow)'};">${r.type==='bug'?'🐛 BUG':'💡 SARAN'}</span>
-    <span style="font-weight:700;">${escHtml(r.game||'—')}</span>
-    ${r.offline?'<span style="font-size:0.75em;color:var(--c-yellow);border:1px solid var(--c-yellow);border-radius:6px;padding:2px 8px;font-weight:700;">OFFLINE</span>':''}
-    ${r.done   ?'<span style="font-size:0.75em;color:var(--c-green);border:1px solid var(--c-green);border-radius:6px;padding:2px 8px;font-weight:700;">✓ SELESAI</span>':''}
-    <span style="margin-left:auto;font-size:0.8em;color:var(--text-muted);">${escHtml(r.time||'')}</span>
-  </div>
-  <div style="margin-bottom:6px;font-size:0.93em;">📝 ${escHtml(r.desc)}</div>
-  ${r.summary&&r.summary!==r.desc?`<div style="color:var(--c-cyan);margin-bottom:6px;font-size:0.88em;">🤖 ${escHtml(r.summary)}</div>`:''}
-  ${r.contact?`<div style="color:var(--text-muted);margin-bottom:10px;font-size:0.85em;">📱 ${escHtml(r.contact)}</div>`:''}
-  <div style="display:flex;gap:8px;margin-top:10px;">
-    ${!r.done?`<button class="btn-small" onclick="markReportDone(${r.id})">✓ Tandai Selesai</button>`:''}
-    <button class="btn-delete" onclick="deleteReport(${r.id})">🗑 Hapus</button>
-  </div>
-</div>`).join('');
+// adminToken = password yang diketik saat login (dikirim ke server untuk diverifikasi hashnya)
+function getAdminToken() {
+  const s = getSession();
+  return s ? s.adminToken || '' : '';
 }
 
-function markReportDone(id) { const all=getReports().map(r=>r.id===id?{...r,done:true}:r); saveReports(all); addLog(`Report #${id} ditandai selesai`); renderReports(); }
-function deleteReport(id)   { const r=getReports().find(x=>x.id===id); saveReports(getReports().filter(x=>x.id!==id)); addLog(`Report dihapus — ${r?r.type+': '+r.game:'#'+id}`,'warn'); renderReports(); }
-function clearDoneReports() { saveReports(getReports().filter(r=>!r.done)); addLog('Semua laporan selesai dihapus'); renderReports(); }
+async function fetchTickets() {
+  const panel   = document.getElementById('reports-panel');
+  const countEl = document.getElementById('reportCount');
+  if (panel) panel.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted);">Memuat tiket dari server...</div>';
+
+  try {
+    const adminToken = getAdminToken();
+    const res  = await fetch(`${TICKET_API}?admin=1&list=1&adminToken=${encodeURIComponent(adminToken)}`);
+    const data = await res.json();
+
+    if (!data.ok) {
+      if (panel) panel.innerHTML = `<div style="padding:24px;text-align:center;color:var(--c-red);">Gagal memuat tiket: ${escHtml(data.error)}<br><small style="color:var(--text-muted)">Pastikan ADMIN_TICKET_KEY sudah di-set di Netlify env vars dan cocok dengan yang di-login.</small></div>`;
+      if (countEl) countEl.textContent = 'Gagal memuat';
+      return;
+    }
+
+    const tickets = data.tickets || [];
+    if (countEl) countEl.textContent = `${tickets.length} tiket (${tickets.filter(t=>!t.done).length} aktif)`;
+    renderTicketPanel(tickets);
+  } catch (e) {
+    if (panel) panel.innerHTML = `<div style="padding:24px;text-align:center;color:var(--c-red);">Error: ${escHtml(e.message)}</div>`;
+    addLog('Gagal fetch tiket: ' + e.message, 'err');
+  }
+}
+
+function renderTicketPanel(tickets) {
+  const panel = document.getElementById('reports-panel');
+  if (!panel) return;
+  if (!tickets.length) {
+    panel.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted);font-weight:600;">Belum ada tiket laporan.</div>';
+    return;
+  }
+
+  const STATUS_STEPS = { received: 0, seen: 1, confirmed: 2, done: 3 };
+  const STATUS_COLOR = { received:'var(--c-yellow)', seen:'var(--c-cyan)', confirmed:'var(--c-green)', done:'#888' };
+  const STATUS_LABEL = { received:'Diterima', seen:'Dilihat', confirmed:'Dikonfirmasi', done:'Selesai' };
+
+  panel.innerHTML = tickets.map(t => {
+    const step     = STATUS_STEPS[t.status] ?? 0;
+    const isDone   = t.done || t.status === 'done';
+    const typeIcon = t.type === 'bug' ? '🐛 BUG' : '💡 SARAN';
+    const stepsHtml = ['Diterima','Dilihat','Dikonfirmasi','Selesai'].map((label, i) => {
+      const cls = i < step ? 'done' : (i === step ? 'active' : '');
+      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;position:relative;">
+        ${i < 3 ? `<div style="position:absolute;top:10px;left:50%;width:100%;height:2px;background:${i < step ? 'var(--c-purple)' : 'rgba(255,255,255,0.1)'};z-index:0;"></div>` : ''}
+        <div style="width:22px;height:22px;border-radius:50%;border:2px solid ${cls?'var(--c-purple)':'rgba(255,255,255,0.15)'};background:${cls==='done'?'var(--c-purple)':cls==='active'?'var(--bg-dark)':'var(--bg-dark)'};display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:${cls?'#fff':'rgba(255,255,255,0.3)'};position:relative;z-index:1;">${cls==='done'?'✓':(i+1)}</div>
+        <div style="font-size:0.62rem;margin-top:5px;text-align:center;color:${cls?'var(--text-dark)':'rgba(255,255,255,0.3)'};font-weight:600;">${label}</div>
+      </div>`;
+    }).join('');
+
+    const btnStatusHtml = !isDone ? `
+      <select id="sel-status-${escHtml(t.id)}" style="background:var(--bg-dark);border:1px solid rgba(255,255,255,0.1);color:var(--text-dark);padding:5px 8px;border-radius:6px;font-size:0.8em;">
+        <option value="received" ${t.status==='received'?'selected':''}>Diterima</option>
+        <option value="seen"     ${t.status==='seen'?'selected':''}>Dilihat</option>
+        <option value="confirmed"${t.status==='confirmed'?'selected':''}>Dikonfirmasi</option>
+      </select>
+      <input type="text" id="note-${escHtml(t.id)}" placeholder="Catatan developer (opsional)" style="background:var(--bg-dark);border:1px solid rgba(255,255,255,0.1);color:var(--text-dark);padding:5px 10px;border-radius:6px;font-size:0.8em;flex:1;" value="${escHtml(t.devNote||'')}">
+      <button class="btn-small" onclick="updateTicketStatus('${escHtml(t.id)}')">💾 Update</button>
+      <button class="btn-delete" onclick="closeTicket('${escHtml(t.id)}')">✓ Selesai</button>
+    ` : `<span style="color:var(--c-green);font-weight:700;font-size:0.85em;">✓ Tiket Selesai &amp; Ditutup</span>`;
+
+    return `
+<div style="background:var(--bg-card);border:2px solid ${isDone?'rgba(255,255,255,0.05)':'rgba(155,89,182,0.25)'};border-radius:var(--border-r);padding:18px;margin-bottom:14px;${isDone?'opacity:0.6;':''}">
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+    <span style="font-family:var(--font-title);font-size:0.85em;color:${t.type==='bug'?'var(--c-red)':'var(--c-yellow)'};">${typeIcon}</span>
+    <span style="font-weight:700;font-size:0.95em;">${escHtml(t.game||'—')}</span>
+    <span style="font-size:0.75em;background:${STATUS_COLOR[t.status]||'#888'}22;color:${STATUS_COLOR[t.status]||'#888'};border:1px solid ${STATUS_COLOR[t.status]||'#888'};border-radius:6px;padding:2px 8px;font-weight:700;">${STATUS_LABEL[t.status]||t.status}</span>
+    <span style="margin-left:auto;font-family:var(--font-title);font-size:0.85em;color:var(--c-purple);">Tiket #${t.num||'—'}</span>
+    <span style="font-size:0.75em;color:var(--text-muted);">${t.id}</span>
+  </div>
+
+  <!-- PROGRESS BAR -->
+  <div style="display:flex;gap:0;align-items:flex-start;margin-bottom:14px;padding:10px 0;">
+    ${stepsHtml}
+  </div>
+
+  <div style="margin-bottom:6px;font-size:0.9em;">📝 ${escHtml(t.desc||'—')}</div>
+  ${t.summary&&t.summary!==t.desc?`<div style="color:var(--c-cyan);margin-bottom:6px;font-size:0.85em;">🤖 ${escHtml(t.summary)}</div>`:''}
+  ${t.devNote?`<div style="color:var(--c-green);margin-bottom:6px;font-size:0.85em;">💬 ${escHtml(t.devNote)}</div>`:''}
+  ${t.email?`<div style="color:var(--text-muted);font-size:0.8em;">📧 ${escHtml(t.email)}</div>`:''}
+  ${t.contact?`<div style="color:var(--text-muted);font-size:0.8em;">📱 ${escHtml(t.contact)}</div>`:''}
+  <div style="color:var(--text-muted);font-size:0.75em;margin-bottom:10px;">🕐 ${t.createdAt ? new Date(t.createdAt).toLocaleString('id-ID',{timeZone:'Asia/Jakarta'}) : '—'}</div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    ${btnStatusHtml}
+  </div>
+</div>`;
+  }).join('');
+}
+
+async function updateTicketStatus(id) {
+  const sel   = document.getElementById('sel-status-' + id);
+  const note  = document.getElementById('note-' + id);
+  if (!sel) return;
+  const status     = sel.value;
+  const devNote    = note ? note.value.trim() : '';
+  const adminToken = getAdminToken();
+
+  try {
+    const res  = await fetch(TICKET_API, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'update_status', id, status, devNote, adminToken }),
+    });
+    const data = await res.json();
+    if (data.ok) { addLog(`Tiket ${id} → ${status}`); fetchTickets(); }
+    else         { addLog('Gagal update: ' + (data.error||'?'), 'err'); }
+  } catch (e) { addLog('Error update tiket: ' + e.message, 'err'); }
+}
+
+async function closeTicket(id) {
+  const adminToken = getAdminToken();
+  try {
+    const res  = await fetch(TICKET_API, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'close', id, adminToken }),
+    });
+    const data = await res.json();
+    if (data.ok) { addLog(`Tiket ${id} ditutup (selesai)`); fetchTickets(); }
+    else         { addLog('Gagal tutup tiket: ' + (data.error||'?'), 'err'); }
+  } catch (e) { addLog('Error close tiket: ' + e.message, 'err'); }
+}
+
+function renderReports() { fetchTickets(); }
+function clearDoneReports() {
+  addLog('Hapus tiket selesai tidak tersedia — tiket disimpan permanen di server.', 'warn');
+}
+
+
 
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded', function() {

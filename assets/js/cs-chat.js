@@ -10,7 +10,6 @@
 ══════════════════════════════════════════ */
 var CS_ENDPOINT     = '/.netlify/functions/cs-chat';
 var REPORT_ENDPOINT = '/.netlify/functions/report';
-var CS_HISTORY_KEY  = 'gs_cs_history';
 var REPORT_STORE    = 'gs_reports';
 var MAX_HISTORY     = 20;
 
@@ -32,11 +31,16 @@ var csHistory = [];
 var isTyping  = false;
 var csOpen    = false;
 var sessionId = 'user_' + Math.random().toString(36).slice(2, 10);
+var currentReportType = 'bug';
 
-/* ══════════════════════════════════════════
-   DOM REFS (built lazily after DOM ready)
-══════════════════════════════════════════ */
+/* safe getElementById — tidak crash kalau null */
 var $ = function (id) { return document.getElementById(id); };
+function safeVal(id)  { var el = $(id); return el ? el.value : ''; }
+function safeText(id, txt) { var el = $(id); if (el) el.textContent = txt; }
+function safeStyle(id, prop, val) { var el = $(id); if (el) el.style[prop] = val; }
+function safePH(id, txt)  { var el = $(id); if (el) el.placeholder = txt; }
+function safeClass(id, method, cls) { var el = $(id); if (el) el.classList[method](cls); }
+function safeOn(id, ev, fn) { var el = $(id); if (el) el.addEventListener(ev, fn); }
 
 /* ══════════════════════════════════════════
    BUILD HTML
@@ -81,12 +85,10 @@ function buildHTML() {
         '<div class="report-box">' +
             '<button class="report-close" id="report-close" aria-label="Tutup">✕</button>' +
             '<span class="report-title" id="report-title">🐛 LAPORAN BUG / ERROR</span>' +
-
             '<div class="report-type-tabs">' +
                 '<button class="report-type-tab active" data-type="bug">🐛 BUG / ERROR</button>' +
                 '<button class="report-type-tab" data-type="saran">💡 SARAN</button>' +
             '</div>' +
-
             '<div id="report-form">' +
                 '<div class="rfield">' +
                     '<label>GAME YANG BERMASALAH</label>' +
@@ -98,7 +100,7 @@ function buildHTML() {
                 '</div>' +
                 '<div class="rfield">' +
                     '<label id="r-desc-label">DESKRIPSI BUG / ERROR *</label>' +
-                    '<textarea id="r-desc" rows="4" placeholder="Ceritakan bug yang kamu temukan, langkah-langkahnya, dan apa yang terjadi..." maxlength="1000"></textarea>' +
+                    '<textarea id="r-desc" rows="4" placeholder="Ceritakan bug yang kamu temukan..." maxlength="1000"></textarea>' +
                 '</div>' +
                 '<div class="rfield">' +
                     '<label>EMAIL KAMU <span style="font-weight:400;opacity:0.6;">(untuk konfirmasi tiket)</span></label>' +
@@ -110,11 +112,10 @@ function buildHTML() {
                 '</div>' +
                 '<button class="btn-report-submit" id="r-submit">▶ KIRIM LAPORAN</button>' +
             '</div>' +
-
             '<div class="report-result" id="report-result">' +
                 '<span class="report-result-icon" id="r-result-icon">✅</span>' +
                 '<span class="report-result-title" id="r-result-title">LAPORAN TERKIRIM!</span>' +
-                '<span class="report-result-msg" id="r-result-msg">Terima kasih! Notifikasi sudah dikirim ke admin via WhatsApp.</span>' +
+                '<span class="report-result-msg" id="r-result-msg">Terima kasih! Notifikasi sudah dikirim ke admin.</span>' +
                 '<div class="report-ticket-box" id="report-ticket-box" style="display:none;">' +
                     '<span style="font-size:0.7rem;opacity:0.6;text-transform:uppercase;letter-spacing:1px;">Nomor Tiket</span>' +
                     '<span class="report-ticket-num" id="report-ticket-num">#GS-000000</span>' +
@@ -128,32 +129,34 @@ function buildHTML() {
    CS TOGGLE
 ══════════════════════════════════════════ */
 function bindToggle() {
-    var toggle  = $('cs-toggle');
-    var win     = $('cs-window');
-    var closeBtn= $('cs-close');
-    var badge   = $('cs-badge');
+    var toggle   = $('cs-toggle');
+    var win      = $('cs-window');
+    var closeBtn = $('cs-close');
+    if (!toggle || !win) return;
 
     toggle.addEventListener('click', function () {
         csOpen = !csOpen;
         win.classList.toggle('open', csOpen);
-        toggle.innerHTML = csOpen ? '✕<span class="cs-badge" id="cs-badge"></span>' : '💬<span class="cs-badge" id="cs-badge">1</span>';
+        toggle.innerHTML = csOpen
+            ? '✕<span class="cs-badge" id="cs-badge"></span>'
+            : '💬<span class="cs-badge" id="cs-badge">1</span>';
         if (csOpen) {
-            badge = $('cs-badge');
+            var badge = $('cs-badge');
             if (badge) badge.classList.remove('show');
             if (!csHistory.length) sendWelcome();
             setTimeout(function(){ var inp=$('cs-input'); if(inp) inp.focus(); }, 300);
         }
     });
-    closeBtn.addEventListener('click', function () {
-        csOpen = false;
-        win.classList.remove('open');
-        toggle.innerHTML = '💬<span class="cs-badge" id="cs-badge"></span>';
-    });
 
-    // Report shortcut
-    $('cs-report-link').addEventListener('click', function () {
-        openReportModal('bug');
-    });
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function () {
+            csOpen = false;
+            win.classList.remove('open');
+            toggle.innerHTML = '💬<span class="cs-badge" id="cs-badge"></span>';
+        });
+    }
+
+    safeOn('cs-report-link', 'click', function () { openReportModal('bug'); });
 }
 
 /* ══════════════════════════════════════════
@@ -188,13 +191,10 @@ function appendMsg(role, text, time) {
     if (!container) return;
     var div = document.createElement('div');
     div.className = 'cs-msg ' + role;
-
-    // Format **bold** → <b>
     var formatted = text
         .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
         .replace(/\*([^*]+)\*/g, '<b>$1</b>')
         .replace(/\n/g, '<br>');
-
     div.innerHTML =
         '<div class="cs-msg-bubble">' + formatted + '</div>' +
         '<div class="cs-msg-time">' + (time || timeStr()) + '</div>';
@@ -263,6 +263,21 @@ function sendUserMessage(text) {
         appendMsg('bot', reply, timeStr());
         csHistory.push({ role: 'bot', text: reply });
         if (csHistory.length > MAX_HISTORY) csHistory = csHistory.slice(-MAX_HISTORY);
+
+        // Kalau ada tiket yang dibuat via chat bot
+        if (data.reportSubmitted && data.ticketUrl) {
+            var tUrl = data.ticketUrl.startsWith('http')
+                ? data.ticketUrl
+                : window.location.protocol + '//' + window.location.host + data.ticketUrl;
+            setTimeout(function() {
+                var num = data.reportPayload && data.reportPayload.ticketNum ? '#' + data.reportPayload.ticketNum : '';
+                appendMsg('bot',
+                    '🔒 *Link tiket kamu* ' + num + ' sudah dibuat!\n\n' +
+                    '<a href="' + tUrl + '" target="_blank" style="color:#00e5ff;font-weight:700;">📋 Pantau Status Tiket →</a>\n\nBookmark link ini ya!',
+                    timeStr()
+                );
+            }, 500);
+        }
     })
     .catch(function(err) {
         hideTyping();
@@ -286,7 +301,6 @@ function bindInput() {
             sendUserMessage(inp.value);
         }
     });
-    // Auto-resize textarea
     inp.addEventListener('input', function(){
         this.style.height = 'auto';
         this.style.height = Math.min(this.scrollHeight, 80) + 'px';
@@ -296,28 +310,26 @@ function bindInput() {
 /* ══════════════════════════════════════════
    REPORT MODAL
 ══════════════════════════════════════════ */
-var currentReportType = 'bug';
-
 function openReportModal(type) {
     currentReportType = type || 'bug';
     var modal = $('report-modal');
     if (!modal) return;
 
-    // Reset
-    $('report-form').style.display = 'block';
-    $('report-result').classList.remove('show');
-    $('r-desc').value = '';
-    $('r-contact').value = '';
-    $('r-email').value = '';
-    $('r-game').value = '';
-    $('r-submit').disabled = false;
-    $('r-submit').textContent = '▶ KIRIM LAPORAN';
-    var rtb = $('report-ticket-box'); if (rtb) rtb.style.display = 'none';
+    // Reset form dengan null-safe
+    safeStyle('report-form', 'display', 'block');
+    safeClass('report-result', 'remove', 'show');
+    var rDesc    = $('r-desc');    if (rDesc)    rDesc.value    = '';
+    var rContact = $('r-contact'); if (rContact) rContact.value = '';
+    var rEmail   = $('r-email');   if (rEmail)   rEmail.value   = '';
+    var rGame    = $('r-game');    if (rGame)    rGame.value    = '';
+    var rSubmit  = $('r-submit');
+    if (rSubmit) { rSubmit.disabled = false; rSubmit.textContent = '▶ KIRIM LAPORAN'; }
+    safeStyle('report-ticket-box', 'display', 'none');
 
     setReportType(currentReportType);
     modal.classList.add('open');
 
-    // Close CS window
+    // Tutup CS window
     csOpen = false;
     var win = $('cs-window');
     if (win) win.classList.remove('open');
@@ -325,60 +337,62 @@ function openReportModal(type) {
 
 function setReportType(type) {
     currentReportType = type;
-    var tabs = document.querySelectorAll('.report-type-tab');
-    tabs.forEach(function(t){
+    document.querySelectorAll('.report-type-tab').forEach(function(t){
         t.classList.toggle('active', t.getAttribute('data-type') === type);
     });
     if (type === 'bug') {
-        $('report-title').textContent     = '🐛 LAPORAN BUG / ERROR';
-        $('r-desc-label').textContent     = 'DESKRIPSI BUG / ERROR *';
-        $('r-desc').placeholder           = 'Ceritakan bug yang kamu temukan, langkah-langkahnya, dan apa yang terjadi...';
-        $('r-submit').textContent         = '▶ KIRIM LAPORAN BUG';
+        safeText('report-title',  '🐛 LAPORAN BUG / ERROR');
+        safeText('r-desc-label',  'DESKRIPSI BUG / ERROR *');
+        safePH  ('r-desc',        'Ceritakan bug yang kamu temukan, langkah-langkahnya, dan apa yang terjadi...');
+        safeText('r-submit',      '▶ KIRIM LAPORAN BUG');
     } else {
-        $('report-title').textContent     = '💡 KIRIM SARAN';
-        $('r-desc-label').textContent     = 'ISI SARAN / MASUKAN *';
-        $('r-desc').placeholder           = 'Tulis saran atau masukan kamu untuk game Grid Survival...';
-        $('r-submit').textContent         = '▶ KIRIM SARAN';
+        safeText('report-title',  '💡 KIRIM SARAN');
+        safeText('r-desc-label',  'ISI SARAN / MASUKAN *');
+        safePH  ('r-desc',        'Tulis saran atau masukan kamu untuk game Grid Survival...');
+        safeText('r-submit',      '▶ KIRIM SARAN');
     }
 }
 
 function bindReportModal() {
-    // Close
-    $('report-close').addEventListener('click', function(){
-        $('report-modal').classList.remove('open');
-    });
-    $('report-modal').addEventListener('click', function(e){
-        if (e.target === this) this.classList.remove('open');
+    // Semua addEventListener dengan null-safe
+    safeOn('report-close', 'click', function(){
+        safeClass('report-modal', 'remove', 'open');
     });
 
-    // Type tabs
+    var modal = $('report-modal');
+    if (modal) {
+        modal.addEventListener('click', function(e){
+            if (e.target === this) this.classList.remove('open');
+        });
+    }
+
     document.querySelectorAll('.report-type-tab').forEach(function(tab){
         tab.addEventListener('click', function(){
             setReportType(this.getAttribute('data-type'));
         });
     });
 
-    // Submit
-    $('r-submit').addEventListener('click', submitReport);
+    safeOn('r-submit', 'click', submitReport);
 }
 
 function submitReport() {
-    var desc    = $('r-desc').value.trim();
-    var game    = $('r-game').value;
-    var contact = $('r-contact').value.trim();
-    var email   = $('r-email') ? $('r-email').value.trim() : '';
+    var rDesc = $('r-desc');
+    if (!rDesc) return;
+    var desc    = rDesc.value.trim();
+    var game    = safeVal('r-game');
+    var contact = safeVal('r-contact').trim();
+    var email   = safeVal('r-email').trim();
     var btn     = $('r-submit');
 
     if (!desc || desc.length < 10) {
-        $('r-desc').focus();
-        $('r-desc').style.borderColor = '#ff3c3c';
-        setTimeout(function(){ $('r-desc').style.borderColor = ''; }, 2000);
+        rDesc.focus();
+        rDesc.style.borderColor = '#ff3c3c';
+        setTimeout(function(){ rDesc.style.borderColor = ''; }, 2000);
         return;
     }
 
     var ticketId = 'GS-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,5).toUpperCase();
-    btn.disabled    = true;
-    btn.textContent = '▶ MENGIRIM...';
+    if (btn) { btn.disabled = true; btn.textContent = '▶ MENGIRIM...'; }
 
     var payload = {
         type:     currentReportType,
@@ -397,60 +411,79 @@ function submitReport() {
     .then(function(r){ return r.json(); })
     .then(function(data) {
         saveReportLocal({
-            id:       ticketId,
-            type:     currentReportType,
-            game:     game || 'Tidak disebutkan',
-            desc:     desc,
-            contact:  contact,
-            email:    email,
-            summary:  data.summary || desc,
-            time:     new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
-            done:     false
+            id:      ticketId,
+            type:    currentReportType,
+            game:    game || 'Tidak disebutkan',
+            desc:    desc,
+            contact: contact,
+            email:   email,
+            summary: data.summary || desc,
+            time:    new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
+            done:    false
         });
 
-        $('report-form').style.display = 'none';
-        var result = $('report-result');
-        result.classList.add('show');
+        safeStyle('report-form', 'display', 'none');
+        safeClass('report-result', 'add', 'show');
 
         if (data.ok) {
-            $('r-result-icon').textContent  = currentReportType === 'bug' ? '🐛✅' : '💡✅';
-            $('r-result-title').textContent = currentReportType === 'bug' ? 'BUG DILAPORKAN!' : 'SARAN TERKIRIM!';
-            $('r-result-title').style.color = currentReportType === 'bug' ? '#00ff41' : '#ffe600';
-            $('r-result-msg').textContent   = 'Laporan kamu sudah masuk! Admin sudah dapat notifikasi via WhatsApp.';
+            safeText('r-result-icon',  currentReportType === 'bug' ? '🐛✅' : '💡✅');
+            safeText('r-result-title', currentReportType === 'bug' ? 'BUG DILAPORKAN!' : 'SARAN TERKIRIM!');
+            var titleEl = $('r-result-title');
+            if (titleEl) titleEl.style.color = currentReportType === 'bug' ? '#00ff41' : '#ffe600';
+            safeText('r-result-msg', 'Laporan kamu sudah masuk! Admin sudah dapat notifikasi.');
+
             var rtb = $('report-ticket-box');
-            if (rtb) { rtb.style.display = 'flex'; $('report-ticket-num').textContent = '#' + ticketId; }
+            if (rtb) {
+                rtb.style.display = 'flex';
+                var numLabel = data.ticketNum ? '#' + data.ticketNum + ' — ' + ticketId : '#' + ticketId;
+                safeText('report-ticket-num', numLabel);
+            }
+
+            // Tambahkan link tiket kalau ada
+            if (data.ticketUrl) {
+                var tUrl = data.ticketUrl.startsWith('http')
+                    ? data.ticketUrl
+                    : window.location.protocol + '//' + window.location.host + data.ticketUrl;
+                var trackEl = document.createElement('a');
+                trackEl.href = tUrl;
+                trackEl.target = '_blank';
+                trackEl.style.cssText = 'display:block;margin-top:12px;text-align:center;color:#7c4dff;font-size:0.85rem;font-weight:700;text-decoration:none;';
+                trackEl.textContent = '📋 Pantau Status Tiket →';
+                var resultEl = $('report-result');
+                if (resultEl) resultEl.appendChild(trackEl);
+            }
         } else {
-            $('r-result-icon').textContent  = '⚠️';
-            $('r-result-title').textContent = 'GAGAL MENGIRIM';
-            $('r-result-title').style.color = '#ff3c3c';
-            $('r-result-msg').textContent   = 'Coba lagi nanti, atau hubungi kami via Discord/Email.';
+            safeText('r-result-icon',  '⚠️');
+            safeText('r-result-title', 'GAGAL MENGIRIM');
+            var titleEl2 = $('r-result-title');
+            if (titleEl2) titleEl2.style.color = '#ff3c3c';
+            safeText('r-result-msg', 'Coba lagi nanti, atau hubungi kami via Discord/Email.');
         }
 
-        setTimeout(function(){ $('report-modal').classList.remove('open'); }, 3500);
+        setTimeout(function(){ safeClass('report-modal', 'remove', 'open'); }, 3500);
     })
     .catch(function(err) {
         console.error('Report error:', err);
-        // Simpan lokal walau gagal kirim ke server
         saveReportLocal({
-            id:       Date.now(),
-            type:     currentReportType,
-            game:     game || 'Tidak disebutkan',
-            desc:     desc,
-            contact:  contact,
-            summary:  desc,
-            time:     new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
-            done:     false,
-            offline:  true
+            id:      Date.now(),
+            type:    currentReportType,
+            game:    game || 'Tidak disebutkan',
+            desc:    desc,
+            contact: contact,
+            summary: desc,
+            time:    new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
+            done:    false,
+            offline: true
         });
 
-        $('report-form').style.display = 'none';
-        var result = $('report-result');
-        result.classList.add('show');
-        $('r-result-icon').textContent  = '📦';
-        $('r-result-title').textContent = 'LAPORAN TERSIMPAN';
-        $('r-result-title').style.color = '#ffe600';
-        $('r-result-msg').textContent   = 'Laporan tersimpan di panel admin. Koneksi server bermasalah.';
-        setTimeout(function(){ $('report-modal').classList.remove('open'); }, 3000);
+        safeStyle('report-form', 'display', 'none');
+        safeClass('report-result', 'add', 'show');
+        safeText('r-result-icon',  '📦');
+        safeText('r-result-title', 'LAPORAN TERSIMPAN');
+        var titleEl3 = $('r-result-title');
+        if (titleEl3) titleEl3.style.color = '#ffe600';
+        safeText('r-result-msg', 'Laporan tersimpan lokal. Koneksi server bermasalah.');
+        setTimeout(function(){ safeClass('report-modal', 'remove', 'open'); }, 3000);
     });
 }
 
@@ -471,34 +504,34 @@ function getReportsLocal() {
     catch(_) { return []; }
 }
 
-// Expose globally untuk admin panel
 window.GS_Reports = {
-    getAll:  getReportsLocal,
+    getAll:   getReportsLocal,
     markDone: function(id) {
-        var all = getReportsLocal();
-        all = all.map(function(r){ return r.id === id ? Object.assign({}, r, {done:true}) : r; });
-        localStorage.setItem(REPORT_STORE, JSON.stringify(all));
+        var all = getReportsLocal().map(function(r){ return r.id === id ? Object.assign({}, r, {done:true}) : r; });
+        try { localStorage.setItem(REPORT_STORE, JSON.stringify(all)); } catch(e) {}
     },
     remove: function(id) {
         var all = getReportsLocal().filter(function(r){ return r.id !== id; });
-        localStorage.setItem(REPORT_STORE, JSON.stringify(all));
+        try { localStorage.setItem(REPORT_STORE, JSON.stringify(all)); } catch(e) {}
     }
 };
 
-/* ══════════════════════════════════════════
-   GLOBAL SHORTCUT (tombol di main page)
-══════════════════════════════════════════ */
+/* expose global */
 window.openReportModal = openReportModal;
 
 /* ══════════════════════════════════════════
    INIT
 ══════════════════════════════════════════ */
 function init() {
-    buildHTML();
-    bindToggle();
-    buildQuickReplies();
-    bindInput();
-    bindReportModal();
+    try {
+        buildHTML();
+        bindToggle();
+        buildQuickReplies();
+        bindInput();
+        bindReportModal();
+    } catch(e) {
+        console.error('CS Widget init error:', e);
+    }
 }
 
 if (document.readyState === 'loading') {

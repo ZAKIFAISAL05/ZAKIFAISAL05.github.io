@@ -448,7 +448,7 @@ async function fetchTickets() {
     const data = await res.json();
 
     if (!data.ok) {
-      if (panel) panel.innerHTML = `<div style="padding:24px;text-align:center;color:var(--c-red);">Gagal memuat tiket: ${escHtml(data.error)}<br><small style="color:var(--text-muted)">Pastikan ADMIN_TICKET_KEY sudah di-set di Netlify env vars dan cocok dengan yang di-login.</small></div>`;
+      if (panel) panel.innerHTML = `<div style="padding:24px;text-align:center;color:var(--c-red);">Gagal memuat tiket: ${escHtml(data.error)}<br><small style="color:var(--text-muted)">Pastikan password login sudah benar. Jika menggunakan custom password, pastikan ADMIN_TICKET_KEY di Netlify env vars berisi hash SHA-256 dari password kamu.</small></div>`;
       if (countEl) countEl.textContent = 'Gagal memuat';
       return;
     }

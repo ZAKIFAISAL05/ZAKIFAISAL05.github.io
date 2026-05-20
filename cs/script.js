@@ -15,12 +15,55 @@ var soundEnabled    = true;
 var pendingFiles    = [];
 
 var QUICK = [
-    { label: 'Info game apa saja?',  text: 'Ceritain dong game-game dari Grid Survival!' },
-    { label: 'Cara download game',   text: 'Gimana cara download game kalian?' },
-    { label: '🐛 Lapor Bug',         text: '__BUG__' },
-    { label: '💡 Kirim Saran',       text: '__SARAN__' },
-    { label: 'Kontak tim',           text: 'Gimana cara menghubungi tim Grid Survival?' },
+    { label: '🎮 Info Game',          text: 'Ceritain dong game-game dari Grid Survival!' },
+    { label: '📥 Cara Download',      text: 'Gimana cara download game kalian?' },
+    { label: '🐛 Lapor Bug',          text: '__BUG__' },
+    { label: '💡 Kirim Saran',        text: '__SARAN__' },
+    { label: '📞 Kontak Tim',         text: 'Gimana cara menghubungi tim Grid Survival?' },
+    { label: '📋 Cek Status Tiket',   text: '__TIKET__' },
 ];
+
+// Quick reply kontekstual — muncul sesuai konteks percakapan (bergaya Shopee/WA)
+var QUICK_CONTEXTS = {
+    game: [
+        { label: 'Cara download?', text: 'Gimana cara downloadnya?' },
+        { label: 'Ada bug di game?', text: '__BUG__' },
+        { label: 'Kirim saran', text: '__SARAN__' },
+    ],
+    download: [
+        { label: 'Coba game lain?', text: 'Game apa lagi yang bisa dicoba?' },
+        { label: 'Ada error pas install?', text: '__BUG__' },
+    ],
+    bug: [
+        { label: 'Lapor bug baru', text: '__BUG__' },
+        { label: 'Cek status tiket', text: '__TIKET__' },
+    ],
+    saran: [
+        { label: 'Kirim saran lagi', text: '__SARAN__' },
+        { label: 'Ada update game?', text: 'Ada update game terbaru apa?' },
+    ],
+    tiket: [
+        { label: 'Lapor bug baru', text: '__BUG__' },
+        { label: 'Kirim saran', text: '__SARAN__' },
+    ],
+    def: [
+        { label: '🎮 Info Game', text: 'Ceritain dong game-game dari Grid Survival!' },
+        { label: '📥 Cara Download', text: 'Gimana cara download game kalian?' },
+        { label: '🐛 Lapor Bug', text: '__BUG__' },
+        { label: '💡 Kirim Saran', text: '__SARAN__' },
+        { label: '📋 Cek Tiket', text: '__TIKET__' },
+    ]
+};
+
+function detectContext(text) {
+    var t = (text || '').toLowerCase();
+    if (t.includes('download') || t.includes('instal') || t.includes('cara')) return 'download';
+    if (t.includes('bug') || t.includes('error') || t.includes('crash') || t.includes('masalah')) return 'bug';
+    if (t.includes('saran') || t.includes('masukan') || t.includes('ide')) return 'saran';
+    if (t.includes('tiket') || t.includes('ticket') || t.includes('status laporan')) return 'tiket';
+    if (t.includes('game') || t.includes('main') || t.includes('roblox') || t.includes('zombie')) return 'game';
+    return 'def';
+}
 
 /* ── TIME ── */
 function now() {
@@ -157,20 +200,45 @@ function hideTyping() {
 
 /* ── QUICK REPLIES ── */
 function buildQuick() {
+    renderQuickChips(QUICK);
+}
+
+function renderQuickChips(chips) {
     var area = document.getElementById('quick-chips');
     if (!area) return;
-    QUICK.forEach(function(q) {
+    area.innerHTML = '';
+    chips.forEach(function(q) {
         var btn = document.createElement('button');
-        btn.className   = 'quick-chip';
-        btn.textContent = q.label;
+        btn.className = 'quick-chip';
+        btn.innerHTML = '<span>' + q.label + '</span>';
         btn.onclick = function() {
-            if (q.text === '__BUG__')   { openModal('bug');   return; }
-            if (q.text === '__SARAN__') { openModal('saran'); return; }
+            if (q.text === '__BUG__')    { hideQuickArea(); openModal('bug');   return; }
+            if (q.text === '__SARAN__')  { hideQuickArea(); openModal('saran'); return; }
+            if (q.text === '__TIKET__')  { hideQuickArea(); showTicketPrompt(); return; }
             sendMsg(q.text);
             hideQuickArea();
         };
         area.appendChild(btn);
     });
+}
+
+function showContextualQuick(botReply) {
+    var ctx   = detectContext(botReply);
+    var chips = QUICK_CONTEXTS[ctx] || QUICK_CONTEXTS['def'];
+    var area  = document.getElementById('quick-chips');
+    var qa    = document.getElementById('quick-area');
+    if (!area || !qa) return;
+    qa.style.display = 'block';
+    renderQuickChips(chips);
+}
+
+function showTicketPrompt() {
+    addMsg('bot',
+        'Untuk cek status tiket, masukkan link tiket yang kamu dapat setelah laporan dikirim. ' +
+        'Formatnya: **https://zakifaisal05.netlify.app/tiket/?token=XXXXXX**\n\n' +
+        'Atau klik tombol **🔍 Pantau Status Tiket** di bubble laporan sebelumnya.',
+        now()
+    );
 }
 
 function hideQuickArea() {
@@ -314,6 +382,37 @@ function sendMsg(text, forcedFiles) {
         addMsg('bot', reply, now());
         chatHistory.push({ role: 'bot', text: reply });
         if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+
+        // Tampilkan quick reply kontekstual setelah bot balas
+        showContextualQuick(reply);
+
+        // Jika bot kirim laporan via AI, tampilkan konfirmasi "sudah diteruskan"
+        if (data.reportSubmitted && data.reportPayload) {
+            setTimeout(function() {
+                var msgs = document.getElementById('messages');
+                var row  = document.createElement('div');
+                row.className = 'msg-row bot';
+                row.innerHTML =
+                    '<div class="msg-avatar"><img src="../assets/img/studio_logo.png" alt="CS"></div>' +
+                    '<div class="msg-content">' +
+                        '<div class="msg-name">Grid CS Bot</div>' +
+                        '<div class="msg-bubble" style="background:linear-gradient(135deg,rgba(39,174,96,.2),rgba(26,188,156,.15));border:1px solid rgba(39,174,96,.35);">' +
+                            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
+                                '<span style="font-size:1.3em;">✅</span>' +
+                                '<strong style="font-size:0.92rem;">Laporan berhasil diteruskan ke developer!</strong>' +
+                            '</div>' +
+                            '<div style="font-size:0.82rem;line-height:1.5;opacity:.85;">' +
+                                'Tim Grid Survival sudah menerima laporanmu. ' +
+                                'Kamu bisa pantau progresnya via link tiket yang dikirim, atau tanyakan ke kami kapan saja. 🙏' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="msg-meta"><span class="msg-time">' + now() + '</span></div>' +
+                    '</div>';
+                msgs.appendChild(row);
+                msgs.scrollTop = msgs.scrollHeight;
+                playPing();
+            }, 800);
+        }
     })
     .catch(function() {
         hideTyping();

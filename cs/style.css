@@ -253,32 +253,48 @@ body {
 
 /* Quick replies */
 .quick-section {
-    padding: 0 0 10px;
+    padding: 6px 0 10px;
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 7px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
+.quick-section::-webkit-scrollbar { display: none; }
 .quick-chip {
     background: var(--surface);
-    border: 2px solid var(--border);
+    border: 1.5px solid var(--brand);
     border-radius: 20px;
-    padding: 7px 16px;
+    padding: 7px 15px;
     font-family: var(--font-body);
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 700;
     color: var(--brand);
     cursor: pointer;
-    transition: all 0.15s;
+    transition: all 0.18s;
     white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(155,89,182,0.1);
+    box-shadow: 0 2px 8px rgba(155,89,182,0.12);
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+.quick-chip::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    opacity: 0;
+    transition: opacity 0.18s;
 }
 .quick-chip:hover {
-    background: var(--brand);
     color: #fff;
-    border-color: var(--brand);
+    border-color: transparent;
     transform: translateY(-2px);
-    box-shadow: 0 4px 14px rgba(155,89,182,0.3);
+    box-shadow: 0 4px 14px rgba(155,89,182,0.35);
 }
+.quick-chip:hover::before { opacity: 1; }
+.quick-chip span { position: relative; z-index: 1; }
 
 /* ── REPORT CARDS ── */
 .report-cards {

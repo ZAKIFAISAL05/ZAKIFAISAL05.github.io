@@ -53,8 +53,9 @@ async function getTicket(store, id) {
 }
 async function saveTicket(store, ticket) { await store.set('ticket:' + ticket.id, JSON.stringify(ticket)); }
 
-// Hash SHA-256 password admin — sama dengan yang ada di admin/script.js ADMIN_CREDENTIALS.passHash
-const ADMIN_PASS_HASH = '821bc6e7ed5ec0007c1d7b88e8ffdd428df9ae1444325fd5c97a372773b31df4';
+// Hash SHA-256 password admin — bisa di-override via ADMIN_TICKET_KEY di Netlify env vars
+// Jika ADMIN_TICKET_KEY diset, isinya HARUS berupa SHA-256 hash dari password admin kamu
+const ADMIN_PASS_HASH = process.env.ADMIN_TICKET_KEY || '821bc6e7ed5ec0007c1d7b88e8ffdd428df9ae1444325fd5c97a372773b31df4';
 
 async function sha256(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));

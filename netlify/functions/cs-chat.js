@@ -191,7 +191,6 @@ exports.handler = async function (event) {
   // Ekstrak tag SUBMIT_REPORT
   let reportSubmitted = false;
   let reportPayload   = null;
-  let ticketUrl       = '';
   const submitMatch   = reply.match(/\[SUBMIT_REPORT:(\{.*?\})\]/s);
   if (submitMatch) {
     try {
@@ -202,61 +201,21 @@ exports.handler = async function (event) {
       }
       reportSubmitted = true;
 
-      // Simpan tiket ke Blobs langsung (sama seperti report.js)
-      try {
-        const { getStore } = require('@netlify/blobs');
-        const siteID  = process.env.NETLIFY_SITE_ID || process.env.SITE_ID;
-        const blobTok = process.env.NETLIFY_AUTH_TOKEN || process.env.NETLIFY_TOKEN;
-        const opts    = { name: 'grid-survival', consistency: 'strong' };
-        if (siteID && blobTok) { opts.siteID = siteID; opts.token = blobTok; }
-        const store = getStore(opts);
-
-        const ticketId = 'GS-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,4).toUpperCase();
-        const counter  = await store.get('ticket-counter').catch(() => null);
-        const ticketNum = counter ? parseInt(counter) + 1 : 1;
-        await store.set('ticket-counter', String(ticketNum));
-        const token = Array.from({ length:24 }, () => Math.floor(Math.random()*36).toString(36)).join('').toUpperCase();
-        const now   = new Date().toISOString();
-
-        await store.set('ticket:' + ticketId, JSON.stringify({
-          id:ticketId, num:ticketNum, token, type:reportPayload.type,
-          game:reportPayload.game||'—', desc:reportPayload.desc,
-          summary:reportPayload.desc, email:reportPayload.email||'',
-          contact:reportPayload.contact||'', attachments:[],
-          status:'received', statusLabel:'Diterima',
-          createdAt:now, updatedAt:now, done:false, devNote:'',
-        }));
-        const idx = await store.get('ticket-list').then(r => r ? JSON.parse(r) : []).catch(() => []);
-        idx.unshift({ id:ticketId, num:ticketNum, token, status:'received', createdAt:now, done:false });
-        await store.set('ticket-list', JSON.stringify(idx));
-
-        const siteUrl = process.env.SITE_URL || process.env.URL || 'https://zakifaisal05.netlify.app';
-        ticketUrl = siteUrl + '/tiket/?token=' + token;
-        reportPayload.ticketId  = ticketId;
-        reportPayload.ticketNum = ticketNum;
-        reportPayload.ticketUrl = ticketUrl;
-      } catch(e) { console.error('Ticket create error (cs-chat):', e.message); }
-
       // Kirim WA notif ke admin
       const fonnteToken = process.env.FONNTE_API_KEY;
       const adminTarget = process.env.ADMIN_WA_NUMBER;
       if (fonnteToken && adminTarget && reportPayload) {
         const typeLabel = reportPayload.type === 'bug' ? '🐛 BUG REPORT' : '💡 SARAN';
-        const attInfo   = attachments && attachments.length ? `\n📎 *Lampiran:* ${attachments.length} file` : '';
         const waMsg =
 `━━━━━━━━━━━━━━━━━━━━
 ${typeLabel} — GRID SURVIVAL (via CS Chat)
-Tiket: *#${reportPayload.ticketNum || '—'}* (${reportPayload.ticketId || '—'})
 ━━━━━━━━━━━━━━━━━━━━
 🎮 *Game:* ${reportPayload.game || '—'}
 📝 *Isi:* ${reportPayload.desc}
 📧 *Email:* ${reportPayload.email || '—'}
 📱 *Kontak:* ${reportPayload.contact || '—'}
-⏰ *Waktu:* ${tanggal}${attInfo}
-━━━━━━━━━━━━━━━━━━━━
-${ticketUrl ? '🔗 ' + ticketUrl : ''}
-
-_status seen ${reportPayload.ticketId || '—'}_`;
+⏰ *Waktu:* ${tanggal}
+━━━━━━━━━━━━━━━━━━━━`;
         sendFonnte(fonnteToken, adminTarget, waMsg).catch(() => {});
       }
     } catch(e) { console.error('SUBMIT_REPORT parse error:', e.message); }
@@ -269,6 +228,6 @@ _status seen ${reportPayload.ticketId || '—'}_`;
   return {
     statusCode: 200,
     headers: CORS,
-    body: JSON.stringify({ ok: true, reply, from: BOT_NAME, reportSubmitted, reportPayload, ticketUrl }),
+    body: JSON.stringify({ ok: true, reply, from: BOT_NAME, reportSubmitted, reportPayload }),
   };
 };

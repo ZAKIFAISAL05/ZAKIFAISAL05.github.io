@@ -314,24 +314,6 @@ function sendMsg(text, forcedFiles) {
         addMsg('bot', reply, now());
         chatHistory.push({ role: 'bot', text: reply });
         if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
-
-        // Kalau laporan berhasil dibuat → tampilkan bubble link tiket
-        if (data.reportSubmitted && data.ticketUrl) {
-            var tUrl = data.ticketUrl.startsWith('http') ? data.ticketUrl
-                     : window.location.protocol + '//' + window.location.host + data.ticketUrl;
-            var num  = data.reportPayload && data.reportPayload.ticketNum ? '#' + data.reportPayload.ticketNum : '';
-            setTimeout(function() {
-                addMsg('bot',
-                    '🔒 **Link tiket kamu** ' + num + ' sudah dibuat! Hanya kamu yang bisa mengaksesnya:
-
-' +
-                    '[Pantau Status Tiket →](' + tUrl + ')
-
-Bookmark link ini ya!',
-                    now()
-                );
-            }, 500);
-        }
     })
     .catch(function() {
         hideTyping();
@@ -456,17 +438,6 @@ function renderModalPreviews() {
 }
 
 /* ── SUBMIT REPORT (kirim ke backend → WA + Email) ── */
-function showFieldError(inputId, errorId) {
-    var inp = document.getElementById(inputId);
-    var err = document.getElementById(errorId);
-    if (inp) { inp.classList.add('error'); inp.focus(); }
-    if (err) err.classList.add('show');
-    setTimeout(function() {
-        if (inp) inp.classList.remove('error');
-        if (err) err.classList.remove('show');
-    }, 3000);
-}
-
 function submitReport() {
     var desc    = document.getElementById('r-desc').value.trim();
     var game    = document.getElementById('r-game').value;
@@ -474,18 +445,13 @@ function submitReport() {
     var email   = document.getElementById('r-email').value.trim();
     var btn     = document.getElementById('r-submit');
 
-    // Validasi deskripsi (wajib)
+    // Validasi deskripsi
     if (!desc || desc.length < 10) {
         var descEl = document.getElementById('r-desc');
-        if (descEl) { descEl.classList.add('error'); descEl.focus(); }
-        setTimeout(function() { if (descEl) descEl.classList.remove('error'); }, 2500);
-        return;
-    }
-
-    // Validasi email (WAJIB)
-    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
-        showFieldError('r-email', 'r-email-error');
+        descEl.focus();
+        descEl.style.borderColor = '#e74c3c';
+        descEl.style.boxShadow   = '0 0 0 3px rgba(231,76,60,0.15)';
+        setTimeout(function() { descEl.style.borderColor = ''; descEl.style.boxShadow = ''; }, 2000);
         return;
     }
 
@@ -524,7 +490,7 @@ function submitReport() {
             summary: data.summary || desc,
             time: new Date().toLocaleString('id-ID'), done: false
         });
-        showSuccess(data.ok, false, ticketId, !!email);
+        showSuccess(data.ok, false, ticketId, !!email, data.ticketNum, data.ticketUrl);
         modalFiles = [];
     })
     .catch(function() {
@@ -535,38 +501,106 @@ function submitReport() {
             summary: desc,
             time: new Date().toLocaleString('id-ID'), done: false, offline: true
         });
-        showSuccess(false, true, ticketId, false);
+        showSuccess(false, true, ticketId, false, null, null);
         modalFiles = [];
     });
 }
 
-function showSuccess(ok, offline, ticketId, hasEmail) {
+function showSuccess(ok, offline, ticketId, hasEmail, ticketNum, ticketUrl) {
     document.getElementById('modal-form').style.display = 'none';
     var s = document.getElementById('modal-success');
     s.classList.add('show');
 
     var ticketBox  = document.getElementById('ticket-box');
-    var ticketNum  = document.getElementById('ticket-number');
+    var ticketNum_ = document.getElementById('ticket-number');
     var ticketNote = document.getElementById('ticket-note');
 
     if (ok) {
         document.getElementById('success-title').textContent = currentType === 'bug' ? '🐛 Bug Dilaporkan!' : '💡 Saran Terkirim!';
-        document.getElementById('success-msg').textContent   = 'Terima kasih! Tim kami akan segera menangani laporanmu. Notifikasi sudah dikirim ke admin via WhatsApp.';
+        document.getElementById('success-msg').textContent   = 'Terima kasih! Tim kami akan segera menangani laporanmu.';
         if (ticketId) {
             ticketBox.style.display = 'flex';
-            ticketNum.textContent   = '#' + ticketId;
-            ticketNote.textContent  = hasEmail ? 'Konfirmasi dikirim ke email kamu. Simpan nomor ini.' : 'Simpan nomor tiket ini untuk follow-up.';
+            ticketNum_.textContent  = ticketNum ? 'Tiket #' + ticketNum : '#' + ticketId;
+            var noteText = hasEmail ? 'Konfirmasi + link tiket dikirim ke email kamu.' : 'Simpan nomor tiket ini untuk follow-up.';
+            if (ticketUrl) {
+                ticketNote.innerHTML = noteText + ' <a href="' + ticketUrl + '" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:600;">Pantau Status →</a>';
+            } else {
+                ticketNote.textContent = noteText;
+            }
         }
     } else if (offline) {
         document.getElementById('success-title').textContent = '📦 Tersimpan Lokal';
         document.getElementById('success-msg').textContent   = 'Laporan tersimpan. Koneksi server bermasalah — coba kirim ulang nanti.';
-        if (ticketId) { ticketBox.style.display = 'flex'; ticketNum.textContent = '#' + ticketId; ticketNote.textContent = 'Nomor tiket lokal.'; }
+        if (ticketId) { ticketBox.style.display = 'flex'; ticketNum_.textContent = '#' + ticketId; ticketNote.textContent = 'Nomor tiket lokal.'; }
     } else {
         document.getElementById('success-title').textContent = '⚠️ Gagal Mengirim';
         document.getElementById('success-msg').textContent   = 'Coba lagi nanti atau hubungi kami via Discord.';
     }
 
-    setTimeout(closeModal, 5000);
+    // Kirim juga bubble konfirmasi ke chat setelah modal tertutup
+    var delay = ok ? 7500 : 3500;
+    setTimeout(function() {
+        closeModal();
+        postTicketBubble(ok, offline, ticketId, ticketNum, ticketUrl, hasEmail);
+    }, delay);
+}
+
+/* ── BUBBLE TIKET DI CHAT ── */
+function postTicketBubble(ok, offline, ticketId, ticketNum, ticketUrl, hasEmail) {
+    var msgs = document.getElementById('messages');
+    if (!msgs) return;
+
+    var row = document.createElement('div');
+    row.className = 'msg-row bot';
+
+    var numLabel = ticketNum ? 'Tiket #' + ticketNum : (ticketId ? '#' + ticketId : '');
+
+    // Pastikan URL selalu absolute
+    var fullUrl = '';
+    if (ticketUrl) {
+        if (ticketUrl.startsWith('http')) {
+            fullUrl = ticketUrl;
+        } else {
+            fullUrl = window.location.protocol + '//' + window.location.host + (ticketUrl.startsWith('/') ? '' : '/') + ticketUrl;
+        }
+    }
+
+    var inner = '';
+    if (ok && ticketId) {
+        inner =
+            '<div style="font-weight:700;margin-bottom:10px;font-size:0.95rem;">' + (currentType === 'bug' ? '🐛 Laporan Bug Diterima!' : '💡 Saran Diterima!') + '</div>' +
+            '<div style="background:linear-gradient(135deg,rgba(124,77,255,.3),rgba(0,229,255,.15));' +
+            'border:1px solid rgba(124,77,255,.5);border-radius:12px;padding:14px 16px;margin:6px 0;text-align:center;">' +
+                '<div style="font-size:0.65rem;opacity:.65;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">Nomor Tiket Kamu</div>' +
+                '<div style="font-size:1.5rem;font-weight:800;letter-spacing:3px;color:#fff;">' + numLabel + '</div>' +
+            '</div>' +
+            (fullUrl
+                ? '<a href="' + fullUrl + '" target="_blank" style="display:block;text-align:center;' +
+                  'background:linear-gradient(135deg,#7c4dff,#5c35cc);color:#fff;' +
+                  'text-decoration:none;padding:11px 16px;border-radius:10px;font-weight:700;font-size:0.9rem;' +
+                  'margin-top:8px;letter-spacing:0.3px;box-shadow:0 4px 14px rgba(124,77,255,.4);">' +
+                  '🔍 Pantau Status Tiket →</a>'
+                : '') +
+            '<div style="font-size:0.72rem;opacity:.55;margin-top:10px;line-height:1.5;">' +
+            (hasEmail ? '📧 Link tiket juga dikirim ke emailmu.' : '🔒 Bookmark link ini — hanya kamu yang bisa akses tiket ini.') +
+            '</div>';
+    } else if (offline) {
+        inner = '📦 Laporanmu tersimpan lokal. ' + (numLabel ? 'ID sementara: <strong>' + numLabel + '</strong>. ' : '') + 'Coba kirim ulang saat koneksi stabil ya.';
+    } else {
+        inner = '⚠️ Laporan gagal terkirim. Coba lagi atau hubungi kami via Discord/Email.';
+    }
+
+    row.innerHTML =
+        '<div class="msg-avatar"><img src="../assets/img/studio_logo.png" alt="CS"></div>' +
+        '<div class="msg-content">' +
+            '<div class="msg-name">Grid CS Bot</div>' +
+            '<div class="msg-bubble">' + inner + '</div>' +
+            '<div class="msg-meta"><span class="msg-time">' + now() + '</span></div>' +
+        '</div>';
+
+    msgs.appendChild(row);
+    msgs.scrollTop = msgs.scrollHeight;
+    playPing();
 }
 
 /* ── LOCAL STORAGE ── */

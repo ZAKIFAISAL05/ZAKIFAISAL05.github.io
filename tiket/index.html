@@ -1,469 +1,439 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Status Tiket — Grid Survival</title>
-<style>
-:root {
-  --bg:       #0b0b0f;
-  --surface:  #13131a;
-  --surface2: #1a1a26;
-  --border:   rgba(255,255,255,0.08);
-  --brand:    #7c4dff;
-  --cyan:     #00e5ff;
-  --green:    #2ecc71;
-  --yellow:   #ffe600;
-  --red:      #e74c3c;
-  --text:     #e8e8f0;
-  --muted:    #888;
-  --font:     'Segoe UI', system-ui, sans-serif;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 24px 16px 48px;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Status Tiket — Grid Survival</title>
+    <style>
+        :root {
+            --bg: #0a0a14;
+            --card: #12121f;
+            --border: #1e1e30;
+            --accent: #7c4dff;
+            --accent2: #00e5ff;
+            --green: #27ae60;
+            --yellow: #f39c12;
+            --red: #e74c3c;
+            --text: #e0e0e0;
+            --muted: #666;
+            --radius: 14px;
+        }
 
-/* HEADER */
-.header {
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 32px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border);
-}
-.header img { width: 36px; height: 36px; border-radius: 8px; }
-.header h1 { font-size: 1rem; font-weight: 700; color: var(--text); }
-.header p  { font-size: 0.78rem; color: var(--muted); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* SEARCH */
-.search-wrap {
-  width: 100%; max-width: 600px;
-  display: flex; gap: 10px;
-  margin-bottom: 28px;
-}
-.search-wrap input {
-  flex: 1;
-  background: var(--surface2);
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  color: var(--text);
-  padding: 10px 14px;
-  font-size: 0.95rem;
-  outline: none;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-.search-wrap input:focus { border-color: var(--brand); }
-.search-wrap input::placeholder { text-transform: none; letter-spacing: 0; color: var(--muted); }
-.search-wrap button {
-  background: var(--brand);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 20px;
-  font-weight: 700;
-  cursor: pointer;
-  font-size: 0.9rem;
-  white-space: nowrap;
-}
-.search-wrap button:hover { filter: brightness(1.1); }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 24px 16px 48px;
+        }
 
-/* CARD */
-.card {
-  width: 100%; max-width: 600px;
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-}
-.card-header {
-  background: linear-gradient(135deg, #7c4dff22, #00e5ff11);
-  border-bottom: 1px solid var(--border);
-  padding: 20px 24px;
-  display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-}
-.ticket-id {
-  font-size: 1.4rem; font-weight: 800;
-  color: var(--brand); letter-spacing: 2px;
-}
-.ticket-type {
-  font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-  padding: 4px 12px; border-radius: 20px;
-}
-.type-bug   { background: rgba(231,76,60,0.15); color: var(--red); border: 1px solid var(--red); }
-.type-saran { background: rgba(255,230,0,0.12);  color: var(--yellow); border: 1px solid var(--yellow); }
-.card-body { padding: 24px; }
+        /* ── HEADER ── */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            max-width: 540px;
+            margin-bottom: 28px;
+        }
+        .header a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 1.3rem;
+            transition: color .2s;
+        }
+        .header a:hover { color: var(--text); }
+        .header-logo {
+            width: 36px; height: 36px; border-radius: 8px;
+            object-fit: cover;
+        }
+        .header-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+        .header-sub { font-size: 0.75rem; color: var(--muted); }
 
-/* PROGRESS BAR */
-.progress-wrap { margin-bottom: 28px; }
-.progress-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
-.steps {
-  display: flex; align-items: flex-start;
-  position: relative;
-}
-.steps::before {
-  content: '';
-  position: absolute;
-  top: 14px; left: 14px; right: 14px;
-  height: 2px;
-  background: var(--border);
-  z-index: 0;
-}
-.steps-line {
-  position: absolute;
-  top: 14px; left: 14px;
-  height: 2px;
-  background: linear-gradient(90deg, var(--brand), var(--cyan));
-  z-index: 1;
-  transition: width 0.6s ease;
-}
-.step {
-  flex: 1;
-  display: flex; flex-direction: column; align-items: center;
-  gap: 8px; position: relative; z-index: 2;
-}
-.step-dot {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  border: 2px solid var(--border);
-  background: var(--surface);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.75rem;
-  color: var(--muted);
-  transition: all 0.3s;
-}
-.step.done .step-dot {
-  background: var(--brand);
-  border-color: var(--brand);
-  color: #fff;
-}
-.step.active .step-dot {
-  background: var(--surface2);
-  border-color: var(--cyan);
-  color: var(--cyan);
-  box-shadow: 0 0 12px rgba(0,229,255,0.4);
-}
-.step-label {
-  font-size: 0.68rem; color: var(--muted); text-align: center;
-  line-height: 1.3;
-}
-.step.done .step-label   { color: var(--brand); }
-.step.active .step-label { color: var(--cyan); font-weight: 700; }
+        /* ── CARD ── */
+        .ticket-card {
+            width: 100%; max-width: 540px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
 
-/* FIELDS */
-.fields { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
-.field label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 4px; }
-.field-val {
-  background: var(--surface2);
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  border: 1px solid var(--border);
-}
+        .ticket-header {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            padding: 22px 24px;
+        }
+        .ticket-num {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.75);
+            display: block;
+            margin-bottom: 6px;
+        }
+        .ticket-id {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+        .ticket-type-badge {
+            display: inline-block;
+            margin-top: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-size: 0.78rem;
+            color: #fff;
+            font-weight: 600;
+        }
 
-/* ATTACHMENTS */
-.att-grid {
-  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;
-}
-.att-item {
-  width: 80px; height: 80px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1.5px solid var(--border);
-  cursor: pointer;
-  position: relative;
-  background: var(--surface2);
-  display: flex; align-items: center; justify-content: center;
-}
-.att-item img { width: 100%; height: 100%; object-fit: cover; }
-.att-item .att-video-icon { font-size: 1.6rem; }
-.att-item:hover { border-color: var(--brand); }
+        /* ── STATUS BAR ── */
+        .status-section {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .status-title {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--muted);
+            margin-bottom: 18px;
+        }
 
-/* HISTORY */
-.history { margin-top: 20px; }
-.history-title { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
-.history-item {
-  display: flex; gap: 12px; align-items: flex-start;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-}
-.history-item:last-child { border-bottom: none; }
-.history-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--brand); flex-shrink: 0; margin-top: 5px;
-}
-.history-content { flex: 1; }
-.history-status { font-weight: 700; font-size: 0.88rem; }
-.history-time   { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
-.history-note   { font-size: 0.82rem; color: var(--cyan); margin-top: 4px; }
+        .steps {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            position: relative;
+        }
+        .step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        /* connector line */
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: var(--border);
+            z-index: 0;
+            transition: background .5s;
+        }
+        .step.done:not(:last-child)::after { background: var(--accent); }
 
-/* LIGHTBOX */
-.lightbox {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.9);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 999; cursor: zoom-out;
-}
-.lightbox img, .lightbox video {
-  max-width: 90vw; max-height: 90vh;
-  border-radius: 12px;
-}
-.lb-close {
-  position: absolute; top: 16px; right: 16px;
-  background: rgba(255,255,255,0.1); border: none; color: #fff;
-  width: 36px; height: 36px; border-radius: 50%;
-  font-size: 1.1rem; cursor: pointer;
-}
+        .step-dot {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--muted);
+            position: relative;
+            z-index: 1;
+            transition: all .4s;
+        }
+        .step.done .step-dot {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        .step.active .step-dot {
+            background: var(--bg);
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124,77,255,.2);
+        }
+        .step.pulse .step-dot {
+            animation: pulseDot 1.5s ease-in-out infinite;
+        }
+        @keyframes pulseDot {
+            0%,100% { box-shadow: 0 0 0 3px rgba(124,77,255,.2); }
+            50%      { box-shadow: 0 0 0 7px rgba(124,77,255,.05); }
+        }
 
-/* STATES */
-.state-box {
-  width: 100%; max-width: 600px;
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
-  padding: 40px 24px;
-  text-align: center;
-}
-.state-icon { font-size: 2.5rem; margin-bottom: 12px; }
-.state-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
-.state-msg   { color: var(--muted); font-size: 0.9rem; }
+        .step-label {
+            margin-top: 8px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-align: center;
+            line-height: 1.3;
+            transition: color .4s;
+        }
+        .step.done .step-label,
+        .step.active .step-label { color: var(--text); }
 
-/* AUTO REFRESH */
-.refresh-bar {
-  width: 100%; max-width: 600px;
-  margin-top: 14px;
-  display: flex; align-items: center; justify-content: space-between;
-  font-size: 0.75rem; color: var(--muted);
-}
-.refresh-bar button {
-  background: none; border: 1px solid var(--border);
-  color: var(--muted); border-radius: 6px;
-  padding: 4px 10px; cursor: pointer; font-size: 0.75rem;
-}
-.refresh-bar button:hover { border-color: var(--brand); color: var(--brand); }
+        /* done = selesai → warna hijau */
+        .steps.is-done .step.done .step-dot { background: var(--green); border-color: var(--green); }
+        .steps.is-done .step.done::after    { background: var(--green); }
 
-@media(max-width:480px) {
-  .step-label { font-size: 0.6rem; }
-  .ticket-id  { font-size: 1.1rem; }
-}
-</style>
+        /* ── STATUS NOTE ── */
+        .status-note {
+            margin-top: 18px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            line-height: 1.5;
+        }
+        .status-note.received  { background: rgba(124,77,255,.1); border-left: 3px solid var(--accent); }
+        .status-note.seen      { background: rgba(0,229,255,.08); border-left: 3px solid var(--accent2); }
+        .status-note.confirmed { background: rgba(243,156,18,.08); border-left: 3px solid var(--yellow); }
+        .status-note.done      { background: rgba(39,174,96,.1); border-left: 3px solid var(--green); }
+
+        .dev-note {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: rgba(255,255,255,.04);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--text);
+            line-height: 1.5;
+        }
+        .dev-note-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); display: block; margin-bottom: 4px; }
+
+        /* ── DETAIL ── */
+        .ticket-detail { padding: 22px 24px; }
+        .field { margin-bottom: 14px; }
+        .field label {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+        .field p {
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: var(--text);
+        }
+        .field-row { display: flex; gap: 16px; }
+        .field-row .field { flex: 1; }
+
+        /* ── EXPIRED ── */
+        .expired-wrap {
+            text-align: center;
+            padding: 40px 24px;
+        }
+        .expired-icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .expired-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: var(--green); }
+        .expired-msg { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+        /* ── ERROR ── */
+        .error-wrap { text-align: center; padding: 40px 24px; }
+        .error-icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .error-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: var(--red); }
+        .error-msg { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+        .error-link { color: var(--accent); text-decoration: none; }
+        .error-link:hover { text-decoration: underline; }
+
+        /* ── LOADING ── */
+        .loading-wrap { text-align: center; padding: 60px 24px; }
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── REFRESH HINT ── */
+        .refresh-hint {
+            margin-top: 12px;
+            font-size: 0.72rem;
+            color: var(--muted);
+            text-align: center;
+        }
+        .refresh-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.75rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all .2s;
+            margin-top: 8px;
+        }
+        .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        .timestamp { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+    </style>
 </head>
 <body>
 
 <div class="header">
-  <img src="../assets/img/studio_logo.png" alt="Grid Survival">
-  <div>
-    <h1>Grid Survival — Status Tiket</h1>
-    <p>Pantau progress laporan kamu secara real-time</p>
-  </div>
+    <a href="../" title="Kembali">←</a>
+    <img src="../assets/img/studio_logo.png" alt="Grid Survival" class="header-logo">
+    <div>
+        <div class="header-title">Grid Survival</div>
+        <div class="header-sub">Status Tiket Laporan</div>
+    </div>
 </div>
 
-<div class="search-wrap">
-  <input type="text" id="search-input" placeholder="Masukkan nomor tiket (contoh: GS-0001)" maxlength="20">
-  <button onclick="searchTicket()">Cari</button>
+<div class="ticket-card" id="ticket-card">
+    <div class="loading-wrap">
+        <div class="spinner"></div>
+        <div style="color:var(--muted);font-size:.85rem;">Memuat tiket...</div>
+    </div>
 </div>
 
-<div id="result-area"></div>
-
-<div class="refresh-bar" id="refresh-bar" style="display:none;">
-  <span id="refresh-label">Auto-refresh aktif</span>
-  <button onclick="loadTicket(currentId)">🔄 Refresh</button>
+<div class="refresh-hint" id="refresh-wrap" style="display:none;">
+    <div>Status diperbarui oleh developer</div>
+    <button class="refresh-btn" onclick="loadTicket()">↺ Refresh status</button>
 </div>
 
 <script>
-var TICKET_ENDPOINT = '/.netlify/functions/ticket';
-var currentId = null;
-var refreshTimer = null;
+'use strict';
 
-var STATUS_STEPS = [
-  { key:'masuk',       label:'Diterima',   icon:'📥' },
-  { key:'dilihat',     label:'Ditinjau',   icon:'👀' },
-  { key:'dikonfirmasi',label:'Dikonfirmasi',icon:'✅' },
-  { key:'selesai',     label:'Selesai',    icon:'🎉' },
-];
+const TICKET_API = '/.netlify/functions/ticket';
 
-// Baca ID dari URL path: /tiket/GS-0001
-(function() {
-  var parts = window.location.pathname.split('/').filter(Boolean);
-  var idx   = parts.indexOf('tiket');
-  var urlId = idx !== -1 ? parts[idx + 1] : null;
-  if (urlId) {
-    document.getElementById('search-input').value = urlId.toUpperCase();
-    loadTicket(urlId.toUpperCase());
-  }
-})();
+const STEP_LABELS = ['Diterima', 'Dilihat', 'Dikonfirmasi', 'Selesai'];
+const STATUS_NOTE = {
+    received:  '📥 Laporanmu sudah kami terima! Tim developer akan segera meninjau.',
+    seen:      '👀 Developer sudah melihat laporanmu dan sedang dipelajari.',
+    confirmed: '🔧 Laporan dikonfirmasi! Developer sedang mengerjakan perbaikan / tindak lanjut.',
+    done:      '✅ Masalah sudah diselesaikan! Terima kasih sudah melaporkan. Tiket ini sekarang ditutup.',
+};
 
-function searchTicket() {
-  var id = document.getElementById('search-input').value.trim().toUpperCase();
-  if (!id) return;
-  // Update URL tanpa reload
-  history.pushState(null, '', '/tiket/' + id);
-  loadTicket(id);
+function getToken() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('token');
 }
 
-document.getElementById('search-input').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') searchTicket();
-});
-
-function loadTicket(id) {
-  currentId = id;
-  showLoading();
-  clearInterval(refreshTimer);
-
-  fetch(TICKET_ENDPOINT + '?id=' + encodeURIComponent(id))
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.error) { showError(data.error); return; }
-      renderTicket(data);
-      // Auto-refresh tiap 15 detik selama belum selesai
-      if (data.status !== 'selesai') {
-        refreshTimer = setInterval(function() { silentRefresh(id); }, 15000);
-        document.getElementById('refresh-bar').style.display = 'flex';
-        document.getElementById('refresh-label').textContent = 'Auto-refresh tiap 15 detik';
-      } else {
-        document.getElementById('refresh-bar').style.display = 'flex';
-        document.getElementById('refresh-label').textContent = 'Tiket sudah selesai';
-      }
-    })
-    .catch(function() { showError('Gagal terhubung ke server. Coba lagi.'); });
+function formatDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleString('id-ID', {
+        day:'2-digit', month:'long', year:'numeric',
+        hour:'2-digit', minute:'2-digit', timeZone:'Asia/Jakarta'
+    });
 }
 
-function silentRefresh(id) {
-  fetch(TICKET_ENDPOINT + '?id=' + encodeURIComponent(id))
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.error) renderTicket(data);
-    }).catch(function() {});
+function renderSteps(step, isDone) {
+    return `
+    <div class="steps${isDone ? ' is-done' : ''}">
+        ${STEP_LABELS.map((label, i) => {
+            let cls = '';
+            if (i < step) cls = 'done';
+            else if (i === step) cls = isDone ? 'done' : 'active pulse';
+            return `<div class="step ${cls}">
+                <div class="step-dot">${i < step || isDone ? '✓' : (i + 1)}</div>
+                <div class="step-label">${label}</div>
+            </div>`;
+        }).join('')}
+    </div>`;
 }
 
-function showLoading() {
-  document.getElementById('result-area').innerHTML =
-    '<div class="state-box"><div class="state-icon">⏳</div><div class="state-title">Memuat tiket...</div></div>';
+function renderTicket(ticket) {
+    const card   = document.getElementById('ticket-card');
+    const typeLabel = ticket.type === 'bug' ? '🐛 Laporan Bug' : '💡 Saran';
+    const step   = ticket.statusStep ?? 0;
+    const isDone = ticket.done || ticket.status === 'done';
+
+    card.innerHTML = `
+        <div class="ticket-header">
+            <span class="ticket-num">Tiket #${ticket.num}</span>
+            <div class="ticket-id">${ticket.id}</div>
+            <span class="ticket-type-badge">${typeLabel}</span>
+        </div>
+
+        <div class="status-section">
+            <div class="status-title">Progress Penanganan</div>
+            ${renderSteps(step, isDone)}
+            <div class="status-note ${ticket.status}">
+                ${STATUS_NOTE[ticket.status] || 'Status tidak dikenali.'}
+            </div>
+            ${ticket.devNote ? `<div class="dev-note"><span class="dev-note-label">Catatan Developer</span>${ticket.devNote}</div>` : ''}
+        </div>
+
+        <div class="ticket-detail">
+            <div class="field-row">
+                <div class="field">
+                    <label>Game</label>
+                    <p>${ticket.game || '—'}</p>
+                </div>
+                <div class="field">
+                    <label>Dibuat</label>
+                    <p class="timestamp">${formatDate(ticket.createdAt)}</p>
+                </div>
+            </div>
+            <div class="field">
+                <label>Deskripsi Laporan</label>
+                <p>${ticket.desc ? ticket.desc.replace(/\n/g,'<br>') : '—'}</p>
+            </div>
+            ${ticket.updatedAt && ticket.updatedAt !== ticket.createdAt ? `
+            <div class="field">
+                <label>Terakhir Diperbarui</label>
+                <p class="timestamp">${formatDate(ticket.updatedAt)}</p>
+            </div>` : ''}
+        </div>
+    `;
+
+    document.getElementById('refresh-wrap').style.display = isDone ? 'none' : 'block';
 }
 
-function showError(msg) {
-  document.getElementById('result-area').innerHTML =
-    '<div class="state-box"><div class="state-icon">❌</div><div class="state-title">Tiket Tidak Ditemukan</div><div class="state-msg">' + msg + '</div></div>';
+function renderExpired(num) {
+    document.getElementById('ticket-card').innerHTML = `
+        <div class="expired-wrap">
+            <div class="expired-icon">🎉</div>
+            <div class="expired-title">Tiket #${num} — Selesai!</div>
+            <div class="expired-msg">
+                Masalah pada tiket ini sudah diselesaikan oleh developer.<br>
+                Tiket telah ditutup. Terima kasih atas laporanmu!
+            </div>
+        </div>`;
+    document.getElementById('refresh-wrap').style.display = 'none';
 }
 
-function renderTicket(t) {
-  var stepIdx  = STATUS_STEPS.findIndex(function(s) { return s.key === t.status; });
-  if (stepIdx < 0) stepIdx = 0;
-  var pct      = stepIdx / (STATUS_STEPS.length - 1) * 100;
-
-  var stepsHtml = STATUS_STEPS.map(function(s, i) {
-    var cls = i < stepIdx ? 'done' : (i === stepIdx ? 'active' : '');
-    var ico = i <= stepIdx ? '✓' : (i + 1);
-    if (i === stepIdx) ico = s.icon;
-    return '<div class="step ' + cls + '">' +
-      '<div class="step-dot">' + ico + '</div>' +
-      '<div class="step-label">' + s.label + '</div>' +
-    '</div>';
-  }).join('');
-
-  // Attachments
-  var attHtml = '';
-  if (t.attachments && t.attachments.length) {
-    attHtml = '<div class="field"><label>Bukti yang Dilampirkan</label>' +
-      '<div class="att-grid">' +
-      t.attachments.map(function(a, i) {
-        var isImg = (a.type || '').startsWith('image/');
-        if (isImg) {
-          return '<div class="att-item" onclick="openAtt(\'' + a.key + '\', true)">' +
-            '<img src="/.netlify/functions/ticket-file?key=' + encodeURIComponent(a.key) + '" alt="' + a.name + '" loading="lazy">' +
-            '</div>';
-        } else {
-          return '<div class="att-item" onclick="openAtt(\'' + a.key + '\', false)">' +
-            '<span class="att-video-icon">🎬</span>' +
-            '</div>';
-        }
-      }).join('') +
-      '</div></div>';
-  }
-
-  // History
-  var histHtml = '';
-  if (t.history && t.history.length) {
-    var statusLabel = { masuk:'📥 Diterima', dilihat:'👀 Sedang Ditinjau', dikonfirmasi:'✅ Dikonfirmasi', selesai:'🎉 Selesai' };
-    histHtml = '<div class="history"><div class="history-title">Riwayat Update</div>' +
-      t.history.slice().reverse().map(function(h) {
-        return '<div class="history-item">' +
-          '<div class="history-dot"></div>' +
-          '<div class="history-content">' +
-            '<div class="history-status">' + (statusLabel[h.status] || h.status) + '</div>' +
-            '<div class="history-time">' + h.time + '</div>' +
-            (h.note ? '<div class="history-note">' + h.note + '</div>' : '') +
-          '</div>' +
-        '</div>';
-      }).join('') +
-    '</div>';
-  }
-
-  document.getElementById('result-area').innerHTML =
-    '<div class="card">' +
-      '<div class="card-header">' +
-        '<div>' +
-          '<div class="ticket-id">#' + t.id + '</div>' +
-          '<div style="font-size:0.82rem;color:var(--muted);margin-top:4px;">' + (t.createdAt || '') + '</div>' +
-        '</div>' +
-        '<span class="ticket-type ' + (t.type==='bug'?'type-bug':'type-saran') + '">' +
-          (t.type==='bug'?'🐛 Bug / Error':'💡 Saran') +
-        '</span>' +
-      '</div>' +
-      '<div class="card-body">' +
-        '<div class="progress-wrap">' +
-          '<div class="progress-label">Progress Status</div>' +
-          '<div class="steps">' +
-            '<div class="steps-line" id="steps-line"></div>' +
-            stepsHtml +
-          '</div>' +
-        '</div>' +
-        '<div class="fields">' +
-          '<div class="field"><label>Game</label><div class="field-val">' + escHtml(t.game||'—') + '</div></div>' +
-          '<div class="field"><label>Laporan</label><div class="field-val">' + escHtml(t.desc||'').replace(/\n/g,'<br>') + '</div></div>' +
-          (t.summary && t.summary !== t.desc ? '<div class="field"><label>🤖 Ringkasan AI</label><div class="field-val" style="color:var(--cyan);">' + escHtml(t.summary) + '</div></div>' : '') +
-          attHtml +
-        '</div>' +
-        histHtml +
-      '</div>' +
-    '</div>';
-
-  // Set lebar progress line setelah render
-  setTimeout(function() {
-    var line = document.getElementById('steps-line');
-    if (line) line.style.width = 'calc(' + pct + '% - 28px)';
-  }, 50);
+function renderError(msg) {
+    document.getElementById('ticket-card').innerHTML = `
+        <div class="error-wrap">
+            <div class="error-icon">🔒</div>
+            <div class="error-title">Tiket Tidak Ditemukan</div>
+            <div class="error-msg">
+                ${msg || 'Token tidak valid atau tiket tidak ditemukan.'}<br><br>
+                Pastikan kamu menggunakan link yang dikirim saat laporan dibuat.<br><br>
+                <a href="../cs/" class="error-link">← Kembali ke Customer Service</a>
+            </div>
+        </div>`;
+    document.getElementById('refresh-wrap').style.display = 'none';
 }
 
-function escHtml(s) {
-  return String(s||'').replace(/[&<>"']/g, function(c) {
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-  });
+async function loadTicket() {
+    const token = getToken();
+    if (!token) { renderError('Tidak ada token tiket di URL ini.'); return; }
+
+    try {
+        const res  = await fetch(`${TICKET_API}?token=${encodeURIComponent(token)}`);
+        const data = await res.json();
+
+        if (!data.ok) { renderError(data.error); return; }
+        if (data.expired) { renderExpired(data.num); return; }
+        renderTicket(data.ticket);
+    } catch (e) {
+        renderError('Gagal terhubung ke server. Coba lagi nanti.');
+    }
 }
 
-function openAtt(key, isImage) {
-  var url = '/.netlify/functions/ticket-file?key=' + encodeURIComponent(key);
-  var lb  = document.createElement('div');
-  lb.className = 'lightbox';
-  lb.innerHTML = (isImage
-    ? '<img src="' + url + '" alt="bukti">'
-    : '<video src="' + url + '" controls autoplay style="max-height:85vh;"></video>') +
-    '<button class="lb-close" onclick="this.parentNode.remove()">✕</button>';
-  lb.addEventListener('click', function(e) { if (e.target === lb) lb.remove(); });
-  document.body.appendChild(lb);
-}
+loadTicket();
 </script>
 </body>
 </html>

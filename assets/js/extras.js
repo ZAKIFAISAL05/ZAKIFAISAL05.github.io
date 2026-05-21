@@ -174,47 +174,86 @@
     rsz();
     window.addEventListener('resize', rsz);
 
-    var DARK_C = ['#00ff41','#00e5ff','#ffe600','#c86fdf'];
-    var LITE_C = ['#007a1f','#006ea8','#a07b00','#7b2fa3'];
-    function rndCol() {
-        var arr = html.getAttribute('data-theme') === 'dark' ? DARK_C : LITE_C;
-        return arr[Math.floor(Math.random() * arr.length)];
+    // Particle colours — brand palette
+    var COLS = ['#a855f7','#6366f1','#06b6d4','#00d97e','#f43f5e'];
+    function rndCol() { return COLS[Math.floor(Math.random() * COLS.length)]; }
+
+    // Stars (tiny, slow-drifting)
+    var stars = [];
+    for (var s = 0; s < 80; s++) {
+        stars.push({
+            x: Math.random() * 1920, y: Math.random() * 1080,
+            r: Math.random() * 1.5 + 0.3,
+            a: Math.random() * 0.4 + 0.1,
+            vx: (Math.random() - 0.5) * 0.08,
+            vy: (Math.random() - 0.5) * 0.04,
+            twinkle: Math.random() * Math.PI * 2,
+            twinkleSpeed: 0.02 + Math.random() * 0.03
+        });
     }
 
+    // Rising pixel particles
     var pts = [];
     function mkP() {
         return {
-            x: Math.random() * cv.width,
-            y: Math.random() * cv.height,
-            sz: (Math.floor(Math.random() * 3) + 1) * 2,
+            x: Math.random() * cv.width, y: cv.height + 10,
+            sz: (Math.floor(Math.random() * 2) + 1) * 2,
             col: rndCol(),
-            vx: (Math.random() - 0.5) * 0.4,
-            vy: -Math.random() * 0.5 - 0.15,
-            a: Math.random() * 0.5 + 0.2,
-            life: Math.random(),
-            dec: Math.random() * 0.003 + 0.001
+            vx: (Math.random() - 0.5) * 0.5,
+            vy: -Math.random() * 0.6 - 0.2,
+            a: Math.random() * 0.6 + 0.2,
+            life: 1,
+            dec: Math.random() * 0.004 + 0.001
         };
+    }
+    for (var i = 0; i < 35; i++) {
+        var p = mkP();
+        p.y = Math.random() * cv.height; // scatter initially
+        p.life = Math.random();
+        pts.push(p);
     }
     function resetP(p) {
         p.x = Math.random() * cv.width; p.y = cv.height + 10;
-        p.sz = (Math.floor(Math.random() * 3) + 1) * 2;
-        p.col = rndCol(); p.vx = (Math.random() - 0.5) * 0.4;
-        p.vy = -Math.random() * 0.5 - 0.15;
-        p.a = Math.random() * 0.5 + 0.2; p.life = 1;
-        p.dec = Math.random() * 0.003 + 0.001;
+        p.sz = (Math.floor(Math.random() * 2) + 1) * 2;
+        p.col = rndCol(); p.vx = (Math.random() - 0.5) * 0.5;
+        p.vy = -Math.random() * 0.6 - 0.2;
+        p.a = Math.random() * 0.6 + 0.2; p.life = 1;
+        p.dec = Math.random() * 0.004 + 0.001;
     }
 
-    for (var i = 0; i < 40; i++) pts.push(mkP());
-
+    var tick = 0;
     function anim() {
+        tick++;
         cx.clearRect(0, 0, cv.width, cv.height);
-        pts.forEach(function (p) {
+
+        // Draw twinkling stars
+        stars.forEach(function(st) {
+            st.x += st.vx; st.y += st.vy;
+            st.twinkle += st.twinkleSpeed;
+            if (st.x < 0) st.x = cv.width;
+            if (st.x > cv.width) st.x = 0;
+            if (st.y < 0) st.y = cv.height;
+            if (st.y > cv.height) st.y = 0;
+            var tw = 0.3 + 0.7 * ((Math.sin(st.twinkle) + 1) / 2);
+            cx.globalAlpha = st.a * tw;
+            cx.fillStyle = '#fff';
+            cx.beginPath();
+            cx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+            cx.fill();
+        });
+
+        // Draw pixel particles
+        pts.forEach(function(p) {
             p.x += p.vx; p.y += p.vy; p.life -= p.dec;
             if (p.life <= 0 || p.y < -10) resetP(p);
             cx.globalAlpha = p.life * p.a;
-            cx.fillStyle   = p.col;
+            cx.fillStyle = p.col;
+            cx.shadowBlur = 6;
+            cx.shadowColor = p.col;
             cx.fillRect(Math.round(p.x), Math.round(p.y), p.sz, p.sz);
+            cx.shadowBlur = 0;
         });
+
         cx.globalAlpha = 1;
         requestAnimationFrame(anim);
     }

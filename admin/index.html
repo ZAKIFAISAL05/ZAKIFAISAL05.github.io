@@ -13,8 +13,11 @@
 <!-- ══ LOGIN ══ -->
 <div class="login-wrap" id="loginWrap">
     <div class="login-box">
-        <div class="login-title">⬛ ADMIN ACCESS ⬛</div>
-        <div class="login-sub">[ GRID SURVIVAL STUDIO ]</div>
+        <div class="login-logo">
+            <img src="../assets/img/studio_logo.png" alt="Grid Survival">
+        </div>
+        <div class="login-title">Admin Panel</div>
+        <div class="login-sub">Grid Survival Studio — Secure Access</div>
         <div class="login-field">
             <label for="adminUser">USERNAME</label>
             <input type="text" id="adminUser" autocomplete="off" spellcheck="false" placeholder="Username" maxlength="32">
@@ -127,10 +130,10 @@
 
         <!-- Game Catalog -->
         <div class="admin-section-title">▌ Game Catalog</div>
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
             <button class="btn-small" onclick="renderGameTable()">🔄 Refresh</button>
             <button class="btn-small" onclick="exportGameData()">⬇ Export gameData.js</button>
-            <span style="font-size:13px;color:var(--text-muted);">Data tersimpan permanen di server Netlify</span>
+            <span style="font-size:0.78rem;color:var(--text-muted);">Data tersimpan permanen di server Netlify</span>
         </div>
         <div class="admin-table-wrap">
             <table class="admin-table">
@@ -143,10 +146,10 @@
 
         <!-- Reports -->
         <div class="admin-section-title">▌ Laporan Bug &amp; Saran</div>
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
+        <div class="reports-toolbar">
             <button class="btn-small" onclick="renderReports()">🔄 Refresh</button>
             <button class="btn-delete" onclick="clearDoneReports()">🗑 Hapus Selesai</button>
-            <span style="font-size:13px;color:var(--text-muted);" id="reportCount">Memuat...</span>
+            <span style="font-size:0.8rem;color:var(--text-muted);" id="reportCount">Memuat...</span>
         </div>
         <div id="reports-panel"></div>
 
@@ -160,11 +163,11 @@
 <!-- Confirm Delete Modal -->
 <div class="confirm-overlay" id="confirmOverlay">
     <div class="confirm-box">
-        <div style="font-family:var(--font-title);font-size:1.1em;color:var(--c-red);margin-bottom:14px;text-shadow:2px 2px 0 rgba(0,0,0,0.3);">⚠ Konfirmasi Hapus</div>
-        <div style="margin-bottom:22px;color:var(--text-dark);font-weight:600;" id="confirmMsg">Hapus game ini?</div>
-        <div style="display:flex;gap:12px;justify-content:center;">
-            <button class="btn-delete" id="confirmYes" style="padding:10px 20px;">Ya, Hapus</button>
-            <button class="btn-small" onclick="closeConfirm()" style="padding:10px 20px;">Batal</button>
+        <div class="confirm-title">⚠ Konfirmasi Hapus</div>
+        <div class="confirm-msg" id="confirmMsg">Hapus game ini?</div>
+        <div class="confirm-actions">
+            <button class="btn-delete" id="confirmYes" style="padding:10px 24px;">Ya, Hapus</button>
+            <button class="btn-small" onclick="closeConfirm()" style="padding:10px 24px;">Batal</button>
         </div>
     </div>
 </div>

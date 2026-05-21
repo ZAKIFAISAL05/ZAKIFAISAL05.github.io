@@ -61,7 +61,8 @@
     <div class="hero-corner hero-corner-tr"></div>
     <div class="hero-corner hero-corner-bl"></div>
     <div class="hero-corner hero-corner-br"></div>
-    <h1 class="hero-title">Grid The Survival</h1>
+    <div class="hero-badge"><span class="hero-badge-dot"></span>🎮 Studio Game Indie Indonesia</div>
+    <h1 class="hero-title">Grid <span>Survival</span><br>Studio</h1>
     <p class="tagline">
         <span id="typing-text"></span>
         <span class="cursor">█</span>
@@ -176,6 +177,31 @@
     </div>
 </section>
 
+<!-- CEK TIKET SECTION -->
+<section id="cek-tiket" class="cek-tiket-section" aria-label="Cek Status Tiket">
+    <div class="cek-tiket-inner">
+        <div class="cek-tiket-icon">🎫</div>
+        <h2 class="cek-tiket-title" data-id="cek-tiket-title">CEK STATUS LAPORAN</h2>
+        <p class="cek-tiket-sub" data-id="cek-tiket-sub">Sudah pernah lapor bug atau kirim saran? Pantau statusnya di sini.</p>
+        <div class="cek-tiket-form">
+            <input
+                type="text"
+                id="tiket-input"
+                class="tiket-input"
+                placeholder="Masukkan nomor tiket (contoh: GS-ABC123...)"
+                maxlength="80"
+                autocomplete="off"
+                spellcheck="false"
+            >
+            <button class="tiket-cek-btn" id="tiket-cek-btn" onclick="cekTiket()">
+                <span>🔍</span> <span data-id="btn-cek-tiket">CEK TIKET</span>
+            </button>
+        </div>
+        <div class="tiket-result-wrap" id="tiket-result-wrap" style="display:none;"></div>
+        <p class="tiket-hint" data-id="tiket-hint">Token tiket dikirim via email saat kamu kirim laporan, atau lihat di bubble chat CS.</p>
+    </div>
+</section>
+
 <!-- FOOTER / CONTACT -->
 <footer id="contact">
     <div class="footer-content">
@@ -241,6 +267,103 @@
 </div>
 
 <button id="scrollTopBtn" aria-label="Scroll to top">▲</button>
+
+<!-- REPORT MODALS -->
+<div class="report-modal-bg" id="modal-bug-bg">
+    <div class="report-modal-card">
+        <div class="rmodal-header">
+            <div class="rmodal-icon bug">🐛</div>
+            <div>
+                <div class="rmodal-title">Laporan Bug / Error</div>
+                <div class="rmodal-sub">Bantu kami memperbaiki masalah di game</div>
+            </div>
+            <button class="rmodal-close" onclick="closeReportModal('bug')">✕</button>
+        </div>
+        <div class="rmodal-body" id="modal-bug-form">
+            <div class="rmodal-field">
+                <label>Game yang bermasalah *</label>
+                <select id="bug-game">
+                    <option value="">— Pilih game —</option>
+                    <option>Minecraft Parkun 2D</option>
+                    <option>THE ONE FOR ZOMBIE</option>
+                    <option>Desa Investasi Zombie</option>
+                    <option>Gerbang Parkun 2D</option>
+                    <option>Desa Cipta Karya Ch 2</option>
+                    <option>The Undeads (Roblox)</option>
+                    <option>Frequency Fury Obby (Roblox)</option>
+                    <option>Lainnya / Umum</option>
+                </select>
+            </div>
+            <div class="rmodal-field">
+                <label>Deskripsi bug / error *</label>
+                <textarea id="bug-desc" rows="4" placeholder="Ceritakan bug yang kamu temukan secara detail..." maxlength="1000"></textarea>
+            </div>
+            <div class="rmodal-field">
+                <label>Email kamu <span style="color:var(--text-muted);font-weight:400;">(untuk konfirmasi tiket)</span></label>
+                <input type="email" id="bug-email" placeholder="contoh@gmail.com">
+            </div>
+            <div class="rmodal-field">
+                <label>Kontak lain <span style="color:var(--text-muted);font-weight:400;">(WA / Discord — opsional)</span></label>
+                <input type="text" id="bug-contact" placeholder="WA / Discord...">
+            </div>
+            <button class="rmodal-submit" id="bug-submit" onclick="submitReport('bug')">🐛 Kirim Laporan Bug</button>
+        </div>
+        <div class="rmodal-success" id="modal-bug-success" style="display:none;">
+            <div class="rmodal-success-icon">✅</div>
+            <h3>Laporan Terkirim!</h3>
+            <p>Tim developer sudah menerima laporanmu dan akan segera menindaklanjuti.</p>
+            <div class="rmodal-ticket" id="bug-ticket-box" style="display:none;">
+                <span class="rmodal-ticket-label">Nomor Tiket</span>
+                <span class="rmodal-ticket-num" id="bug-ticket-num">—</span>
+                <span class="rmodal-ticket-hint">Konfirmasi dikirim ke email kamu</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="report-modal-bg" id="modal-saran-bg">
+    <div class="report-modal-card">
+        <div class="rmodal-header">
+            <div class="rmodal-icon saran">💡</div>
+            <div>
+                <div class="rmodal-title">Kirim Saran / Ide</div>
+                <div class="rmodal-sub">Ide kamu bisa jadi fitur game berikutnya!</div>
+            </div>
+            <button class="rmodal-close" onclick="closeReportModal('saran')">✕</button>
+        </div>
+        <div class="rmodal-body" id="modal-saran-form">
+            <div class="rmodal-field">
+                <label>Game yang disarankan</label>
+                <select id="saran-game">
+                    <option value="">— Pilih game (opsional) —</option>
+                    <option>Minecraft Parkun 2D</option>
+                    <option>THE ONE FOR ZOMBIE</option>
+                    <option>Desa Investasi Zombie</option>
+                    <option>Gerbang Parkun 2D</option>
+                    <option>Desa Cipta Karya Ch 2</option>
+                    <option>The Undeads (Roblox)</option>
+                    <option>Frequency Fury Obby (Roblox)</option>
+                    <option>Untuk Game Baru</option>
+                    <option>Umum / Studio</option>
+                </select>
+            </div>
+            <div class="rmodal-field">
+                <label>Saran / Ide kamu *</label>
+                <textarea id="saran-desc" rows="4" placeholder="Ceritakan idemu secara detail..." maxlength="1000"></textarea>
+            </div>
+            <div class="rmodal-field">
+                <label>Email kamu <span style="color:var(--text-muted);font-weight:400;">(opsional)</span></label>
+                <input type="email" id="saran-email" placeholder="contoh@gmail.com">
+            </div>
+            <button class="rmodal-submit" id="saran-submit" onclick="submitReport('saran')">💡 Kirim Saran</button>
+        </div>
+        <div class="rmodal-success" id="modal-saran-success" style="display:none;">
+            <div class="rmodal-success-icon">🎉</div>
+            <h3>Saran Terkirim!</h3>
+            <p>Terima kasih! Ide kamu akan dipertimbangkan oleh tim Grid Survival.</p>
+        </div>
+    </div>
+</div>
 
 <script src="assets/js/gameData.js"></script>
 <script src="assets/js/main.js"></script>
@@ -319,5 +442,187 @@ document.getElementById('langToggle').addEventListener('click', function() {
 applyLang(LANG);
 </script>
 
+<script>
+// ── CEK TIKET WIDGET ──
+function cekTiket() {
+    var raw   = (document.getElementById('tiket-input').value || '').trim();
+    var wrap  = document.getElementById('tiket-result-wrap');
+    var btn   = document.getElementById('tiket-cek-btn');
+    if (!raw) { shakeInput(); return; }
+
+    // Support both full URL and bare token
+    var token = raw;
+    var urlMatch = raw.match(/[?&]token=([^&#]+)/);
+    if (urlMatch) token = decodeURIComponent(urlMatch[1]);
+
+    wrap.style.display = 'block';
+    wrap.innerHTML = '<div class="tiket-loading"><div class="tiket-spinner"></div><span>Mencari tiket...</span></div>';
+    btn.disabled = true;
+
+    fetch('/.netlify/functions/ticket?token=' + encodeURIComponent(token))
+        .then(function(r){ return r.json(); })
+        .then(function(data) {
+            btn.disabled = false;
+            if (!data.ok) { renderTiketError(data.error || 'Tiket tidak ditemukan.'); return; }
+            if (data.expired) { renderTiketExpired(data.num); return; }
+            renderTiketResult(data.ticket);
+        })
+        .catch(function() {
+            btn.disabled = false;
+            renderTiketError('Gagal terhubung ke server. Coba lagi.');
+        });
+}
+
+function shakeInput() {
+    var inp = document.getElementById('tiket-input');
+    inp.classList.add('shake');
+    inp.focus();
+    setTimeout(function(){ inp.classList.remove('shake'); }, 500);
+}
+
+var STATUS_NOTE = {
+    received:  { icon:'📥', text:'Laporan diterima, menunggu ditinjau tim developer.' },
+    seen:      { icon:'👀', text:'Developer sudah melihat laporan kamu dan sedang dipelajari.' },
+    confirmed: { icon:'🔧', text:'Laporan dikonfirmasi! Developer sedang mengerjakan perbaikan.' },
+    done:      { icon:'✅', text:'Masalah sudah diselesaikan. Terima kasih atas laporanmu!' },
+};
+var STEP_LABELS = ['Diterima','Dilihat','Dikonfirmasi','Selesai'];
+
+function renderTiketResult(t) {
+    var wrap   = document.getElementById('tiket-result-wrap');
+    var step   = t.statusStep || 0;
+    var isDone = t.done || t.status === 'done';
+    var note   = STATUS_NOTE[t.status] || { icon:'ℹ️', text: t.status };
+    var typeLabel = t.type === 'bug' ? '🐛 Laporan Bug' : '💡 Saran';
+
+    var stepsHtml = STEP_LABELS.map(function(label, i) {
+        var cls = i < step ? 'done' : (i === step ? (isDone ? 'done' : 'active') : '');
+        return '<div class="tr-step ' + cls + '">' +
+            '<div class="tr-dot">' + (i < step || isDone ? '✓' : (i+1)) + '</div>' +
+            '<div class="tr-step-label">' + label + '</div>' +
+        '</div>';
+    }).join('');
+
+    wrap.innerHTML =
+        '<div class="tiket-card">' +
+            '<div class="tiket-card-head">' +
+                '<div>' +
+                    '<div class="tc-num">Tiket #' + (t.num || '—') + '</div>' +
+                    '<div class="tc-id">' + (t.id || '') + '</div>' +
+                '</div>' +
+                '<span class="tc-type">' + typeLabel + '</span>' +
+            '</div>' +
+            '<div class="tr-steps' + (isDone ? ' is-done' : '') + '">' + stepsHtml + '</div>' +
+            '<div class="tc-note ' + t.status + '">' + note.icon + ' ' + note.text + '</div>' +
+            (t.devNote ? '<div class="tc-devnote"><span>💬 Catatan Developer:</span> ' + t.devNote + '</div>' : '') +
+            '<div class="tc-fields">' +
+                '<div class="tc-field"><span>Game</span><p>' + (t.game || '—') + '</p></div>' +
+                '<div class="tc-field"><span>Laporan</span><p>' + (t.desc || '—').replace(/
+/g,'<br>') + '</p></div>' +
+                '<div class="tc-field"><span>Dibuat</span><p>' + formatTiketDate(t.createdAt) + '</p></div>' +
+            '</div>' +
+        '</div>';
+}
+
+function renderTiketExpired(num) {
+    document.getElementById('tiket-result-wrap').innerHTML =
+        '<div class="tiket-card tiket-done">' +
+            '<div style="font-size:2rem;margin-bottom:8px;">🎉</div>' +
+            '<div style="font-weight:800;font-size:1.1rem;margin-bottom:6px;">Tiket #' + num + ' — Selesai!</div>' +
+            '<div style="opacity:.75;font-size:.9rem;">Masalah sudah diselesaikan oleh developer. Terima kasih!</div>' +
+        '</div>';
+}
+
+function renderTiketError(msg) {
+    document.getElementById('tiket-result-wrap').innerHTML =
+        '<div class="tiket-card tiket-error">' +
+            '<div style="font-size:1.8rem;margin-bottom:8px;">🔒</div>' +
+            '<div style="font-weight:700;font-size:1rem;margin-bottom:6px;">Tiket Tidak Ditemukan</div>' +
+            '<div style="opacity:.75;font-size:.85rem;">' + msg + '</div>' +
+        '</div>';
+}
+
+function formatTiketDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleString('id-ID', { day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit', timeZone:'Asia/Jakarta' });
+}
+
+// Allow Enter key in input
+document.addEventListener('DOMContentLoaded', function() {
+    var inp = document.getElementById('tiket-input');
+    if (inp) {
+        inp.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') cekTiket();
+        });
+    }
+});
+</script>
+<script>
+// ── REPORT MODAL (main website) ──
+function openReportModal(type) {
+    var bg = document.getElementById('modal-' + type + '-bg');
+    if (bg) { bg.classList.add('open'); document.body.classList.add('modal-open'); }
+    // reset success state
+    var form = document.getElementById('modal-' + type + '-form');
+    var succ = document.getElementById('modal-' + type + '-success');
+    if (form) form.style.display = '';
+    if (succ) succ.style.display = 'none';
+    var btn = document.getElementById(type + '-submit');
+    if (btn) { btn.disabled = false; btn.textContent = type === 'bug' ? '🐛 Kirim Laporan Bug' : '💡 Kirim Saran'; }
+}
+
+function closeReportModal(type) {
+    var bg = document.getElementById('modal-' + type + '-bg');
+    if (bg) { bg.classList.remove('open'); document.body.classList.remove('modal-open'); }
+}
+
+// Close on backdrop click
+['modal-bug-bg','modal-saran-bg'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', function(e) {
+        if (e.target === el) closeReportModal(el.id.replace('modal-','').replace('-bg',''));
+    });
+});
+
+async function submitReport(type) {
+    var game    = (document.getElementById(type + '-game')?.value || '').trim();
+    var desc    = (document.getElementById(type + '-desc')?.value || '').trim();
+    var email   = (document.getElementById(type + '-email')?.value || '').trim();
+    var contact = (document.getElementById(type + '-contact')?.value || '').trim();
+    var btn     = document.getElementById(type + '-submit');
+
+    if (!desc) { alert('Deskripsi tidak boleh kosong.'); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Mengirim...';
+
+    try {
+        var res  = await fetch('/.netlify/functions/report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type, game: game || 'Tidak disebutkan', desc, email, contact }),
+        });
+        var data = await res.json();
+
+        // Show success
+        var form = document.getElementById('modal-' + type + '-form');
+        var succ = document.getElementById('modal-' + type + '-success');
+        if (form) form.style.display = 'none';
+        if (succ) succ.style.display = '';
+
+        if (data.ticketId && type === 'bug') {
+            var ticketBox = document.getElementById('bug-ticket-box');
+            var ticketNum = document.getElementById('bug-ticket-num');
+            if (ticketBox) ticketBox.style.display = '';
+            if (ticketNum) ticketNum.textContent = '#' + data.ticketId;
+        }
+    } catch (err) {
+        btn.disabled = false;
+        btn.textContent = type === 'bug' ? '🐛 Kirim Laporan Bug' : '💡 Kirim Saran';
+        alert('Gagal mengirim. Coba lagi.');
+    }
+}
+</script>
 </body>
 </html>

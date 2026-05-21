@@ -123,19 +123,21 @@ function emailUserHtml(ticketId, type, game, desc, waktu) {
 <!DOCTYPE html>
 <html lang="id">
 <head><meta charset="UTF-8"><style>
-  body { font-family: 'Segoe UI', sans-serif; background:#0d0d0d; color:#e0e0e0; margin:0; padding:0; }
-  .wrap { max-width:560px; margin:32px auto; background:#1a1a2e; border-radius:16px; overflow:hidden; }
-  .header { background:linear-gradient(135deg,#7c4dff,#00e5ff); padding:28px 32px; text-align:center; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background:#f4f4f7; color:#1a1a2e; margin:0; padding:0; }
+  .wrap { max-width:560px; margin:32px auto; background:#ffffff; border-radius:14px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.10); }
+  .header { background:linear-gradient(135deg,#7c4dff,#5c35cc); padding:28px 32px; text-align:center; }
   .header h1 { color:#fff; margin:0; font-size:1.4rem; letter-spacing:1px; }
-  .header p  { color:rgba(255,255,255,0.85); margin:6px 0 0; font-size:0.9rem; }
+  .header p  { color:rgba(255,255,255,0.88); margin:6px 0 0; font-size:0.9rem; }
   .body { padding:28px 32px; }
-  .ticket { background:#0d0d1a; border:2px solid #7c4dff; border-radius:12px; padding:16px 24px; text-align:center; margin-bottom:24px; }
-  .ticket-label { font-size:0.72rem; color:#888; text-transform:uppercase; letter-spacing:1px; display:block; }
+  .ticket { background:#f0ebff; border:2px solid #7c4dff; border-radius:12px; padding:16px 24px; text-align:center; margin-bottom:24px; }
+  .ticket-label { font-size:0.72rem; color:#6c5ce7; text-transform:uppercase; letter-spacing:1px; display:block; }
   .ticket-num   { font-size:1.6rem; font-weight:800; color:#7c4dff; letter-spacing:2px; display:block; margin-top:4px; }
-  .field  { margin-bottom:16px; }
-  .field label { font-size:0.75rem; color:#888; text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:4px; }
-  .field p     { margin:0; background:#0d0d1a; border-radius:8px; padding:10px 14px; font-size:0.92rem; line-height:1.5; }
-  .footer { border-top:1px solid #222; padding:20px 32px; font-size:0.78rem; color:#666; text-align:center; }
+  .intro { margin:0 0 20px; line-height:1.7; color:#333; font-size:0.95rem; }
+  .field  { margin-bottom:14px; }
+  .field label { font-size:0.72rem; color:#888; text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:4px; font-weight:600; }
+  .field p { margin:0; background:#f7f7fa; border:1px solid #e8e8f0; border-radius:8px; padding:10px 14px; font-size:0.92rem; line-height:1.5; color:#1a1a2e; }
+  .cta { display:block; text-align:center; background:#7c4dff; color:#fff !important; text-decoration:none; padding:13px 24px; border-radius:10px; font-weight:700; font-size:0.95rem; margin:20px 0 0; }
+  .footer { border-top:1px solid #eee; padding:18px 32px; font-size:0.78rem; color:#999; text-align:center; }
   .footer a { color:#7c4dff; text-decoration:none; }
 </style></head>
 <body>
@@ -149,7 +151,7 @@ function emailUserHtml(ticketId, type, game, desc, waktu) {
       <span class="ticket-label">Nomor Tiket Kamu</span>
       <span class="ticket-num">#${ticketId}</span>
     </div>
-    <p style="margin:0 0 20px;line-height:1.6;">Halo! Kami telah menerima laporanmu. Tim Grid Survival akan segera meninjau dan menindaklanjuti. Simpan nomor tiket di atas untuk follow-up.</p>
+    <p class="intro">Halo! Kami telah menerima laporanmu. Tim Grid Survival akan segera meninjau dan menindaklanjuti. Simpan nomor tiket di atas untuk follow-up.</p>
     <div class="field"><label>Jenis</label><p>${typeLabel}</p></div>
     <div class="field"><label>Game</label><p>${game || 'Tidak disebutkan'}</p></div>
     <div class="field"><label>Laporan</label><p>${desc.replace(/\n/g,'<br>')}</p></div>
@@ -165,22 +167,25 @@ function emailUserHtml(ticketId, type, game, desc, waktu) {
 
 function emailAdminHtml(ticketId, type, game, desc, contact, email, summary, waktu) {
   const typeLabel = type === 'bug' ? '🐛 BUG REPORT' : '💡 SARAN';
+  const accentColor = type === 'bug' ? '#e74c3c' : '#f39c12';
   return `
 <!DOCTYPE html>
 <html lang="id">
 <head><meta charset="UTF-8"><style>
-  body { font-family:'Segoe UI',sans-serif; background:#0d0d0d; color:#e0e0e0; margin:0; padding:0; }
-  .wrap { max-width:580px; margin:32px auto; background:#1a1a2e; border-radius:16px; overflow:hidden; }
-  .header { background:#111; border-bottom:3px solid #7c4dff; padding:20px 28px; }
-  .header h1 { margin:0; font-size:1.1rem; color:#7c4dff; }
-  .header p  { margin:4px 0 0; color:#888; font-size:0.82rem; }
+  body { font-family:'Segoe UI', Arial, sans-serif; background:#f4f4f7; color:#1a1a2e; margin:0; padding:0; }
+  .wrap { max-width:580px; margin:32px auto; background:#ffffff; border-radius:14px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.10); }
+  .header { background:#1a1a2e; border-bottom:4px solid ${accentColor}; padding:20px 28px; }
+  .header h1 { margin:0; font-size:1.1rem; color:#fff; }
+  .header p  { margin:6px 0 0; color:#aaa; font-size:0.82rem; }
   .body { padding:24px 28px; }
-  .ticket { display:inline-block; background:#7c4dff22; border:1.5px solid #7c4dff; border-radius:8px; padding:6px 16px; font-size:1rem; font-weight:700; color:#7c4dff; margin-bottom:20px; }
+  .ticket-badge { display:inline-block; background:#f0ebff; border:1.5px solid #7c4dff; border-radius:8px; padding:6px 16px; font-size:1rem; font-weight:800; color:#7c4dff; margin-bottom:20px; }
   .field { margin-bottom:14px; }
-  .field label { font-size:0.72rem; color:#888; text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:3px; }
-  .field p { margin:0; background:#111; border-radius:8px; padding:10px 14px; font-size:0.9rem; line-height:1.5; }
-  .ai-box { background:#0d2a1a; border:1px solid #27ae60; border-radius:8px; padding:12px 14px; margin-bottom:14px; }
-  .ai-box label { font-size:0.72rem; color:#27ae60; text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:4px; }
+  .field label { font-size:0.72rem; color:#888; text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:4px; font-weight:600; }
+  .field p { margin:0; background:#f7f7fa; border:1px solid #e8e8f0; border-radius:8px; padding:10px 14px; font-size:0.9rem; line-height:1.5; color:#1a1a2e; }
+  .ai-box { background:#f0fff6; border:1px solid #27ae60; border-radius:8px; padding:12px 14px; margin-bottom:14px; }
+  .ai-box label { font-size:0.72rem; color:#27ae60; text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:4px; font-weight:600; }
+  .ai-box p { margin:0; font-size:0.9rem; line-height:1.5; color:#155724; }
+  .footer { border-top:1px solid #eee; padding:14px 28px; font-size:0.78rem; color:#999; }
 </style></head>
 <body>
 <div class="wrap">
@@ -189,13 +194,14 @@ function emailAdminHtml(ticketId, type, game, desc, contact, email, summary, wak
     <p>${waktu}</p>
   </div>
   <div class="body">
-    <div class="ticket">#${ticketId}</div>
+    <div class="ticket-badge">#${ticketId}</div>
     <div class="field"><label>Game</label><p>${game || 'Tidak disebutkan'}</p></div>
     <div class="field"><label>Deskripsi Lengkap</label><p>${desc.replace(/\n/g,'<br>')}</p></div>
     <div class="ai-box"><label>🤖 Ringkasan AI</label><p>${summary}</p></div>
     <div class="field"><label>Email Pelapor</label><p>${email || '—'}</p></div>
     <div class="field"><label>Kontak Lain</label><p>${contact || '—'}</p></div>
   </div>
+  <div class="footer">Grid Survival Admin Notification</div>
 </div>
 </body></html>`;
 }

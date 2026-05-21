@@ -465,66 +465,103 @@ async function fetchTickets() {
 function renderTicketPanel(tickets) {
   const panel = document.getElementById('reports-panel');
   if (!panel) return;
+
   if (!tickets.length) {
-    panel.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted);font-weight:600;">Belum ada tiket laporan.</div>';
+    panel.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <div class="empty-state-title">Belum ada laporan masuk</div>
+        <div class="empty-state-sub">Laporan dari CS atau form akan muncul di sini</div>
+      </div>`;
     return;
   }
 
   const STATUS_STEPS = { received: 0, seen: 1, confirmed: 2, done: 3 };
-  const STATUS_COLOR = { received:'var(--c-yellow)', seen:'var(--c-cyan)', confirmed:'var(--c-green)', done:'#888' };
   const STATUS_LABEL = { received:'Diterima', seen:'Dilihat', confirmed:'Dikonfirmasi', done:'Selesai' };
+  const STEP_LABELS  = ['Diterima', 'Dilihat', 'Dikonfirmasi', 'Selesai'];
 
   panel.innerHTML = tickets.map(t => {
-    const step     = STATUS_STEPS[t.status] ?? 0;
-    const isDone   = t.done || t.status === 'done';
-    const typeIcon = t.type === 'bug' ? '🐛 BUG' : '💡 SARAN';
-    const stepsHtml = ['Diterima','Dilihat','Dikonfirmasi','Selesai'].map((label, i) => {
-      const cls = i < step ? 'done' : (i === step ? 'active' : '');
-      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;position:relative;">
-        ${i < 3 ? `<div style="position:absolute;top:10px;left:50%;width:100%;height:2px;background:${i < step ? 'var(--c-purple)' : 'rgba(255,255,255,0.1)'};z-index:0;"></div>` : ''}
-        <div style="width:22px;height:22px;border-radius:50%;border:2px solid ${cls?'var(--c-purple)':'rgba(255,255,255,0.15)'};background:${cls==='done'?'var(--c-purple)':cls==='active'?'var(--bg-dark)':'var(--bg-dark)'};display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:${cls?'#fff':'rgba(255,255,255,0.3)'};position:relative;z-index:1;">${cls==='done'?'✓':(i+1)}</div>
-        <div style="font-size:0.62rem;margin-top:5px;text-align:center;color:${cls?'var(--text-dark)':'rgba(255,255,255,0.3)'};font-weight:600;">${label}</div>
-      </div>`;
+    const step   = STATUS_STEPS[t.status] ?? 0;
+    const isDone = t.done || t.status === 'done';
+    const tid    = escHtml(t.id);
+    const dateStr = t.createdAt
+      ? new Date(t.createdAt).toLocaleString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', timeZone:'Asia/Jakarta' })
+      : '—';
+
+    // Progress stepper
+    const stepperHtml = STEP_LABELS.map((label, i) => {
+      const cls = i < step ? 'done' : (i === step ? (isDone ? 'done' : 'active') : '');
+      const dot = (i < step || isDone) ? '✓' : (i + 1);
+      return `<div class="rs-step ${cls}"><div class="rs-dot">${dot}</div><div class="rs-label">${label}</div></div>`;
     }).join('');
 
-    const btnStatusHtml = !isDone ? `
-      <select id="sel-status-${escHtml(t.id)}" style="background:var(--bg-dark);border:1px solid rgba(255,255,255,0.1);color:var(--text-dark);padding:5px 8px;border-radius:6px;font-size:0.8em;">
-        <option value="received" ${t.status==='received'?'selected':''}>Diterima</option>
-        <option value="seen"     ${t.status==='seen'?'selected':''}>Dilihat</option>
-        <option value="confirmed"${t.status==='confirmed'?'selected':''}>Dikonfirmasi</option>
+    // Status badge
+    const badgeCls = t.status || 'received';
+    const badgeLabel = STATUS_LABEL[t.status] || t.status;
+
+    // Controls
+    const controls = !isDone ? `
+      <select class="status-select" id="sel-status-${tid}">
+        <option value="received"  ${t.status==='received' ?'selected':''}>📥 Diterima</option>
+        <option value="seen"      ${t.status==='seen'     ?'selected':''}>👀 Dilihat</option>
+        <option value="confirmed" ${t.status==='confirmed'?'selected':''}>🔧 Dikonfirmasi</option>
       </select>
-      <input type="text" id="note-${escHtml(t.id)}" placeholder="Catatan developer (opsional)" style="background:var(--bg-dark);border:1px solid rgba(255,255,255,0.1);color:var(--text-dark);padding:5px 10px;border-radius:6px;font-size:0.8em;flex:1;" value="${escHtml(t.devNote||'')}">
-      <button class="btn-small" onclick="updateTicketStatus('${escHtml(t.id)}')">💾 Update</button>
-      <button class="btn-delete" onclick="closeTicket('${escHtml(t.id)}')">✓ Selesai</button>
-    ` : `<span style="color:var(--c-green);font-weight:700;font-size:0.85em;">✓ Tiket Selesai &amp; Ditutup</span>`;
+      <input class="devnote-input" type="text" id="note-${tid}" placeholder="Catatan untuk user (opsional)..." value="${escHtml(t.devNote||'')}">
+      <button class="btn-update-status" onclick="updateTicketStatus('${tid}')">Simpan</button>
+      <button class="btn-small" onclick="closeTicket('${tid}')">✓ Selesaikan</button>
+      <button class="btn-del-report" onclick="deleteReport('${tid}')">Hapus</button>
+    ` : `
+      <span class="s-badge done">✅ Tiket Selesai &amp; Ditutup</span>
+      <button class="btn-del-report" onclick="deleteReport('${tid}')" style="margin-left:auto;">Hapus</button>
+    `;
 
     return `
-<div style="background:var(--bg-card);border:2px solid ${isDone?'rgba(255,255,255,0.05)':'rgba(155,89,182,0.25)'};border-radius:var(--border-r);padding:18px;margin-bottom:14px;${isDone?'opacity:0.6;':''}">
-  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-    <span style="font-family:var(--font-title);font-size:0.85em;color:${t.type==='bug'?'var(--c-red)':'var(--c-yellow)'};">${typeIcon}</span>
-    <span style="font-weight:700;font-size:0.95em;">${escHtml(t.game||'—')}</span>
-    <span style="font-size:0.75em;background:${STATUS_COLOR[t.status]||'#888'}22;color:${STATUS_COLOR[t.status]||'#888'};border:1px solid ${STATUS_COLOR[t.status]||'#888'};border-radius:6px;padding:2px 8px;font-weight:700;">${STATUS_LABEL[t.status]||t.status}</span>
-    <span style="margin-left:auto;font-family:var(--font-title);font-size:0.85em;color:var(--c-purple);">Tiket #${t.num||'—'}</span>
-    <span style="font-size:0.75em;color:var(--text-muted);">${t.id}</span>
+<div class="report-item${isDone ? ' report-done' : ''}">
+  <div class="report-item-head">
+    <span class="report-badge ${t.type==='bug'?'bug':'saran'}">${t.type==='bug'?'🐛 Bug Report':'💡 Saran'}</span>
+    <span class="s-badge ${badgeCls}">${badgeLabel}</span>
+    <span class="report-ticket-id">#${t.num||'—'} · ${t.id}</span>
+    <span class="report-time">${dateStr}</span>
   </div>
 
-  <!-- PROGRESS BAR -->
-  <div style="display:flex;gap:0;align-items:flex-start;margin-bottom:14px;padding:10px 0;">
-    ${stepsHtml}
+  <div class="report-game">Game: <span>${escHtml(t.game||'Tidak disebutkan')}</span></div>
+
+  <div class="report-desc">${escHtml(t.desc||'—')}</div>
+
+  ${t.summary && t.summary !== t.desc ? `
+  <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;padding:10px 14px;background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.15);border-radius:8px;font-size:0.83rem;color:var(--text-dim);">
+    <span style="color:var(--c-cyan);font-weight:700;flex-shrink:0;">🤖 AI:</span> ${escHtml(t.summary)}
+  </div>` : ''}
+
+  ${t.devNote ? `
+  <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;padding:10px 14px;background:rgba(0,217,126,0.05);border:1px solid rgba(0,217,126,0.18);border-radius:8px;font-size:0.83rem;color:var(--text-dim);">
+    <span style="color:var(--c-green);font-weight:700;flex-shrink:0;">💬 Dev:</span> ${escHtml(t.devNote)}
+  </div>` : ''}
+
+  <div class="report-contact-row">
+    ${t.email ? `<div class="report-contact-item">📧 <a href="mailto:${escHtml(t.email)}">${escHtml(t.email)}</a></div>` : ''}
+    ${t.contact ? `<div class="report-contact-item">📱 <span style="color:var(--text-dark)">${escHtml(t.contact)}</span></div>` : ''}
   </div>
 
-  <div style="margin-bottom:6px;font-size:0.9em;">📝 ${escHtml(t.desc||'—')}</div>
-  ${t.summary&&t.summary!==t.desc?`<div style="color:var(--c-cyan);margin-bottom:6px;font-size:0.85em;">🤖 ${escHtml(t.summary)}</div>`:''}
-  ${t.devNote?`<div style="color:var(--c-green);margin-bottom:6px;font-size:0.85em;">💬 ${escHtml(t.devNote)}</div>`:''}
-  ${t.email?`<div style="color:var(--text-muted);font-size:0.8em;">📧 ${escHtml(t.email)}</div>`:''}
-  ${t.contact?`<div style="color:var(--text-muted);font-size:0.8em;">📱 ${escHtml(t.contact)}</div>`:''}
-  <div style="color:var(--text-muted);font-size:0.75em;margin-bottom:10px;">🕐 ${t.createdAt ? new Date(t.createdAt).toLocaleString('id-ID',{timeZone:'Asia/Jakarta'}) : '—'}</div>
+  <div class="report-stepper">${stepperHtml}</div>
 
-  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-    ${btnStatusHtml}
-  </div>
+  <div class="report-status-row">${controls}</div>
 </div>`;
   }).join('');
+}
+
+async function deleteReport(id) {
+  const adminToken = getAdminToken();
+  if (!confirm('Hapus laporan ini permanen?')) return;
+  try {
+    const res  = await fetch(TICKET_API, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', id, adminToken }),
+    });
+    const data = await res.json();
+    if (data.ok) { addLog('Laporan ' + id + ' dihapus', 'ok'); fetchTickets(); }
+    else         { addLog('Gagal hapus: ' + (data.error||'?'), 'err'); }
+  } catch (e)   { addLog('Error hapus: ' + e.message, 'err'); }
 }
 
 async function updateTicketStatus(id) {

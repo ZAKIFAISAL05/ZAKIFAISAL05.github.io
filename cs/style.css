@@ -393,16 +393,16 @@ body::after {
 #quick-area {
     background: var(--surface);
     border-top: 1px solid var(--border);
-    padding: 10px 14px;
+    padding: 10px 14px 12px;
     flex-shrink: 0;
 }
 
 .quick-label {
     font-family: var(--font-body);
-    font-size: 0.62rem;
+    font-size: 0.6rem;
     color: var(--muted);
     font-weight: 400;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
     margin-bottom: 8px;
     display: block;
@@ -411,88 +411,37 @@ body::after {
 .quick-section {
     display: flex;
     flex-wrap: nowrap;
-    gap: 6px;
+    gap: 8px;
     overflow-x: auto;
     scrollbar-width: none;
     padding-bottom: 2px;
 }
 .quick-section::-webkit-scrollbar { display: none; }
 
+/* ── SHOPEE-STYLE PILL CHIPS ── */
 .quick-chip {
-    background: var(--surface2);
-    border: 1px solid var(--border-vis);
-    border-radius: 0;
-    padding: 6px 14px;
+    background: #fff;
+    border: 1.5px solid var(--brand);
+    border-radius: 20px;
+    padding: 7px 16px;
     font-family: var(--font-body);
-    font-size: 0.74rem;
+    font-size: 0.8rem;
     font-weight: 400;
-    color: var(--text-sub);
+    color: var(--brand);
     cursor: pointer;
     transition: all 0.15s;
     white-space: nowrap;
     flex-shrink: 0;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.2px;
+    box-shadow: 0 1px 4px rgba(212,130,10,0.1);
 }
-.quick-chip:hover {
+.quick-chip:hover, .quick-chip:active {
     background: var(--brand);
-    color: #0a0a08;
-    border-color: var(--brand);
-    box-shadow: 2px 2px 0 var(--brand-dark);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(212,130,10,0.25);
     transform: translateY(-1px);
 }
 
-/* ── REPORT CARDS ── */
-.report-cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-    margin-top: 8px;
-}
-
-.report-card {
-    background: var(--surface2);
-    border: 1px solid var(--border-vis);
-    border-radius: 0;
-    padding: 12px;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.report-card:hover {
-    border-color: var(--brand);
-    background: rgba(255,179,0,0.06);
-    box-shadow: 2px 2px 0 rgba(255,179,0,0.12);
-    transform: translate(-1px,-1px);
-}
-.report-card-icon-svg {
-    width: 32px; height: 32px;
-    border-radius: 0;
-    border: 1px solid;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-#btn-open-bug .report-card-icon-svg { background: rgba(255,60,60,0.08); border-color: rgba(255,60,60,0.3); color: var(--c-red); }
-#btn-open-saran .report-card-icon-svg { background: rgba(255,179,0,0.08); border-color: rgba(255,179,0,0.3); color: var(--brand); }
-
-.report-card-label {
-    font-family: var(--font-body);
-    font-size: 0.8rem;
-    font-weight: 400;
-    color: var(--text);
-    display: block;
-    letter-spacing: 0.3px;
-}
-.report-card-sub {
-    font-family: var(--font-body);
-    font-size: 0.66rem;
-    color: var(--muted);
-    display: block;
-    margin-top: 2px;
-}
 
 /* ── SEE ALL BAR ── */
 .see-all-bar {
@@ -918,7 +867,7 @@ body::after {
     .modal-card { border-bottom: 2px solid var(--brand); border-radius: 0; max-width: 480px; }
 }
 @media (max-width: 380px) {
-    .report-cards { grid-template-columns: 1fr; }
+    
     .topbar { height: 56px; }
 }
 
@@ -990,18 +939,13 @@ body::after {
 [data-theme="light"] #msg-input::placeholder { color: var(--muted); }
 
 [data-theme="light"] .quick-chip {
-    background: var(--surface2);
-    color: var(--text-sub);
-    border-color: var(--border-vis);
+    background: #fff;
+    color: var(--brand);
+    border-color: var(--brand);
 }
 [data-theme="light"] .quick-chip:hover {
     background: var(--brand);
     color: #fff;
-}
-
-[data-theme="light"] .report-card {
-    background: var(--surface2);
-    border-color: var(--border-vis);
 }
 
 [data-theme="light"] .modal-card {

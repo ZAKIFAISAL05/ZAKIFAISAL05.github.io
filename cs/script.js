@@ -21,53 +21,67 @@ var soundEnabled    = true;
 var pendingFiles    = [];
 
 var QUICK = [
-    { label: '🎮 Info Game',          text: 'Ceritain dong game-game dari Grid Survival!' },
-    { label: '📥 Cara Download',      text: 'Gimana cara download game kalian?' },
-    { label: '🐛 Lapor Bug',          text: '__BUG__' },
-    { label: '💡 Kirim Saran',        text: '__SARAN__' },
-    { label: '📞 Kontak Tim',         text: 'Gimana cara menghubungi tim Grid Survival?' },
-    { label: '📋 Cek Status Tiket',   text: '__TIKET__' },
+    { label: '🎮 Info Game',        text: 'Ceritain dong game-game dari Grid Survival!' },
+    { label: '📥 Cara Download',    text: 'Gimana cara download game kalian?' },
+    { label: '🐛 Lapor Bug',        text: '__BUG__' },
+    { label: '💡 Kirim Saran',      text: '__SARAN__' },
+    { label: '📞 Kontak Tim',       text: 'Gimana cara menghubungi tim Grid Survival?' },
+    { label: '📋 Cek Tiket',        text: '__TIKET__' },
 ];
 
 // Quick reply kontekstual — muncul sesuai konteks percakapan (bergaya Shopee/WA)
 var QUICK_CONTEXTS = {
     game: [
-        { label: 'Cara download?', text: 'Gimana cara downloadnya?' },
-        { label: 'Ada bug di game?', text: '__BUG__' },
-        { label: 'Kirim saran', text: '__SARAN__' },
+        { label: 'Cara download?',      text: 'Gimana cara download game kalian?' },
+        { label: 'Game di iOS?',         text: 'Game kalian ada di App Store / iOS gak?' },
+        { label: 'Game di PC?',          text: 'Mana aja game yang ada versi PC-nya?' },
+        { label: '🐛 Lapor Bug',        text: '__BUG__' },
+        { label: '💡 Kirim Saran',      text: '__SARAN__' },
     ],
     download: [
-        { label: 'Coba game lain?', text: 'Game apa lagi yang bisa dicoba?' },
-        { label: 'Ada error pas install?', text: '__BUG__' },
+        { label: 'Link Play Store?',     text: 'Kasih link Play Store-nya dong!' },
+        { label: 'Ada versi iOS?',       text: 'Apakah game ini tersedia di App Store?' },
+        { label: 'Ada versi PC/Steam?',  text: 'Apa ada versi PC atau Steam-nya?' },
+        { label: 'Error pas install?',   text: '__BUG__' },
+        { label: 'Game lainnya?',        text: 'Game apa lagi yang bisa dicoba?' },
     ],
     bug: [
-        { label: 'Lapor bug baru', text: '__BUG__' },
-        { label: 'Cek status tiket', text: '__TIKET__' },
+        { label: '🐛 Lapor Bug',        text: '__BUG__' },
+        { label: '📋 Cek Status Tiket', text: '__TIKET__' },
+        { label: 'Cara dapat update?',  text: 'Gimana cara dapet update terbaru game-nya?' },
     ],
     saran: [
-        { label: 'Kirim saran lagi', text: '__SARAN__' },
-        { label: 'Ada update game?', text: 'Ada update game terbaru apa?' },
+        { label: '💡 Kirim Saran Lagi', text: '__SARAN__' },
+        { label: 'Ada update game?',     text: 'Ada update terbaru game apa?' },
+        { label: '🎮 Info Game',        text: 'Ceritain dong game-game dari Grid Survival!' },
     ],
     tiket: [
-        { label: 'Lapor bug baru', text: '__BUG__' },
-        { label: 'Kirim saran', text: '__SARAN__' },
+        { label: '🐛 Lapor Bug Baru',   text: '__BUG__' },
+        { label: '💡 Kirim Saran',      text: '__SARAN__' },
+        { label: 'Info game terbaru?',  text: 'Ada game baru yang lagi dikembangin?' },
+    ],
+    kontak: [
+        { label: 'Discord Grid Survival?', text: 'Gimana cara join Discord Grid Survival?' },
+        { label: 'Email developer?',     text: 'Apa email yang bisa dihubungi?' },
+        { label: '🐛 Lapor Bug',        text: '__BUG__' },
     ],
     def: [
-        { label: '🎮 Info Game', text: 'Ceritain dong game-game dari Grid Survival!' },
-        { label: '📥 Cara Download', text: 'Gimana cara download game kalian?' },
-        { label: '🐛 Lapor Bug', text: '__BUG__' },
-        { label: '💡 Kirim Saran', text: '__SARAN__' },
-        { label: '📋 Cek Tiket', text: '__TIKET__' },
+        { label: '🎮 Info Game',        text: 'Ceritain dong game-game dari Grid Survival!' },
+        { label: '📥 Cara Download',    text: 'Gimana cara download game kalian?' },
+        { label: '🐛 Lapor Bug',        text: '__BUG__' },
+        { label: '💡 Kirim Saran',      text: '__SARAN__' },
+        { label: '📋 Cek Tiket',        text: '__TIKET__' },
     ]
 };
 
 function detectContext(text) {
     var t = (text || '').toLowerCase();
-    if (t.includes('download') || t.includes('instal') || t.includes('cara')) return 'download';
-    if (t.includes('bug') || t.includes('error') || t.includes('crash') || t.includes('masalah')) return 'bug';
-    if (t.includes('saran') || t.includes('masukan') || t.includes('ide')) return 'saran';
-    if (t.includes('tiket') || t.includes('ticket') || t.includes('status laporan')) return 'tiket';
-    if (t.includes('game') || t.includes('main') || t.includes('roblox') || t.includes('zombie')) return 'game';
+    if (t.includes('download') || t.includes('instal') || t.includes('cara') || t.includes('link') || t.includes('play store') || t.includes('app store') || t.includes('steam')) return 'download';
+    if (t.includes('bug') || t.includes('error') || t.includes('crash') || t.includes('masalah') || t.includes('rusak') || t.includes('gabisa')) return 'bug';
+    if (t.includes('saran') || t.includes('masukan') || t.includes('ide') || t.includes('minta')) return 'saran';
+    if (t.includes('tiket') || t.includes('ticket') || t.includes('status laporan') || t.includes('laporan')) return 'tiket';
+    if (t.includes('kontak') || t.includes('hubungi') || t.includes('discord') || t.includes('email') || t.includes('whatsapp')) return 'kontak';
+    if (t.includes('game') || t.includes('main') || t.includes('roblox') || t.includes('zombie') || t.includes('parkun') || t.includes('simulator')) return 'game';
     return 'def';
 }
 

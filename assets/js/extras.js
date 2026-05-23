@@ -8,24 +8,9 @@
     /* ══════════════════════════════════════════
        DARK / LIGHT THEME TOGGLE
     ══════════════════════════════════════════ */
-    var tbtn   = document.getElementById('themeToggle');
-    var ticon  = tbtn  && tbtn.querySelector('.t-icon');
-    var tlabel = tbtn  && tbtn.querySelector('.t-label');
-
-    function applyTheme(t) {
-        html.setAttribute('data-theme', t);
-        localStorage.setItem('gs-theme', t);
-        if (ticon)  ticon.textContent  = t === 'dark' ? '🌙' : '☀️';
-        if (tlabel) tlabel.textContent = t === 'dark' ? 'DARK' : 'LITE';
-    }
-
-    applyTheme(localStorage.getItem('gs-theme') || 'dark');
-
-    if (tbtn) {
-        tbtn.addEventListener('click', function () {
-            applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-        });
-    }
+    // Classic theme — always light
+    html.setAttribute('data-theme', 'light');
+    localStorage.setItem('gs-theme', 'light');
 
     /* ══════════════════════════════════════════
        TOAST NOTIFICATION

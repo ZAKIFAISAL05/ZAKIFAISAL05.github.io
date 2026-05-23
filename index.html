@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="id" data-theme="dark">
+<!-- theme restore: prevents flash of wrong theme -->
 <head>
     <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('gs-theme') || 'dark');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Grid Survival — Studio Game Indie Indonesia. Pengembang game mobile dan PC: Survival, RPG, Strategy, dan Roblox.">
     <meta name="theme-color" content="#9b59b6">
@@ -64,6 +66,7 @@
     <div class="hero-corner hero-corner-tr"></div>
     <div class="hero-corner hero-corner-bl"></div>
     <div class="hero-corner hero-corner-br"></div>
+    <img src="assets/img/studio_logo.png" alt="Grid Survival Studio Logo" class="hero-logo-img">
     <div class="hero-badge"><span class="hero-badge-dot"></span>🎮 Studio Game Indie Indonesia</div>
     <h1 class="hero-title">Grid <span>Survival</span><br>Studio</h1>
     <p class="tagline">

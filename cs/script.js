@@ -4,6 +4,12 @@
 // ============================================================
 'use strict';
 
+// ── SYNC THEME FROM MAIN SITE ──
+(function () {
+    var t = localStorage.getItem('gs-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+})();
+
 var CS_ENDPOINT     = '/.netlify/functions/cs-chat';
 var REPORT_ENDPOINT = '/.netlify/functions/report';
 var currentType     = 'bug';

@@ -175,7 +175,7 @@
     window.addEventListener('resize', rsz);
 
     // Particle colours — brand palette
-    var COLS = ['#a855f7','#6366f1','#06b6d4','#00d97e','#f43f5e'];
+    var COLS = ['#ffb300','#ff6600','#00e5ff','#39ff14','#ff3c3c'];
     function rndCol() { return COLS[Math.floor(Math.random() * COLS.length)]; }
 
     // Stars (tiny, slow-drifting)

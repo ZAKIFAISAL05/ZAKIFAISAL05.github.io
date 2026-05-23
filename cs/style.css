@@ -921,3 +921,100 @@ body::after {
     .report-cards { grid-template-columns: 1fr; }
     .topbar { height: 56px; }
 }
+
+/* ────────────────────────────────────────────────
+   CS LIGHT THEME
+──────────────────────────────────────────────── */
+[data-theme="light"] {
+    --bg:          #f5f0e8;
+    --surface:     #ede7d9;
+    --surface2:    #e6dece;
+    --surface3:    #f5f0e8;
+    --border:      rgba(120,80,20,0.12);
+    --border-vis:  rgba(120,80,20,0.25);
+
+    --text:        #2a2215;
+    --text-sub:    rgba(42,34,21,0.65);
+    --muted:       rgba(42,34,21,0.4);
+
+    --brand:       #d4820a;
+    --brand-2:     #cc5500;
+    --brand-dark:  #995500;
+    --brand-glow:  rgba(212,130,10,0.2);
+    --brand-dim:   rgba(212,130,10,0.08);
+
+    --bot-bubble:  #ede7d9;
+    --user-bubble: var(--brand);
+
+    --c-green:     #1a9900;
+    --c-red:       #cc2222;
+    --c-cyan:      #0088bb;
+    --c-yellow:    #cc8800;
+}
+
+[data-theme="light"] body {
+    background: var(--bg);
+    color: var(--text);
+}
+
+[data-theme="light"] .topbar {
+    background: var(--surface);
+    border-bottom-color: var(--brand);
+}
+
+[data-theme="light"] .topbar-name { color: var(--brand); text-shadow: none; }
+[data-theme="light"] .topbar-status { color: var(--c-green); text-shadow: none; }
+
+[data-theme="light"] .msg-bubble {
+    background: var(--bot-bubble);
+    border-color: var(--border-vis);
+    color: var(--text);
+}
+
+[data-theme="light"] .msg-row.user .msg-bubble {
+    background: var(--brand);
+    color: #fff;
+}
+
+[data-theme="light"] .input-area-wrap {
+    background: var(--surface);
+    border-top-color: var(--brand);
+}
+
+[data-theme="light"] .input-bar {
+    background: var(--surface2);
+    border-color: var(--border-vis);
+}
+
+[data-theme="light"] #msg-input { color: var(--text); }
+[data-theme="light"] #msg-input::placeholder { color: var(--muted); }
+
+[data-theme="light"] .quick-chip {
+    background: var(--surface2);
+    color: var(--text-sub);
+    border-color: var(--border-vis);
+}
+[data-theme="light"] .quick-chip:hover {
+    background: var(--brand);
+    color: #fff;
+}
+
+[data-theme="light"] .report-card {
+    background: var(--surface2);
+    border-color: var(--border-vis);
+}
+
+[data-theme="light"] .modal-card {
+    background: var(--surface);
+    border-color: var(--brand);
+}
+
+[data-theme="light"] .field input,
+[data-theme="light"] .field select,
+[data-theme="light"] .field textarea {
+    background: var(--surface2);
+    border-color: var(--border-vis);
+    color: var(--text);
+}
+
+[data-theme="light"] .field select option { background: var(--surface); }

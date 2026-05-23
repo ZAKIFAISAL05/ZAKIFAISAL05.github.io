@@ -67,13 +67,13 @@
         unlockScroll();
     };
 
-    menuButton.addEventListener('click', () => {
+    if (menuButton) menuButton.addEventListener('click', () => {
         menuOverlay.classList.add('open');
         lockScroll();
     });
-    menuCloseBtn.addEventListener('click', closeMenu);
+    if (menuCloseBtn) menuCloseBtn.addEventListener('click', closeMenu);
     menuLinks.forEach(l => l.addEventListener('click', closeMenu));
-    menuOverlay.addEventListener('click', e => {
+    if (menuOverlay) menuOverlay.addEventListener('click', e => {
         if (e.target === menuOverlay) closeMenu();
     });
 
@@ -122,8 +122,8 @@
         showSlide(0);
     };
 
-    prevSlide.addEventListener('click', () => showSlide(currentSlide - 1));
-    nextSlide.addEventListener('click', () => showSlide(currentSlide + 1));
+    if (prevSlide) prevSlide.addEventListener('click', () => showSlide(currentSlide - 1));
+    if (nextSlide) nextSlide.addEventListener('click', () => showSlide(currentSlide + 1));
 
     // ────────────────────────────────────────────────
     // PLATFORM BUTTONS
@@ -225,11 +225,11 @@
     });
 
     // Close modal
-    closeModalBtn.addEventListener('click', () => {
+    if (closeModalBtn) closeModalBtn.addEventListener('click', () => {
         modal.classList.remove('active');
         unlockScroll();
     });
-    modal.addEventListener('click', e => {
+    if (modal) modal.addEventListener('click', e => {
         if (e.target === modal) {
             modal.classList.remove('active');
             unlockScroll();

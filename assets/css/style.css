@@ -283,8 +283,8 @@ nav::after {
 ──────────────────────────────────────────────── */
 .hero {
     background:
-        /* dark overlay biar teks tetap kebaca */
-        linear-gradient(to bottom, rgba(10,10,8,0.55) 0%, rgba(10,10,8,0.7) 100%),
+        /* overlay tipis warna biru-teal, ngikutin bg.jpg — gak item */
+        linear-gradient(to bottom, rgba(10,30,55,0.42) 0%, rgba(8,40,60,0.52) 60%, rgba(5,35,45,0.62) 100%),
         url('../img/bg.jpg') center center / cover no-repeat;
     min-height: 100svh;
     display: flex;
@@ -298,41 +298,46 @@ nav::after {
     z-index: 1;
 }
 
-/* Retro grid floor — ditimpa di atas bg.jpg */
+/* Retro grid — warna cyan nyambung sama bg */
 .hero::before {
     content: '';
     position: absolute;
     inset: 0;
     background-image:
-        linear-gradient(rgba(255,179,0,0.07) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,179,0,0.07) 1px, transparent 1px);
+        linear-gradient(rgba(0,229,255,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.07) 1px, transparent 1px);
     background-size: 40px 40px;
     mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
     -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
     pointer-events: none;
 }
 
-/* ambient amber glow */
+/* ambient cyan-amber blend */
 .hero::after {
     content: '';
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(ellipse 60% 50% at 50% 40%, rgba(255,179,0,0.08) 0%, transparent 65%);
+        radial-gradient(ellipse 70% 55% at 50% 40%, rgba(0,180,220,0.12) 0%, rgba(255,179,0,0.05) 60%, transparent 100%);
     pointer-events: none;
 }
 
-/* ── HERO LOGO ── */
+/* ── HERO LOGO — bulat ── */
 .hero-logo-img {
-    width: 110px;
-    height: 110px;
+    width: 120px;
+    height: 120px;
     object-fit: contain;
-    image-rendering: pixelated;
-    border: 3px solid var(--brand);
+    border-radius: 50%;
+    border: 3px solid rgba(255,179,0,0.85);
     padding: 10px;
-    background: rgba(10,10,8,0.7);
-    box-shadow: 0 0 24px rgba(255,179,0,0.35), 4px 4px 0 var(--c-amber-dim);
-    margin-bottom: 20px;
+    background: rgba(10,35,60,0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow:
+        0 0 0 6px rgba(0,200,230,0.15),
+        0 0 28px rgba(255,179,0,0.4),
+        0 8px 32px rgba(0,0,0,0.35);
+    margin-bottom: 22px;
     position: relative;
     z-index: 1;
     animation: logoIn 0.8s ease both 0.1s;
@@ -1830,7 +1835,7 @@ footer, .section-padding, .about-section, .cek-tiket-section { position: relativ
 
 [data-theme="light"] .hero {
     background:
-        linear-gradient(to bottom, rgba(245,240,232,0.45) 0%, rgba(232,224,204,0.65) 100%),
+        linear-gradient(to bottom, rgba(180,220,240,0.35) 0%, rgba(160,210,230,0.45) 100%),
         url('../img/bg.jpg') center center / cover no-repeat;
 }
 

@@ -21,3 +21,39 @@
   for = "/tiket/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+# ── Game detail pages ──
+[[redirects]]
+  from = "/Minecraft-Parkun-2D"
+  to   = "/game/?id=minecraft-parkour-2d"
+  status = 200
+
+[[redirects]]
+  from = "/The-One-For-Zombie"
+  to   = "/game/?id=the-one-for-zombie"
+  status = 200
+
+[[redirects]]
+  from = "/Desa-Karya-Investasi-Zombie"
+  to   = "/game/?id=desa-karya-investasi-zombie"
+  status = 200
+
+[[redirects]]
+  from = "/Gerbang-Parkun-2D"
+  to   = "/game/?id=gerbang-parkun-2d"
+  status = 200
+
+[[redirects]]
+  from = "/Desa-Cipta-Karya-Ch2"
+  to   = "/game/?id=desa-cipta-karya-ch2"
+  status = 200
+
+[[redirects]]
+  from = "/The-Undeads-Roblox"
+  to   = "/game/?id=the-undeads-roblox"
+  status = 200
+
+[[redirects]]
+  from = "/Frequency-Fury-Obby"
+  to   = "/game/?id=frequency-fury-obby"
+  status = 200

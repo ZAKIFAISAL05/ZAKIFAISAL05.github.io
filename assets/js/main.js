@@ -247,10 +247,8 @@
         });
     })();
 
-    // Card click listeners
-    gameCards.forEach(card => {
-        card.addEventListener('click', () => showGameDetails(card.getAttribute('data-game-id')));
-    });
+    // Cards are now <a> links — no click listener needed
+    // (onclick modal removed; each card links to its dedicated page)
 
     // Close modal
     if (closeModalBtn) closeModalBtn.addEventListener('click', () => {

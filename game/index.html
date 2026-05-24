@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('gs-theme') || 'light');</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#d4820a">
+    <title id="page-title">Game — Grid Survival</title>
+    <meta id="meta-desc" name="description" content="Game dari Grid Survival Studio">
+    <meta id="og-title" property="og:title" content="Grid Survival">
+    <meta id="og-desc" property="og:description" content="">
+    <meta id="og-image" property="og:image" content="">
+    <meta property="og:type" content="website">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <a href="/" class="nav-studio-name">
+        <img src="../assets/img/studio_logo.png" alt="Grid Survival Logo" class="nav-logo-image">
+        Grid Survival
+    </a>
+    <div class="nav-right">
+        <a href="/#games" class="nav-back-btn">← Semua Game</a>
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main id="game-main" class="game-page-main">
+
+    <!-- LOADING -->
+    <div id="state-loading" class="state-box">
+        <div class="gs-spinner"></div>
+        <p>Memuat data game...</p>
+    </div>
+
+    <!-- NOT FOUND -->
+    <div id="state-notfound" class="state-box" style="display:none;">
+        <div style="font-size:3rem;margin-bottom:16px;">🎮</div>
+        <h2>Game tidak ditemukan</h2>
+        <p style="opacity:.7;margin:12px 0 24px;">Game ini mungkin sudah dihapus atau ID-nya salah.</p>
+        <a href="/" class="gp-btn-primary">← Kembali ke Beranda</a>
+    </div>
+
+    <!-- GAME CONTENT (hidden until loaded) -->
+    <div id="state-content" style="display:none;">
+
+        <!-- HERO AREA -->
+        <section class="gp-hero">
+            <div class="gp-hero-inner">
+                <div class="gp-hero-left">
+                    <img id="gp-logo" src="" alt="" class="gp-logo">
+                    <div class="gp-hero-meta">
+                        <h1 id="gp-title" class="gp-title"></h1>
+                        <div class="gp-badges">
+                            <span id="gp-genre" class="gp-badge gp-badge-genre"></span>
+                            <span class="gp-badge gp-badge-dev">by Grid Survival</span>
+                        </div>
+                        <p id="gp-desc" class="gp-desc"></p>
+
+                        <!-- Platform buttons -->
+                        <div id="gp-platforms" class="gp-platforms"></div>
+                    </div>
+                </div>
+
+                <!-- Featured screenshot -->
+                <div class="gp-hero-right">
+                    <div class="gp-featured-img-wrap">
+                        <img id="gp-featured" src="" alt="" class="gp-featured-img" loading="lazy">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GALLERY -->
+        <section class="gp-section" id="gp-gallery-section">
+            <div class="gp-section-inner">
+                <h2 class="gp-section-title">📸 Galeri Screenshot</h2>
+                <div class="gp-gallery-grid" id="gp-gallery-grid"></div>
+            </div>
+        </section>
+
+        <!-- OTHER GAMES -->
+        <section class="gp-section gp-section-alt">
+            <div class="gp-section-inner">
+                <h2 class="gp-section-title">🎮 Game Lain dari Grid Survival</h2>
+                <div class="gp-other-grid" id="gp-other-grid"></div>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<!-- FOOTER -->
+<footer id="contact">
+    <div class="footer-content">
+        <h3>▓ GRID SURVIVAL ▓</h3>
+        <p>Menciptakan game digital yang layak untuk dimainkan.</p>
+        <p class="footer-contact-p">
+            Email: <a href="mailto:dzakifaisal11@gmail.com" class="footer-email">dzakifaisal11@gmail.com</a>
+        </p>
+        <div class="social-icons">
+            <a href="https://whatsapp.com/channel/0029VaAxK4O2975D8utbc927" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            <a href="https://www.youtube.com/@ZAKI_FAISAL_05_OFFICIAL" target="_blank" rel="noopener" title="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="https://discord.gg/f8jW6B3X" target="_blank" rel="noopener" title="Discord"><i class="fab fa-discord"></i></a>
+            <a href="https://www.instagram.com/zakifaisal05/" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
+        </div>
+    </div>
+    <div class="footer-support">
+        <a href="/cs/" class="footer-support-link">💬 Customer Service</a>
+        <span class="footer-support-sep">·</span>
+        <a href="/tiket/" class="footer-support-link">🎫 Cek Status Tiket</a>
+    </div>
+    <p class="footer-copy">&copy; 2025 Grid Survival. All Rights Reserved.</p>
+</footer>
+
+<!-- Lightbox overlay -->
+<div id="gp-lightbox" class="gp-lightbox" onclick="closeLightbox()">
+    <button class="gp-lb-close" onclick="closeLightbox()">✕</button>
+    <button class="gp-lb-prev" onclick="lbPrev(event)">&#10094;</button>
+    <img id="gp-lb-img" src="" alt="" class="gp-lb-img">
+    <button class="gp-lb-next" onclick="lbNext(event)">&#10095;</button>
+</div>
+
+<!-- GAME DATA -->
+<script src="../assets/js/gameData.js"></script>
+
+<script>
+// ── Slug map: URL slug → game id ──
+// Tambahkan slug baru di sini kalau ada game baru
+const SLUG_MAP = {
+    'minecraft-parkun-2d':          'minecraft-parkour-2d',
+    'the-one-for-zombie':           'the-one-for-zombie',
+    'desa-karya-investasi-zombie':  'desa-karya-investasi-zombie',
+    'gerbang-parkun-2d':            'gerbang-parkun-2d',
+    'desa-cipta-karya-ch2':         'desa-cipta-karya-ch2',
+    'the-undeads-roblox':           'the-undeads-roblox',
+    'frequency-fury-obby':          'frequency-fury-obby',
+};
+
+// Cari ID dari URL
+// Support: /game/?id=xxx  ATAU  /Gerbang-Parkun-2D  (via netlify redirect → ?id=gerbang-parkun-2d)
+function getGameId() {
+    const params = new URLSearchParams(window.location.search);
+    const idParam = params.get('id');
+    if (idParam) {
+        // Cek slug map dulu, fallback ke id langsung
+        return SLUG_MAP[idParam.toLowerCase()] || idParam;
+    }
+    return null;
+}
+
+// Platform icons
+function getPlatformIcon(cls) {
+    if (cls === 'btn-itchio')  return '<i class="fas fa-gamepad"></i>';
+    if (cls === 'btn-roblox')  return '<i class="fas fa-cubes"></i>';
+    if (cls === 'btn-taptap')  return '<i class="fas fa-mobile-alt"></i>';
+    if (cls === 'btn-amazon')  return '<i class="fab fa-amazon"></i>';
+    return '<i class="fas fa-external-link-alt"></i>';
+}
+
+function getPlatformLabel(p) {
+    const n = p.name.toLowerCase();
+    if (n.startsWith('play on') || n.startsWith('play')) return '▶ ' + p.name.toUpperCase();
+    return '⬇ DOWNLOAD — ' + p.name.toUpperCase();
+}
+
+// Lightbox
+let lbImages = [];
+let lbIndex  = 0;
+
+function openLightbox(imgs, idx) {
+    lbImages = imgs;
+    lbIndex  = idx;
+    document.getElementById('gp-lb-img').src = imgs[idx];
+    document.getElementById('gp-lightbox').classList.add('active');
+    document.body.classList.add('modal-open');
+}
+function closeLightbox() {
+    document.getElementById('gp-lightbox').classList.remove('active');
+    document.body.classList.remove('modal-open');
+}
+function lbPrev(e) {
+    e.stopPropagation();
+    lbIndex = (lbIndex - 1 + lbImages.length) % lbImages.length;
+    document.getElementById('gp-lb-img').src = lbImages[lbIndex];
+}
+function lbNext(e) {
+    e.stopPropagation();
+    lbIndex = (lbIndex + 1) % lbImages.length;
+    document.getElementById('gp-lb-img').src = lbImages[lbIndex];
+}
+document.addEventListener('keydown', e => {
+    const lb = document.getElementById('gp-lightbox');
+    if (!lb.classList.contains('active')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft')  { lbIndex = (lbIndex - 1 + lbImages.length) % lbImages.length; document.getElementById('gp-lb-img').src = lbImages[lbIndex]; }
+    if (e.key === 'ArrowRight') { lbIndex = (lbIndex + 1) % lbImages.length; document.getElementById('gp-lb-img').src = lbImages[lbIndex]; }
+});
+
+// Render other games
+function renderOtherGames(currentId) {
+    const grid    = document.getElementById('gp-other-grid');
+    const others  = gameData.filter(g => g.id !== currentId);
+    const shuffled = [...others].sort(() => Math.random() - 0.5).slice(0, 4);
+
+    // Slug reverse map for URLs
+    const ID_TO_SLUG = {};
+    Object.entries(SLUG_MAP).forEach(([slug, id]) => { ID_TO_SLUG[id] = slug; });
+
+    grid.innerHTML = shuffled.map(g => {
+        const slug = ID_TO_SLUG[g.id] || g.id;
+        return `<a href="/${slug}" class="gp-other-card">
+            <div class="gp-other-img-wrap">
+                <img src="../${g.thumb}" alt="${g.title}" loading="lazy">
+            </div>
+            <div class="gp-other-info">
+                <div class="gp-other-title">${g.title}</div>
+                <div class="gp-other-genre">${g.genre}</div>
+            </div>
+        </a>`;
+    }).join('');
+}
+
+// Main load
+(function init() {
+    const gameId = getGameId();
+
+    if (!gameId) {
+        document.getElementById('state-loading').style.display = 'none';
+        document.getElementById('state-notfound').style.display = 'flex';
+        return;
+    }
+
+    const game = gameData.find(g => g.id === gameId);
+
+    if (!game) {
+        document.getElementById('state-loading').style.display = 'none';
+        document.getElementById('state-notfound').style.display = 'flex';
+        return;
+    }
+
+    // Update meta tags
+    document.getElementById('page-title').textContent   = game.title + ' — Grid Survival';
+    document.getElementById('meta-desc').content        = game.desc;
+    document.getElementById('og-title').content         = game.title + ' — Grid Survival';
+    document.getElementById('og-desc').content          = game.desc;
+    document.getElementById('og-image').content         = window.location.origin + '/' + game.thumb;
+
+    // Fill hero
+    const logoEl = document.getElementById('gp-logo');
+    logoEl.src = '../' + game.logo;
+    logoEl.alt = game.title;
+
+    document.getElementById('gp-title').textContent  = game.title;
+    document.getElementById('gp-genre').textContent  = game.genre;
+    document.getElementById('gp-desc').textContent   = game.desc;
+
+    // Featured image = first gallery shot or thumb
+    const featuredSrc = game.gallery && game.gallery.length
+        ? '../' + game.gallery[0]
+        : '../' + game.thumb;
+    const featuredEl = document.getElementById('gp-featured');
+    featuredEl.src = featuredSrc;
+    featuredEl.alt = game.title + ' screenshot';
+
+    // Platform buttons
+    const platEl = document.getElementById('gp-platforms');
+    platEl.innerHTML = game.platforms.map(p =>
+        `<a href="${p.url}" target="_blank" rel="noopener noreferrer"
+            class="gp-btn-platform ${p.cls}">
+            ${getPlatformIcon(p.cls)}
+            <span>${getPlatformLabel(p)}</span>
+        </a>`
+    ).join('');
+
+    // Gallery grid
+    const gallery = game.gallery && game.gallery.length ? game.gallery : [game.thumb];
+    const galleryEl = document.getElementById('gp-gallery-grid');
+    galleryEl.innerHTML = gallery.map((src, i) =>
+        `<div class="gp-gallery-item" onclick="openLightbox(${JSON.stringify(gallery.map(s => '../' + s))}, ${i})">
+            <img src="../${src}" alt="${game.title} screenshot ${i+1}" loading="lazy">
+            <div class="gp-gallery-overlay"><i class="fas fa-expand"></i></div>
+        </div>`
+    ).join('');
+
+    if (gallery.length <= 1) {
+        document.getElementById('gp-gallery-section').style.display = 'none';
+    }
+
+    // Other games
+    renderOtherGames(gameId);
+
+    // Show content
+    document.getElementById('state-loading').style.display = 'none';
+    document.getElementById('state-content').style.display = 'block';
+})();
+</script>
+</body>
+</html>

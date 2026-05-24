@@ -1822,3 +1822,11 @@ footer, .section-padding, .about-section, .cek-tiket-section { position: relativ
     .modal-tab  { font-size: 0.72rem; padding: 8px 10px; }
     .modal-header-area { flex-direction: column; text-align: center; align-items: center; }
 }
+
+/* ── GAME CARD AS ANCHOR (halaman dedicated) ── */
+a.game-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+a.game-card:visited { color: inherit; }

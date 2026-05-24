@@ -1,421 +1,463 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>ADMIN // Grid Survival</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <title>Status Tiket — Grid Survival</title>
+    <style>
+        :root {
+            --bg: #0a0a14;
+            --card: #12121f;
+            --border: #1e1e30;
+            --accent: #7c4dff;
+            --accent2: #00e5ff;
+            --green: #27ae60;
+            --yellow: #f39c12;
+            --red: #e74c3c;
+            --text: #e0e0e0;
+            --muted: #666;
+            --radius: 14px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 24px 16px 48px;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            max-width: 540px;
+            margin-bottom: 28px;
+        }
+        .header a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 1.3rem;
+            transition: color .2s;
+        }
+        .header a:hover { color: var(--text); }
+        .header-logo {
+            width: 36px; height: 36px; border-radius: 8px;
+            object-fit: cover;
+        }
+        .header-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+        .header-sub { font-size: 0.75rem; color: var(--muted); }
+
+        /* ── CARD ── */
+        .ticket-card {
+            width: 100%; max-width: 540px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .ticket-header {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            padding: 22px 24px;
+        }
+        .ticket-num {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.75);
+            display: block;
+            margin-bottom: 6px;
+        }
+        .ticket-id {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+        .ticket-type-badge {
+            display: inline-block;
+            margin-top: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-size: 0.78rem;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* ── STATUS BAR ── */
+        .status-section {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .status-title {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--muted);
+            margin-bottom: 18px;
+        }
+
+        .steps {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            position: relative;
+        }
+        .step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        /* connector line */
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: var(--border);
+            z-index: 0;
+            transition: background .5s;
+        }
+        .step.done:not(:last-child)::after { background: var(--accent); }
+
+        .step-dot {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--muted);
+            position: relative;
+            z-index: 1;
+            transition: all .4s;
+        }
+        .step.done .step-dot {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        .step.active .step-dot {
+            background: var(--bg);
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124,77,255,.2);
+        }
+        .step.pulse .step-dot {
+            animation: pulseDot 1.5s ease-in-out infinite;
+        }
+        @keyframes pulseDot {
+            0%,100% { box-shadow: 0 0 0 3px rgba(124,77,255,.2); }
+            50%      { box-shadow: 0 0 0 7px rgba(124,77,255,.05); }
+        }
+
+        .step-label {
+            margin-top: 8px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-align: center;
+            line-height: 1.3;
+            transition: color .4s;
+        }
+        .step.done .step-label,
+        .step.active .step-label { color: var(--text); }
+
+        /* done = selesai → warna hijau */
+        .steps.is-done .step.done .step-dot { background: var(--green); border-color: var(--green); }
+        .steps.is-done .step.done::after    { background: var(--green); }
+
+        /* ── STATUS NOTE ── */
+        .status-note {
+            margin-top: 18px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            line-height: 1.5;
+        }
+        .status-note.received  { background: rgba(124,77,255,.1); border-left: 3px solid var(--accent); }
+        .status-note.seen      { background: rgba(0,229,255,.08); border-left: 3px solid var(--accent2); }
+        .status-note.confirmed { background: rgba(243,156,18,.08); border-left: 3px solid var(--yellow); }
+        .status-note.done      { background: rgba(39,174,96,.1); border-left: 3px solid var(--green); }
+
+        .dev-note {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: rgba(255,255,255,.04);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--text);
+            line-height: 1.5;
+        }
+        .dev-note-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); display: block; margin-bottom: 4px; }
+
+        /* ── DETAIL ── */
+        .ticket-detail { padding: 22px 24px; }
+        .field { margin-bottom: 14px; }
+        .field label {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+        .field p {
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: var(--text);
+        }
+        .field-row { display: flex; gap: 16px; }
+        .field-row .field { flex: 1; }
+
+        /* ── EXPIRED ── */
+        .expired-wrap {
+            text-align: center;
+            padding: 40px 24px;
+        }
+        .expired-icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .expired-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: var(--green); }
+        .expired-msg { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+        /* ── ERROR ── */
+        .error-wrap { text-align: center; padding: 40px 24px; }
+        .error-icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .error-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: var(--red); }
+        .error-msg { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+        .error-link { color: var(--accent); text-decoration: none; }
+        .error-link:hover { text-decoration: underline; }
+
+        /* ── LOADING ── */
+        .loading-wrap { text-align: center; padding: 60px 24px; }
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── REFRESH HINT ── */
+        .refresh-hint {
+            margin-top: 12px;
+            font-size: 0.72rem;
+            color: var(--muted);
+            text-align: center;
+        }
+        .refresh-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.75rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all .2s;
+            margin-top: 8px;
+        }
+        .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        .timestamp { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+    </style>
 </head>
 <body>
 
-<!-- ══ LOGIN ══ -->
-<div class="login-wrap" id="loginWrap">
-    <div class="login-scanlines"></div>
-    <div class="login-box">
-        <div class="login-logo">
-            <img src="../assets/img/studio_logo.png" alt="Grid Survival" onerror="this.style.display='none'">
-            <div class="login-logo-fallback"><i class="fas fa-shield-halved"></i></div>
-        </div>
-        <div class="login-title">ADMIN PANEL</div>
-        <div class="login-sub">Grid Survival Studio — Secure Access</div>
-        <div class="login-field">
-            <label for="adminUser">USERNAME</label>
-            <input type="text" id="adminUser" autocomplete="off" spellcheck="false" placeholder="Enter username" maxlength="32">
-        </div>
-        <div class="login-field">
-            <label for="adminPass">PASSWORD</label>
-            <input type="password" id="adminPass" autocomplete="off" placeholder="••••••••" maxlength="64">
-        </div>
-        <button class="btn-login" id="loginBtn" onclick="doLogin()">
-            <i class="fas fa-right-to-bracket"></i> MASUK KE PANEL
-        </button>
-        <div class="login-err" id="loginErr"></div>
-        <div class="login-attempts" id="loginAttempts"></div>
-        <div class="lockout-msg" id="lockoutMsg" style="display:none;"></div>
+<div class="header">
+    <a href="../" title="Kembali">←</a>
+    <img src="../assets/img/studio_logo.png" alt="Grid Survival" class="header-logo">
+    <div>
+        <div class="header-title">Grid Survival</div>
+        <div class="header-sub">Status Tiket Laporan</div>
     </div>
 </div>
 
-<!-- ══ ADMIN PANEL ══ -->
-<div class="admin-wrap" id="adminWrap">
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">
-                <canvas id="adminCharCanvas" width="36" height="60" style="image-rendering:pixelated;"></canvas>
-            </div>
-            <div class="sidebar-brand">
-                <span class="sidebar-title">GRID SURVIVAL</span>
-                <span class="sidebar-sub">ADMIN PANEL</span>
-            </div>
-            <button class="sidebar-close" id="sidebarClose" aria-label="Tutup sidebar">
-                <i class="fas fa-xmark"></i>
-            </button>
-        </div>
-
-        <nav class="sidebar-nav">
-            <div class="sidebar-section-label">NAVIGASI</div>
-            <a class="sidebar-link active" data-section="dashboard" onclick="navTo('dashboard')">
-                <i class="fas fa-gauge-high"></i>
-                <span>Dashboard</span>
-                <span class="kbd-hint">Alt+1</span>
-            </a>
-            <a class="sidebar-link" data-section="games" onclick="navTo('games')">
-                <i class="fas fa-gamepad"></i>
-                <span>Manajemen Game</span>
-                <span class="kbd-hint">Alt+2</span>
-            </a>
-            <a class="sidebar-link" data-section="reports" onclick="navTo('reports')">
-                <i class="fas fa-flag"></i>
-                <span>Laporan & Tiket</span>
-                <span class="sidebar-badge" id="reportBadge" style="display:none">0</span>
-                <span class="kbd-hint">Alt+3</span>
-            </a>
-            <a class="sidebar-link" data-section="logs" onclick="navTo('logs')">
-                <i class="fas fa-terminal"></i>
-                <span>Activity Log</span>
-                <span class="kbd-hint">Alt+4</span>
-            </a>
-            <div class="sidebar-divider"></div>
-            <div class="sidebar-section-label">SESSION</div>
-            <div class="sidebar-info-row">
-                <i class="fas fa-user-shield"></i>
-                <span id="adminUserDisplay">—</span>
-            </div>
-            <div class="sidebar-info-row small">
-                <i class="fas fa-clock"></i>
-                <span id="sessionTimer">--:--</span>
-            </div>
-        </nav>
-
-        <div class="sidebar-footer">
-            <button class="btn-logout" onclick="doLogout()">
-                <i class="fas fa-right-from-bracket"></i> LOGOUT
-            </button>
-        </div>
-    </aside>
-
-    <!-- SIDEBAR OVERLAY -->
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-
-    <!-- MAIN CONTENT -->
-    <div class="admin-main">
-
-        <!-- TOP BAR -->
-        <header class="admin-topbar">
-            <button class="topbar-menu-btn" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Buka menu">
-                <span class="hamburger-line"></span>
-                <span class="hamburger-line"></span>
-                <span class="hamburger-line"></span>
-            </button>
-            <div class="topbar-title" id="topbarTitle">Dashboard</div>
-            <div class="topbar-right">
-                <div class="session-chip">
-                    <span class="session-dot"></span>
-                    <span>LIVE</span>
-                </div>
-                <div class="topbar-storage">
-                    <i class="fas fa-server"></i>
-                    <span>Netlify Blobs</span>
-                </div>
-            </div>
-        </header>
-
-        <!-- SESSION BAR -->
-        <div class="session-bar">
-            <div class="session-item">
-                <span class="session-label">SESSION</span>
-                <span id="sessionId">—</span>
-            </div>
-            <div class="session-item">
-                <span class="session-label">LOGIN</span>
-                <span id="loginTime">—</span>
-            </div>
-            <div class="session-item">
-                <span class="session-label">STORAGE</span>
-                <span class="status-green">● Server (Netlify)</span>
-            </div>
-            <div class="session-item">
-                <span class="session-label">STATUS</span>
-                <span class="status-green">● ACTIVE</span>
-            </div>
-        </div>
-
-        <!-- ═══ SECTION: DASHBOARD ═══ -->
-        <section class="admin-section active" id="sec-dashboard">
-            <div class="section-header">
-                <h2 class="section-title"><i class="fas fa-gauge-high"></i> Dashboard Overview</h2>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-gamepad"></i></div>
-                    <div class="stat-num" id="statTotal">0</div>
-                    <div class="stat-label">Total Games</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-mobile-screen"></i></div>
-                    <div class="stat-num" id="statPlatforms">0</div>
-                    <div class="stat-label">Platforms</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-cube"></i></div>
-                    <div class="stat-num" id="statRoblox">0</div>
-                    <div class="stat-label">Roblox Games</div>
-                </div>
-                <div class="stat-card timer-card">
-                    <div class="stat-icon"><i class="fas fa-stopwatch"></i></div>
-                    <div class="stat-num" id="sessionTimerDash">00:00</div>
-                    <div class="stat-label">Session Time</div>
-                </div>
-            </div>
-
-            <div id="dashboard-report-summary" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-family:var(--font-mono);font-size:0.8rem;padding:8px 12px;background:var(--bg-card);border:1px solid var(--border-dim);border-radius:6px;margin-top:8px;color:var(--text-muted);">
-                <span>Memuat statistik laporan...</span>
-            </div>
-
-            <div class="dash-quick">
-                <div class="section-header">
-                    <h2 class="section-title"><i class="fas fa-bolt"></i> Quick Actions</h2>
-                </div>
-                <div class="quick-actions">
-                    <button class="quick-btn" onclick="navTo('games')">
-                        <i class="fas fa-plus"></i>
-                        <span>Tambah Game</span>
-                    </button>
-                    <button class="quick-btn" onclick="navTo('reports')">
-                        <i class="fas fa-flag"></i>
-                        <span>Lihat Laporan</span>
-                    </button>
-                    <button class="quick-btn" onclick="renderGameTable()">
-                        <i class="fas fa-rotate"></i>
-                        <span>Refresh Data</span>
-                    </button>
-                    <button class="quick-btn" onclick="navTo('logs')">
-                        <i class="fas fa-terminal"></i>
-                        <span>Activity Log</span>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- ═══ SECTION: GAME MANAGER ═══ -->
-        <section class="admin-section" id="sec-games">
-            <div class="section-header">
-                <h2 class="section-title"><i class="fas fa-gamepad"></i> Manajemen Game</h2>
-            </div>
-
-            <div class="panel-box">
-                <div class="panel-box-title" id="formPanelTitle">
-                    <i class="fas fa-plus-circle"></i> Tambah Game Baru
-                </div>
-                <div id="alertBox" class="alert"></div>
-
-                <div class="add-form">
-                    <div class="form-row">
-                        <div class="form-field">
-                            <label>Game Title *</label>
-                            <input type="text" id="fg-title" placeholder="Nama game..." maxlength="80">
-                        </div>
-                        <div class="form-field">
-                            <label>Genre *</label>
-                            <select id="fg-genre">
-                                <option value="">-- Pilih Genre --</option>
-                                <option value="Arcade">Arcade</option>
-                                <option value="Action">Action</option>
-                                <option value="Simulation">Simulation</option>
-                                <option value="Platformer">Platformer</option>
-                                <option value="Survival">Survival</option>
-                                <option value="RPG">RPG</option>
-                                <option value="Strategy">Strategy</option>
-                                <option value="Puzzle">Puzzle</option>
-                                <option value="Horror">Horror</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-field full">
-                        <label>Deskripsi</label>
-                        <textarea id="fg-desc" rows="3" placeholder="Deskripsi singkat game..."></textarea>
-                    </div>
-                    <div class="form-field full">
-                        <label>Icon / Logo Game</label>
-                        <div class="icon-upload-wrap">
-                            <div class="icon-preview" id="iconPreview">
-                                <i class="fas fa-gamepad"></i>
-                            </div>
-                            <div class="icon-upload-info">
-                                <button class="btn-upload-icon" onclick="document.getElementById('iconFile').click()">
-                                    <i class="fas fa-upload"></i> Pilih Gambar
-                                </button>
-                                <input type="file" id="iconFile" accept="image/*" style="display:none" onchange="handleIconUpload(event)">
-                                <p>PNG, JPG, WEBP — maks 2MB</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-field full">
-                        <label>Platform &amp; Link Download</label>
-                        <div class="platform-builder" id="platformBuilder">
-                            <div class="platform-row" id="prow-0">
-                                <select class="p-type">
-                                    <option value="btn-taptap">TapTap</option>
-                                    <option value="btn-itchio">Itch.io</option>
-                                    <option value="btn-roblox">Roblox</option>
-                                    <option value="btn-amazon">Amazon</option>
-                                    <option value="btn-gplay">Google Play</option>
-                                    <option value="btn-steam">Steam</option>
-                                </select>
-                                <input class="p-url" type="url" placeholder="https://...">
-                                <button class="btn-rm-platform" onclick="removePlatform('prow-0')" title="Hapus">
-                                    <i class="fas fa-xmark"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <button class="btn-add-platform" onclick="addPlatformRow()">
-                            <i class="fas fa-plus"></i> Tambah Platform
-                        </button>
-                    </div>
-                    <div class="form-actions">
-                        <button class="btn-save" id="btn-add-game" onclick="submitAddGame()">
-                            <i class="fas fa-floppy-disk"></i> Simpan Game ke Katalog
-                        </button>
-                        <button class="btn-cancel" id="btn-cancel-edit" onclick="resetForm()" style="display:none;">
-                            <i class="fas fa-xmark"></i> Batal Edit
-                        </button>
-                        <button class="btn-cancel" onclick="showGamePreview()" type="button" title="Preview tampilan card game">
-                            <i class="fas fa-eye"></i> Preview
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="panel-box">
-                <div class="panel-box-title">
-                    <i class="fas fa-list"></i> Game Catalog
-                </div>
-                <div class="table-toolbar">
-                    <button class="btn-tool" onclick="renderGameTable()">
-                        <i class="fas fa-rotate"></i> Refresh
-                    </button>
-                    <button class="btn-tool" onclick="exportGameData()">
-                        <i class="fas fa-download"></i> Export gameData.js
-                    </button>
-                    <span class="toolbar-note">Data tersimpan permanen di server Netlify</span>
-                </div>
-                <div class="admin-table-wrap">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th style="width:28px;" title="Drag untuk ubah urutan"><i class="fas fa-grip-vertical" style="color:var(--text-muted);"></i></th>
-                                <th>#</th>
-                                <th>Icon</th>
-                                <th>Game Title</th>
-                                <th>Genre</th>
-                                <th>Platforms</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="gameTableBody">
-                            <tr><td colspan="7" class="table-empty">Memuat data game...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- ═══ SECTION: REPORTS ═══ -->
-        <section class="admin-section" id="sec-reports">
-            <div class="section-header">
-                <h2 class="section-title"><i class="fas fa-flag"></i> Laporan Bug &amp; Saran</h2>
-            </div>
-            <div class="panel-box">
-                <div class="reports-toolbar">
-                    <button class="btn-tool" onclick="renderReports()">
-                        <i class="fas fa-rotate"></i> Refresh
-                    </button>
-                    <button class="btn-danger-sm" onclick="clearDoneReports()">
-                        <i class="fas fa-trash"></i> Hapus Selesai
-                    </button>
-                    <span class="toolbar-note" id="reportCount">Memuat...</span>
-                </div>
-                <div id="reports-panel"></div>
-            </div>
-        </section>
-
-        <!-- ═══ SECTION: LOGS ═══ -->
-        <section class="admin-section" id="sec-logs">
-            <div class="section-header">
-                <h2 class="section-title"><i class="fas fa-terminal"></i> Activity Log</h2>
-            </div>
-            <div class="panel-box">
-                <div class="admin-log" id="activityLog"></div>
-            </div>
-        </section>
-
-    </div><!-- /.admin-main -->
-</div><!-- /.admin-wrap -->
-
-<!-- Confirm Delete Modal -->
-<div class="confirm-overlay" id="confirmOverlay">
-    <div class="confirm-box">
-        <div class="confirm-icon"><i class="fas fa-triangle-exclamation"></i></div>
-        <div class="confirm-title">Konfirmasi Hapus</div>
-        <div class="confirm-msg" id="confirmMsg">Hapus game ini?</div>
-        <div class="confirm-actions">
-            <button class="btn-danger" id="confirmYes">
-                <i class="fas fa-trash"></i> Ya, Hapus
-            </button>
-            <button class="btn-cancel" onclick="closeConfirm()">
-                <i class="fas fa-xmark"></i> Batal
-            </button>
-        </div>
+<div class="ticket-card" id="ticket-card">
+    <div class="loading-wrap">
+        <div class="spinner"></div>
+        <div style="color:var(--muted);font-size:.85rem;">Memuat tiket...</div>
     </div>
 </div>
 
-<script src="script.js"></script>
+<div class="refresh-hint" id="refresh-wrap" style="display:none;">
+    <div>Status diperbarui oleh developer</div>
+    <button class="refresh-btn" onclick="loadTicket()">↺ Refresh status</button>
+</div>
+
 <script>
-// ── NAVIGATION ──
-const SECTIONS = ['dashboard','games','reports','logs'];
-const SECTION_TITLES = {
-    dashboard: 'Dashboard',
-    games: 'Manajemen Game',
-    reports: 'Laporan & Tiket',
-    logs: 'Activity Log'
+'use strict';
+
+const TICKET_API = '/.netlify/functions/ticket';
+
+const STEP_LABELS = ['Diterima', 'Dilihat', 'Dikonfirmasi', 'Selesai'];
+const STATUS_NOTE = {
+    received:  '📥 Laporanmu sudah kami terima! Tim developer akan segera meninjau.',
+    seen:      '👀 Developer sudah melihat laporanmu dan sedang dipelajari.',
+    confirmed: '🔧 Laporan dikonfirmasi! Developer sedang mengerjakan perbaikan / tindak lanjut.',
+    done:      '✅ Masalah sudah diselesaikan! Terima kasih sudah melaporkan. Tiket ini sekarang ditutup.',
 };
 
-function navTo(id) {
-    SECTIONS.forEach(s => {
-        document.getElementById('sec-' + s).classList.toggle('active', s === id);
-        const link = document.querySelector(`.sidebar-link[data-section="${s}"]`);
-        if (link) link.classList.toggle('active', s === id);
+function getToken() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('token');
+}
+
+function formatDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleString('id-ID', {
+        day:'2-digit', month:'long', year:'numeric',
+        hour:'2-digit', minute:'2-digit', timeZone:'Asia/Jakarta'
     });
-    const title = document.getElementById('topbarTitle');
-    if (title) title.textContent = SECTION_TITLES[id] || id;
-    closeSidebar();
-    if (id === 'games') renderGameTable();
-    if (id === 'reports') renderReports();
 }
 
-// ── SIDEBAR TOGGLE ──
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('visible');
+function renderSteps(step, isDone) {
+    return `
+    <div class="steps${isDone ? ' is-done' : ''}">
+        ${STEP_LABELS.map((label, i) => {
+            let cls = '';
+            if (i < step) cls = 'done';
+            else if (i === step) cls = isDone ? 'done' : 'active pulse';
+            return `<div class="step ${cls}">
+                <div class="step-dot">${i < step || isDone ? '✓' : (i + 1)}</div>
+                <div class="step-label">${label}</div>
+            </div>`;
+        }).join('')}
+    </div>`;
 }
-function closeSidebar() {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('sidebarOverlay').classList.remove('visible');
-}
-document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
 
-// Sync both session timers
-const _origStartSessionTimer = typeof startSessionTimer !== 'undefined' ? startSessionTimer : null;
+function renderTicket(ticket) {
+    const card   = document.getElementById('ticket-card');
+    const typeLabel = ticket.type === 'bug' ? '🐛 Laporan Bug' : '💡 Saran';
+    const step   = ticket.statusStep ?? 0;
+    const isDone = ticket.done || ticket.status === 'done';
+
+    card.innerHTML = `
+        <div class="ticket-header">
+            <span class="ticket-num">Tiket #${ticket.num}</span>
+            <div class="ticket-id">${ticket.id}</div>
+            <span class="ticket-type-badge">${typeLabel}</span>
+        </div>
+
+        <div class="status-section">
+            <div class="status-title">Progress Penanganan</div>
+            ${renderSteps(step, isDone)}
+            <div class="status-note ${ticket.status}">
+                ${STATUS_NOTE[ticket.status] || 'Status tidak dikenali.'}
+            </div>
+            ${ticket.devNote ? `<div class="dev-note"><span class="dev-note-label">Catatan Developer</span>${ticket.devNote}</div>` : ''}
+        </div>
+
+        <div class="ticket-detail">
+            <div class="field-row">
+                <div class="field">
+                    <label>Game</label>
+                    <p>${ticket.game || '—'}</p>
+                </div>
+                <div class="field">
+                    <label>Dibuat</label>
+                    <p class="timestamp">${formatDate(ticket.createdAt)}</p>
+                </div>
+            </div>
+            <div class="field">
+                <label>Deskripsi Laporan</label>
+                <p>${ticket.desc ? ticket.desc.replace(/\n/g,'<br>') : '—'}</p>
+            </div>
+            ${ticket.updatedAt && ticket.updatedAt !== ticket.createdAt ? `
+            <div class="field">
+                <label>Terakhir Diperbarui</label>
+                <p class="timestamp">${formatDate(ticket.updatedAt)}</p>
+            </div>` : ''}
+        </div>
+    `;
+
+    document.getElementById('refresh-wrap').style.display = isDone ? 'none' : 'block';
+}
+
+function renderExpired(num) {
+    document.getElementById('ticket-card').innerHTML = `
+        <div class="expired-wrap">
+            <div class="expired-icon">🎉</div>
+            <div class="expired-title">Tiket #${num} — Selesai!</div>
+            <div class="expired-msg">
+                Masalah pada tiket ini sudah diselesaikan oleh developer.<br>
+                Tiket telah ditutup. Terima kasih atas laporanmu!
+            </div>
+        </div>`;
+    document.getElementById('refresh-wrap').style.display = 'none';
+}
+
+function renderError(msg) {
+    document.getElementById('ticket-card').innerHTML = `
+        <div class="error-wrap">
+            <div class="error-icon">🔒</div>
+            <div class="error-title">Tiket Tidak Ditemukan</div>
+            <div class="error-msg">
+                ${msg || 'Token tidak valid atau tiket tidak ditemukan.'}<br><br>
+                Pastikan kamu menggunakan link yang dikirim saat laporan dibuat.
+            </div>
+            <div class="manual-input-area">
+                <p class="manual-label">Atau masukkan nomor token tiket kamu:</p>
+                <div class="manual-row">
+                    <input type="text" id="manual-token-input" class="manual-token-input"
+                        placeholder="Contoh: GS-ABC123..." maxlength="80" autocomplete="off" spellcheck="false">
+                    <button class="manual-token-btn" onclick="manualCek()">🔍 CEK</button>
+                </div>
+            </div>
+            <a href="../cs/" class="error-link">← Kembali ke Customer Service</a>
+        </div>`;
+    document.getElementById('refresh-wrap').style.display = 'none';
+
+    // Allow Enter key on manual input
+    setTimeout(function() {
+        var inp = document.getElementById('manual-token-input');
+        if (inp) inp.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') manualCek();
+        });
+    }, 100);
+}
+
+function manualCek() {
+    var raw = (document.getElementById('manual-token-input').value || '').trim();
+    if (!raw) return;
+    var urlMatch = raw.match(/[?&]token=([^&#]+)/);
+    var token = urlMatch ? decodeURIComponent(urlMatch[1]) : raw;
+    window.location.href = '/tiket/?token=' + encodeURIComponent(token);
+}
+
+async function loadTicket() {
+    const token = getToken();
+    if (!token) { renderError('Tidak ada token tiket di URL ini.'); return; }
+
+    try {
+        const res  = await fetch(`${TICKET_API}?token=${encodeURIComponent(token)}`);
+        const data = await res.json();
+
+        if (!data.ok) { renderError(data.error); return; }
+        if (data.expired) { renderExpired(data.num); return; }
+        renderTicket(data.ticket);
+    } catch (e) {
+        renderError('Gagal terhubung ke server. Coba lagi nanti.');
+    }
+}
+
+loadTicket();
 </script>
 </body>
 </html>

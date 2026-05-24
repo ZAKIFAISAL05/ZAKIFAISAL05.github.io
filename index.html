@@ -1,591 +1,421 @@
 <!DOCTYPE html>
 <html lang="id" data-theme="light">
-<!-- theme restore: prevents flash of wrong theme -->
 <head>
     <meta charset="UTF-8">
-    <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('gs-theme') || 'light');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Grid Survival — Studio Game Indie Indonesia. Pengembang game mobile dan PC: Survival, RPG, Strategy, dan Roblox.">
-    <meta name="theme-color" content="#9b59b6">
-    <title>Grid Survival — Studio Game Indie</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-          crossorigin="anonymous" referrerpolicy="no-referrer">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <meta name="robots" content="noindex, nofollow">
+    <title>ADMIN // Grid Survival</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<canvas id="pcanvas"></canvas>
-<div id="toast"></div>
-
-<div id="easter-egg">
-    <div class="ee-title">🎮 CHEAT CODE ACTIVATED! 🎮<br>KAMU MENEMUKAN EASTER EGG!<br>GRID SURVIVAL SALUT PADAMU!</div>
-    <div class="ee-sub">[ KLIK MANA SAJA UNTUK TUTUP ]</div>
-</div>
-
-<!-- NAVIGATION -->
-<nav>
-    <a href="#" class="nav-studio-name">
-        <img src="assets/img/studio_logo.png" alt="Grid Survival Logo" class="nav-logo-image">
-        Grid Survival
-    </a>
-    <div class="nav-right">
-        <button id="langToggle" aria-label="Toggle language" title="Switch language">
-            <span id="lang-label">🇮🇩 ID</span>
+<!-- ══ LOGIN ══ -->
+<div class="login-wrap" id="loginWrap">
+    <div class="login-scanlines"></div>
+    <div class="login-box">
+        <div class="login-logo">
+            <img src="../assets/img/studio_logo.png" alt="Grid Survival" onerror="this.style.display='none'">
+            <div class="login-logo-fallback"><i class="fas fa-shield-halved"></i></div>
+        </div>
+        <div class="login-title">ADMIN PANEL</div>
+        <div class="login-sub">Grid Survival Studio — Secure Access</div>
+        <div class="login-field">
+            <label for="adminUser">USERNAME</label>
+            <input type="text" id="adminUser" autocomplete="off" spellcheck="false" placeholder="Enter username" maxlength="32">
+        </div>
+        <div class="login-field">
+            <label for="adminPass">PASSWORD</label>
+            <input type="password" id="adminPass" autocomplete="off" placeholder="••••••••" maxlength="64">
+        </div>
+        <button class="btn-login" id="loginBtn" onclick="doLogin()">
+            <i class="fas fa-right-to-bracket"></i> MASUK KE PANEL
         </button>
-        <button id="menuButton" class="nav-menu-btn" aria-label="Open menu">
-            <i class="fas fa-bars"></i>
-        </button>
-    </div>
-</nav>
-
-<!-- Menu Overlay -->
-<div id="menuOverlay" role="dialog" aria-modal="true" aria-label="Navigation menu">
-    <span class="menu-close-btn" role="button" tabindex="0" aria-label="Close menu">&times;</span>
-    <ul class="menu-links">
-        <li><a href="#hero">HOME</a></li>
-        <li><a href="#games">GAMES</a></li>
-        <li><a href="#stats-section">STATS</a></li>
-        <li><a href="#about">ABOUT</a></li>
-        <li><a href="#contact">CONTACT</a></li>
-        <li><a href="cs/">💬 CS</a></li>
-        <li><a href="tiket/" data-id="nav-tiket">🎫 TIKET</a></li>
-    </ul>
-</div>
-
-<!-- HERO -->
-<section id="hero" class="hero" aria-label="Hero section">
-    <div class="hero-orb hero-orb-1"></div>
-    <div class="hero-orb hero-orb-2"></div>
-    <div class="hero-orb hero-orb-3"></div>
-    <div class="hero-corner hero-corner-tl"></div>
-    <div class="hero-corner hero-corner-tr"></div>
-    <div class="hero-corner hero-corner-bl"></div>
-    <div class="hero-corner hero-corner-br"></div>
-    <img src="assets/img/studio_logo.png" alt="Grid Survival Studio Logo" class="hero-logo-img">
-    <div class="hero-badge"><span class="hero-badge-dot"></span>🎮 Studio Game Indie Indonesia</div>
-    <h1 class="hero-title">Grid <span>Survival</span><br>Studio</h1>
-    <p class="tagline">
-        <span id="typing-text"></span>
-        <span class="cursor">█</span>
-    </p>
-    <div class="hero-btns">
-        <a href="#games" class="btn-primary-scroll" data-id="btn-see-games">▶ <span data-id="txt-see-games">LIHAT SEMUA GAME</span></a>
-        <a href="cs/" class="btn-cs-hero" data-id="btn-cs">💬 <span data-id="txt-cs">CUSTOMER SERVICE</span></a>
-    </div>
-</section>
-
-<!-- STATS -->
-<div id="stats-section" aria-label="Studio statistics">
-    <div class="stat-card">
-        <span class="stat-number" data-target="7" data-suffix="">0</span>
-        <span class="stat-label" data-id="stat-released">GAME DIRILIS</span>
-    </div>
-    <div class="stat-card">
-        <span class="stat-number" data-target="50" data-suffix="K+">0</span>
-        <span class="stat-label" data-id="stat-players">TOTAL PEMAIN</span>
-    </div>
-    <div class="stat-card">
-        <span class="stat-number" data-target="3" data-suffix="">0</span>
-        <span class="stat-label">PLATFORM</span>
-    </div>
-    <div class="stat-card">
-        <span class="stat-number" data-target="2021" data-suffix="">0</span>
-        <span class="stat-label" data-id="stat-founded">TAHUN BERDIRI</span>
+        <div class="login-err" id="loginErr"></div>
+        <div class="login-attempts" id="loginAttempts"></div>
+        <div class="lockout-msg" id="lockoutMsg" style="display:none;"></div>
     </div>
 </div>
 
-<!-- GAMES SECTION -->
-<section id="games" class="section-padding" aria-label="Game catalog">
-    <h2 class="section-header-title" data-id="sec-games">PROYEK GAME KAMI</h2>
-    <div class="filter-tabs" role="tablist">
-        <button class="filter-tab active" data-genre="all">SEMUA</button>
-        <button class="filter-tab" data-genre="arcade">ARCADE</button>
-        <button class="filter-tab" data-genre="action">ACTION</button>
-        <button class="filter-tab" data-genre="simulation">SIMULASI</button>
-        <button class="filter-tab" data-genre="platformer">PLATFORMER</button>
-        <button class="filter-tab" data-genre="roblox">ROBLOX</button>
-    </div>
-    <div class="games-grid">
-        <a class="game-card" href="/Minecraft-Parkun-2D" data-game-id="minecraft-parkour-2d" data-genre="arcade" tabindex="0" aria-label="Minecraft Parkun 2D">
-            <div class="game-image-wrapper"><img src="assets/img/mc_parkun_thumb.jpg" alt="Minecraft Parkun 2D" class="game-image" loading="lazy"></div>
-            <div class="game-info">
-                <h3 class="game-title">Minecraft Parkun 2D</h3>
-                <p class="game-description">Parkour 2D terinspirasi Minecraft. (Mobile)</p>
-                <p class="game-dev">Dev: Grid Survival | Genre: Arcade</p>
-            </div>
-        </a>
-        <a class="game-card" href="/The-One-For-Zombie" data-game-id="the-one-for-zombie" data-genre="action" tabindex="0" aria-label="THE ONE FOR ZOMBIE">
-            <div class="game-image-wrapper"><img src="assets/img/one_zombie_thumb.jpg" alt="THE ONE FOR ZOMBIE" class="game-image" loading="lazy"></div>
-            <div class="game-info">
-                <h3 class="game-title">THE ONE FOR ZOMBIE</h3>
-                <p class="game-description">Aksi bertahan hidup melawan gerombolan zombie. (Mobile)</p>
-                <p class="game-dev">Dev: Grid Survival | Genre: Action</p>
-            </div>
-        </a>
-        <a class="game-card" href="/Desa-Karya-Investasi-Zombie" data-game-id="desa-karya-investasi-zombie" data-genre="simulation" tabindex="0" aria-label="Desa Investasi Zombie">
-            <div class="game-image-wrapper"><img src="assets/img/desa_invest_thumb.jpg" alt="Desa Investasi Zombie" class="game-image" loading="lazy"></div>
-            <div class="game-info">
-                <h3 class="game-title">Desa Investasi Zombie</h3>
-                <p class="game-description">Manajemen desa dan investasi melawan zombie.</p>
-                <p class="game-dev">Dev: Grid Survival | Genre: Simulation</p>
-            </div>
-        </a>
-        <a class="game-card" href="/Gerbang-Parkun-2D" data-game-id="gerbang-parkun-2d" data-genre="platformer" tabindex="0" aria-label="Gerbang Parkun 2D">
-            <div class="game-image-wrapper"><img src="assets/img/gerbang_parkun_thumb.jpg" alt="Gerbang Parkun 2D" class="game-image" loading="lazy"></div>
-            <div class="game-info">
-                <h3 class="game-title">Gerbang Parkun 2D</h3>
-                <p class="game-description">Parkour 2D kompetitif — speedrun challenge. (Mobile & Windows)</p>
-                <p class="game-dev">Dev: Grid Survival | Genre: Platformer</p>
-            </div>
-        </a>
-        <a class="game-card" href="/Desa-Cipta-Karya-Ch2" data-game-id="desa-cipta-karya-ch2" data-genre="simulation" tabindex="0" aria-label="Desa Cipta Karya Chapter 2">
-            <div class="game-image-wrapper"><img src="assets/img/cipta_karya2_thumb.jpg" alt="Desa Cipta Karya Chapter 2" class="game-image" loading="lazy"></div>
-            <div class="game-info">
-                <h3 class="game-title">Desa Cipta Karya Ch 2</h3>
-                <p class="game-description">Kelanjutan simulasi pembangunan desa. (Mobile)</p>
-                <p class="game-dev">Dev: Grid Survival | Genre: Simulation</p>
-            </div>
-        </a>
+<!-- ══ ADMIN PANEL ══ -->
+<div class="admin-wrap" id="adminWrap">
 
-        <a class="game-card" href="/Frequency-Fury-Obby" data-game-id="frequency-fury-obby" data-genre="roblox arcade platformer" tabindex="0" aria-label="Frequency Fury Obby">
-            <div class="game-image-wrapper"><img src="assets/img/frequency_fury_thumb.jpg" alt="Frequency Fury Obby" class="game-image" loading="lazy"></div>
-            <div class="game-info">
-                <h3 class="game-title">Frequency Fury Obby (Roblox)</h3>
-                <p class="game-description">Obby parkour menantang — uji ketepatan dan kecepatan.</p>
-                <p class="game-dev">Dev: Grid Survival | Genre: Arcade, Platformer</p>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <canvas id="adminCharCanvas" width="36" height="60" style="image-rendering:pixelated;"></canvas>
             </div>
-        </a>
-    </div>
-</section>
-
-<!-- ABOUT SECTION -->
-<section id="about" class="about-section" aria-label="About us">
-    <h2 class="section-header-title" data-id="sec-about">TENTANG GRID SURVIVAL</h2>
-    <p data-id="about-desc">Kami adalah studio game indie yang bersemangat menciptakan pengalaman bermain yang unik dan menantang. Dari Indonesia, kami fokus pada genre Survival, RPG, dan Strategy — dengan sentuhan cerita yang dalam di setiap gameplay. Semoga game kami menghiburmu!</p>
-    <p class="about-tip">
-        💡 TIP: <span data-id="about-tip">Coba ketik</span> <span class="about-tip-highlight">↑↑↓↓←→←→BA</span> <span data-id="about-tip2">untuk easter egg!</span>
-    </p>
-    <div class="about-actions">
-        <button class="btn-bug" onclick="openReportModal('bug')" data-id="btn-bug">🐛 LAPORKAN BUG</button>
-        <button class="btn-saran" onclick="openReportModal('saran')" data-id="btn-saran">💡 KIRIM SARAN</button>
-    </div>
-</section>
-
-<!-- CEK TIKET SECTION -->
-<section id="cek-tiket" class="cek-tiket-section" aria-label="Cek Status Tiket">
-    <div class="cek-tiket-inner">
-        <div class="cek-tiket-icon">🎫</div>
-        <h2 class="cek-tiket-title" data-id="cek-tiket-title">CEK STATUS LAPORAN</h2>
-        <p class="cek-tiket-sub" data-id="cek-tiket-sub">Sudah pernah lapor bug atau kirim saran? Pantau statusnya di sini.</p>
-        <div class="cek-tiket-form">
-            <input
-                type="text"
-                id="tiket-input"
-                class="tiket-input"
-                placeholder="Masukkan nomor tiket (contoh: GS-ABC123...)"
-                maxlength="80"
-                autocomplete="off"
-                spellcheck="false"
-            >
-            <button class="tiket-cek-btn" id="tiket-cek-btn" onclick="cekTiket()">
-                <span>🔍</span> <span data-id="btn-cek-tiket">CEK TIKET</span>
+            <div class="sidebar-brand">
+                <span class="sidebar-title">GRID SURVIVAL</span>
+                <span class="sidebar-sub">ADMIN PANEL</span>
+            </div>
+            <button class="sidebar-close" id="sidebarClose" aria-label="Tutup sidebar">
+                <i class="fas fa-xmark"></i>
             </button>
         </div>
-        <div class="tiket-result-wrap" id="tiket-result-wrap" style="display:none;"></div>
-        <p class="tiket-hint" data-id="tiket-hint">Token tiket dikirim via email saat kamu kirim laporan, atau lihat di bubble chat CS.</p>
-    </div>
-</section>
 
-<!-- FOOTER / CONTACT -->
-<footer id="contact">
-    <div class="footer-content">
-        <h3>▓ GRID SURVIVAL ▓</h3>
-        <p>Menciptakan game digital yang layak untuk dimainkan.</p>
-        <p class="footer-contact-p">
-            Email: <a href="mailto:dzakifaisal11@gmail.com" class="footer-email">dzakifaisal11@gmail.com</a>
-        </p>
-        <div class="social-icons">
-            <a href="https://whatsapp.com/channel/0029VaAxK4O2975D8utbc927" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-            <a href="https://www.youtube.com/@ZAKI_FAISAL_05_OFFICIAL" target="_blank" rel="noopener" title="YouTube"><i class="fab fa-youtube"></i></a>
-            <a href="https://discord.gg/f8jW6B3X" target="_blank" rel="noopener" title="Discord"><i class="fab fa-discord"></i></a>
-            <a href="https://www.instagram.com/zakifaisal05/" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">NAVIGASI</div>
+            <a class="sidebar-link active" data-section="dashboard" onclick="navTo('dashboard')">
+                <i class="fas fa-gauge-high"></i>
+                <span>Dashboard</span>
+                <span class="kbd-hint">Alt+1</span>
+            </a>
+            <a class="sidebar-link" data-section="games" onclick="navTo('games')">
+                <i class="fas fa-gamepad"></i>
+                <span>Manajemen Game</span>
+                <span class="kbd-hint">Alt+2</span>
+            </a>
+            <a class="sidebar-link" data-section="reports" onclick="navTo('reports')">
+                <i class="fas fa-flag"></i>
+                <span>Laporan & Tiket</span>
+                <span class="sidebar-badge" id="reportBadge" style="display:none">0</span>
+                <span class="kbd-hint">Alt+3</span>
+            </a>
+            <a class="sidebar-link" data-section="logs" onclick="navTo('logs')">
+                <i class="fas fa-terminal"></i>
+                <span>Activity Log</span>
+                <span class="kbd-hint">Alt+4</span>
+            </a>
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-section-label">SESSION</div>
+            <div class="sidebar-info-row">
+                <i class="fas fa-user-shield"></i>
+                <span id="adminUserDisplay">—</span>
+            </div>
+            <div class="sidebar-info-row small">
+                <i class="fas fa-clock"></i>
+                <span id="sessionTimer">--:--</span>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="doLogout()">
+                <i class="fas fa-right-from-bracket"></i> LOGOUT
+            </button>
         </div>
-    </div>
-    <div class="footer-support">
-        <a href="cs/" class="footer-support-link">💬 Customer Service</a>
-        <span class="footer-support-sep">·</span>
-        <a href="tiket/" class="footer-support-link">🎫 Cek Status Tiket</a>
-    </div>
-    <p class="footer-copy" data-id="footer-copy">&copy; 2025 Grid Survival. All Rights Reserved.</p>
-</footer>
+    </aside>
 
-<!-- GAME MODAL -->
-<div id="gameModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <div class="modal-content">
-        <span class="close-modal" id="closeModalBtn" role="button" tabindex="0" aria-label="Close">&times;</span>
+    <!-- SIDEBAR OVERLAY -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-        <!-- Modal Header -->
-        <div class="modal-header-area">
-            <img id="modal-logo" src="" alt="Game Logo" class="modal-logo">
-            <div class="modal-header-info">
-                <h2 id="modal-title" class="modal-title"></h2>
-                <span id="modal-genre-badge" class="modal-genre-badge"></span>
-            </div>
-        </div>
+    <!-- MAIN CONTENT -->
+    <div class="admin-main">
 
-        <!-- Tab Navigation -->
-        <div class="modal-tabs" role="tablist">
-            <button class="modal-tab active" data-tab="info" role="tab" aria-selected="true">📋 INFO GAME</button>
-            <button class="modal-tab" data-tab="gallery" role="tab" aria-selected="false">🖼️ GALERI</button>
-            <button class="modal-tab" data-tab="play" role="tab" aria-selected="false">🎮 MAIN SEKARANG</button>
-        </div>
+        <!-- TOP BAR -->
+        <header class="admin-topbar">
+            <button class="topbar-menu-btn" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Buka menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <div class="topbar-title" id="topbarTitle">Dashboard</div>
+            <div class="topbar-right">
+                <div class="session-chip">
+                    <span class="session-dot"></span>
+                    <span>LIVE</span>
+                </div>
+                <div class="topbar-storage">
+                    <i class="fas fa-server"></i>
+                    <span>Netlify Blobs</span>
+                </div>
+            </div>
+        </header>
 
-        <!-- Tab: INFO GAME -->
-        <div class="modal-tab-content active" id="tab-info">
-            <div class="modal-info-box">
-                <h3 class="modal-info-label">📖 Deskripsi</h3>
-                <p id="modal-description" class="modal-description"></p>
+        <!-- SESSION BAR -->
+        <div class="session-bar">
+            <div class="session-item">
+                <span class="session-label">SESSION</span>
+                <span id="sessionId">—</span>
             </div>
-            <div class="modal-info-box">
-                <h3 class="modal-info-label">🏢 Developer</h3>
-                <p id="modal-developer" class="modal-dev-text">Grid Survival</p>
+            <div class="session-item">
+                <span class="session-label">LOGIN</span>
+                <span id="loginTime">—</span>
             </div>
-            <div class="modal-info-box">
-                <h3 class="modal-info-label">🎯 Genre</h3>
-                <p id="modal-genre-text" class="modal-dev-text"></p>
+            <div class="session-item">
+                <span class="session-label">STORAGE</span>
+                <span class="status-green">● Server (Netlify)</span>
             </div>
-            <!-- Quick Play CTA -->
-            <div class="modal-cta-area">
-                <p class="modal-cta-hint">Siap main? Klik tab <strong>MAIN SEKARANG</strong> ⬆️</p>
-                <button class="modal-goto-play-btn" onclick="document.querySelector('.modal-tab[data-tab=play]').click()">
-                    🎮 Ke Halaman Download / Main
-                </button>
-            </div>
-        </div>
-
-        <!-- Tab: GALERI -->
-        <div class="modal-tab-content" id="tab-gallery">
-            <div class="gallery-container">
-                <div id="gallery-slides" class="gallery-slides"></div>
-                <button class="gallery-btn gallery-prev" id="prevSlide" aria-label="Previous">&#10094;</button>
-                <button class="gallery-btn gallery-next" id="nextSlide" aria-label="Next">&#10095;</button>
-            </div>
-            <div id="gallery-dots" class="gallery-dots"></div>
-        </div>
-
-        <!-- Tab: MAIN SEKARANG -->
-        <div class="modal-tab-content" id="tab-play">
-            <div class="modal-play-header">
-                <h3 class="modal-play-title">🎮 Pilih Platform</h3>
-                <p class="modal-play-sub">Klik tombol di bawah untuk download atau main langsung</p>
-            </div>
-            <div id="platform-buttons" class="platform-buttons platform-buttons-big"></div>
-            <div class="supported-platforms">
-                <span class="platform-icon"><i class="fas fa-desktop"></i></span>
-                <span class="platform-icon"><i class="fab fa-android"></i></span>
-                <span class="platform-icon"><i class="fab fa-apple"></i></span>
-                <p>Tersedia di PC, Android, dan iOS.</p>
+            <div class="session-item">
+                <span class="session-label">STATUS</span>
+                <span class="status-green">● ACTIVE</span>
             </div>
         </div>
 
-        <!-- Other Games (always visible below tabs) -->
-        <div id="other-games-container">
-            <h3 class="section-title">Game Lain dari Grid Survival</h3>
-            <div id="other-games-grid" class="other-games-grid"></div>
+        <!-- ═══ SECTION: DASHBOARD ═══ -->
+        <section class="admin-section active" id="sec-dashboard">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fas fa-gauge-high"></i> Dashboard Overview</h2>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-gamepad"></i></div>
+                    <div class="stat-num" id="statTotal">0</div>
+                    <div class="stat-label">Total Games</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-mobile-screen"></i></div>
+                    <div class="stat-num" id="statPlatforms">0</div>
+                    <div class="stat-label">Platforms</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-cube"></i></div>
+                    <div class="stat-num" id="statRoblox">0</div>
+                    <div class="stat-label">Roblox Games</div>
+                </div>
+                <div class="stat-card timer-card">
+                    <div class="stat-icon"><i class="fas fa-stopwatch"></i></div>
+                    <div class="stat-num" id="sessionTimerDash">00:00</div>
+                    <div class="stat-label">Session Time</div>
+                </div>
+            </div>
+
+            <div id="dashboard-report-summary" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-family:var(--font-mono);font-size:0.8rem;padding:8px 12px;background:var(--bg-card);border:1px solid var(--border-dim);border-radius:6px;margin-top:8px;color:var(--text-muted);">
+                <span>Memuat statistik laporan...</span>
+            </div>
+
+            <div class="dash-quick">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-bolt"></i> Quick Actions</h2>
+                </div>
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="navTo('games')">
+                        <i class="fas fa-plus"></i>
+                        <span>Tambah Game</span>
+                    </button>
+                    <button class="quick-btn" onclick="navTo('reports')">
+                        <i class="fas fa-flag"></i>
+                        <span>Lihat Laporan</span>
+                    </button>
+                    <button class="quick-btn" onclick="renderGameTable()">
+                        <i class="fas fa-rotate"></i>
+                        <span>Refresh Data</span>
+                    </button>
+                    <button class="quick-btn" onclick="navTo('logs')">
+                        <i class="fas fa-terminal"></i>
+                        <span>Activity Log</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ SECTION: GAME MANAGER ═══ -->
+        <section class="admin-section" id="sec-games">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fas fa-gamepad"></i> Manajemen Game</h2>
+            </div>
+
+            <div class="panel-box">
+                <div class="panel-box-title" id="formPanelTitle">
+                    <i class="fas fa-plus-circle"></i> Tambah Game Baru
+                </div>
+                <div id="alertBox" class="alert"></div>
+
+                <div class="add-form">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label>Game Title *</label>
+                            <input type="text" id="fg-title" placeholder="Nama game..." maxlength="80">
+                        </div>
+                        <div class="form-field">
+                            <label>Genre *</label>
+                            <select id="fg-genre">
+                                <option value="">-- Pilih Genre --</option>
+                                <option value="Arcade">Arcade</option>
+                                <option value="Action">Action</option>
+                                <option value="Simulation">Simulation</option>
+                                <option value="Platformer">Platformer</option>
+                                <option value="Survival">Survival</option>
+                                <option value="RPG">RPG</option>
+                                <option value="Strategy">Strategy</option>
+                                <option value="Puzzle">Puzzle</option>
+                                <option value="Horror">Horror</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-field full">
+                        <label>Deskripsi</label>
+                        <textarea id="fg-desc" rows="3" placeholder="Deskripsi singkat game..."></textarea>
+                    </div>
+                    <div class="form-field full">
+                        <label>Icon / Logo Game</label>
+                        <div class="icon-upload-wrap">
+                            <div class="icon-preview" id="iconPreview">
+                                <i class="fas fa-gamepad"></i>
+                            </div>
+                            <div class="icon-upload-info">
+                                <button class="btn-upload-icon" onclick="document.getElementById('iconFile').click()">
+                                    <i class="fas fa-upload"></i> Pilih Gambar
+                                </button>
+                                <input type="file" id="iconFile" accept="image/*" style="display:none" onchange="handleIconUpload(event)">
+                                <p>PNG, JPG, WEBP — maks 2MB</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-field full">
+                        <label>Platform &amp; Link Download</label>
+                        <div class="platform-builder" id="platformBuilder">
+                            <div class="platform-row" id="prow-0">
+                                <select class="p-type">
+                                    <option value="btn-taptap">TapTap</option>
+                                    <option value="btn-itchio">Itch.io</option>
+                                    <option value="btn-roblox">Roblox</option>
+                                    <option value="btn-amazon">Amazon</option>
+                                    <option value="btn-gplay">Google Play</option>
+                                    <option value="btn-steam">Steam</option>
+                                </select>
+                                <input class="p-url" type="url" placeholder="https://...">
+                                <button class="btn-rm-platform" onclick="removePlatform('prow-0')" title="Hapus">
+                                    <i class="fas fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn-add-platform" onclick="addPlatformRow()">
+                            <i class="fas fa-plus"></i> Tambah Platform
+                        </button>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn-save" id="btn-add-game" onclick="submitAddGame()">
+                            <i class="fas fa-floppy-disk"></i> Simpan Game ke Katalog
+                        </button>
+                        <button class="btn-cancel" id="btn-cancel-edit" onclick="resetForm()" style="display:none;">
+                            <i class="fas fa-xmark"></i> Batal Edit
+                        </button>
+                        <button class="btn-cancel" onclick="showGamePreview()" type="button" title="Preview tampilan card game">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-box">
+                <div class="panel-box-title">
+                    <i class="fas fa-list"></i> Game Catalog
+                </div>
+                <div class="table-toolbar">
+                    <button class="btn-tool" onclick="renderGameTable()">
+                        <i class="fas fa-rotate"></i> Refresh
+                    </button>
+                    <button class="btn-tool" onclick="exportGameData()">
+                        <i class="fas fa-download"></i> Export gameData.js
+                    </button>
+                    <span class="toolbar-note">Data tersimpan permanen di server Netlify</span>
+                </div>
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th style="width:28px;" title="Drag untuk ubah urutan"><i class="fas fa-grip-vertical" style="color:var(--text-muted);"></i></th>
+                                <th>#</th>
+                                <th>Icon</th>
+                                <th>Game Title</th>
+                                <th>Genre</th>
+                                <th>Platforms</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gameTableBody">
+                            <tr><td colspan="7" class="table-empty">Memuat data game...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ SECTION: REPORTS ═══ -->
+        <section class="admin-section" id="sec-reports">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fas fa-flag"></i> Laporan Bug &amp; Saran</h2>
+            </div>
+            <div class="panel-box">
+                <div class="reports-toolbar">
+                    <button class="btn-tool" onclick="renderReports()">
+                        <i class="fas fa-rotate"></i> Refresh
+                    </button>
+                    <button class="btn-danger-sm" onclick="clearDoneReports()">
+                        <i class="fas fa-trash"></i> Hapus Selesai
+                    </button>
+                    <span class="toolbar-note" id="reportCount">Memuat...</span>
+                </div>
+                <div id="reports-panel"></div>
+            </div>
+        </section>
+
+        <!-- ═══ SECTION: LOGS ═══ -->
+        <section class="admin-section" id="sec-logs">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fas fa-terminal"></i> Activity Log</h2>
+            </div>
+            <div class="panel-box">
+                <div class="admin-log" id="activityLog"></div>
+            </div>
+        </section>
+
+    </div><!-- /.admin-main -->
+</div><!-- /.admin-wrap -->
+
+<!-- Confirm Delete Modal -->
+<div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+        <div class="confirm-icon"><i class="fas fa-triangle-exclamation"></i></div>
+        <div class="confirm-title">Konfirmasi Hapus</div>
+        <div class="confirm-msg" id="confirmMsg">Hapus game ini?</div>
+        <div class="confirm-actions">
+            <button class="btn-danger" id="confirmYes">
+                <i class="fas fa-trash"></i> Ya, Hapus
+            </button>
+            <button class="btn-cancel" onclick="closeConfirm()">
+                <i class="fas fa-xmark"></i> Batal
+            </button>
         </div>
     </div>
 </div>
 
-<!-- MASCOT -->
-<div id="mascot-wrap">
-    <div class="speech-bubble" id="mascot-bubble">
-        <span id="btext"></span><span class="bcursor">▌</span>
-    </div>
-    <div class="mascot-body" id="mascot" title="Klik aku!">
-        <img src="assets/img/studio_logo.png" alt="Grid Survival Mascot">
-        <span class="mwave">👋</span>
-    </div>
-    <div class="mshadow"></div>
-</div>
-
-<button id="scrollTopBtn" aria-label="Scroll to top">▲</button>
-
-<!-- REPORT MODALS -->
-<div class="report-modal-bg" id="modal-bug-bg">
-    <div class="report-modal-card">
-        <div class="rmodal-header">
-            <div class="rmodal-icon bug">🐛</div>
-            <div>
-                <div class="rmodal-title">Laporan Bug / Error</div>
-                <div class="rmodal-sub">Bantu kami memperbaiki masalah di game</div>
-            </div>
-            <button class="rmodal-close" onclick="closeReportModal('bug')">✕</button>
-        </div>
-        <div class="rmodal-body" id="modal-bug-form">
-            <div class="rmodal-field">
-                <label>Game yang bermasalah *</label>
-                <select id="bug-game">
-                    <option value="">— Pilih game —</option>
-                    <option>Minecraft Parkun 2D</option>
-                    <option>THE ONE FOR ZOMBIE</option>
-                    <option>Desa Investasi Zombie</option>
-                    <option>Gerbang Parkun 2D</option>
-                    <option>Desa Cipta Karya Ch 2</option>
-                    <option>The Undeads (Roblox)</option>
-                    <option>Frequency Fury Obby (Roblox)</option>
-                    <option>Lainnya / Umum</option>
-                </select>
-            </div>
-            <div class="rmodal-field">
-                <label>Deskripsi bug / error *</label>
-                <textarea id="bug-desc" rows="4" placeholder="Ceritakan bug yang kamu temukan secara detail..." maxlength="1000"></textarea>
-            </div>
-            <div class="rmodal-field">
-                <label>Email kamu <span style="color:var(--text-muted);font-weight:400;">(untuk konfirmasi tiket)</span></label>
-                <input type="email" id="bug-email" placeholder="contoh@gmail.com">
-            </div>
-            <div class="rmodal-field">
-                <label>Kontak lain <span style="color:var(--text-muted);font-weight:400;">(WA / Discord — opsional)</span></label>
-                <input type="text" id="bug-contact" placeholder="WA / Discord...">
-            </div>
-            <button class="rmodal-submit" id="bug-submit" onclick="submitReport('bug')">🐛 Kirim Laporan Bug</button>
-        </div>
-        <div class="rmodal-success" id="modal-bug-success" style="display:none;">
-            <div class="rmodal-success-icon">✅</div>
-            <h3>Laporan Terkirim!</h3>
-            <p>Tim developer sudah menerima laporanmu dan akan segera menindaklanjuti.</p>
-            <div class="rmodal-ticket" id="bug-ticket-box" style="display:none;">
-                <span class="rmodal-ticket-label">Nomor Tiket</span>
-                <span class="rmodal-ticket-num" id="bug-ticket-num">—</span>
-                <span class="rmodal-ticket-hint">Konfirmasi dikirim ke email kamu</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="report-modal-bg" id="modal-saran-bg">
-    <div class="report-modal-card">
-        <div class="rmodal-header">
-            <div class="rmodal-icon saran">💡</div>
-            <div>
-                <div class="rmodal-title">Kirim Saran / Ide</div>
-                <div class="rmodal-sub">Ide kamu bisa jadi fitur game berikutnya!</div>
-            </div>
-            <button class="rmodal-close" onclick="closeReportModal('saran')">✕</button>
-        </div>
-        <div class="rmodal-body" id="modal-saran-form">
-            <div class="rmodal-field">
-                <label>Game yang disarankan</label>
-                <select id="saran-game">
-                    <option value="">— Pilih game (opsional) —</option>
-                    <option>Minecraft Parkun 2D</option>
-                    <option>THE ONE FOR ZOMBIE</option>
-                    <option>Desa Investasi Zombie</option>
-                    <option>Gerbang Parkun 2D</option>
-                    <option>Desa Cipta Karya Ch 2</option>
-                    <option>The Undeads (Roblox)</option>
-                    <option>Frequency Fury Obby (Roblox)</option>
-                    <option>Untuk Game Baru</option>
-                    <option>Umum / Studio</option>
-                </select>
-            </div>
-            <div class="rmodal-field">
-                <label>Saran / Ide kamu *</label>
-                <textarea id="saran-desc" rows="4" placeholder="Ceritakan idemu secara detail..." maxlength="1000"></textarea>
-            </div>
-            <div class="rmodal-field">
-                <label>Email kamu <span style="color:var(--text-muted);font-weight:400;">(opsional)</span></label>
-                <input type="email" id="saran-email" placeholder="contoh@gmail.com">
-            </div>
-            <button class="rmodal-submit" id="saran-submit" onclick="submitReport('saran')">💡 Kirim Saran</button>
-        </div>
-        <div class="rmodal-success" id="modal-saran-success" style="display:none;">
-            <div class="rmodal-success-icon">🎉</div>
-            <h3>Saran Terkirim!</h3>
-            <p>Terima kasih! Ide kamu akan dipertimbangkan oleh tim Grid Survival.</p>
-        </div>
-    </div>
-</div>
-
-<script src="assets/js/gameData.js"></script>
-<script src="assets/js/main.js"></script>
-<script src="assets/js/extras.js"></script>
+<script src="script.js"></script>
 <script>
-// ── LANGUAGE TOGGLE ──
-var LANG = localStorage.getItem('gs_lang') || 'id';
-
-var TRANSLATIONS = {
-  id: {
-    'txt-see-games':  'LIHAT SEMUA GAME',
-    'txt-cs':         'CUSTOMER SERVICE',
-    'stat-released':  'GAME DIRILIS',
-    'stat-players':   'TOTAL PEMAIN',
-    'stat-founded':   'TAHUN BERDIRI',
-    'sec-games':      'PROYEK GAME KAMI',
-    'sec-about':      'TENTANG GRID SURVIVAL',
-    'about-desc':     'Kami adalah studio game indie yang bersemangat menciptakan pengalaman bermain yang unik dan menantang. Dari Indonesia, kami fokus pada genre Survival, RPG, dan Strategy — dengan sentuhan cerita yang dalam di setiap gameplay. Semoga game kami menghiburmu!',
-    'about-tip':      'Coba ketik',
-    'about-tip2':     'untuk easter egg!',
-    'btn-bug':        '🐛 LAPORKAN BUG',
-    'btn-saran':      '💡 KIRIM SARAN',
-    'footer-copy':    '© 2025 Grid Survival. All Rights Reserved.',
-    'lang-label':     '🇮🇩 ID',
-    'nav-home':       'HOME',
-    'nav-games':      'GAMES',
-    'nav-stats':      'STATS',
-    'nav-about':      'ABOUT',
-    'nav-contact':    'CONTACT',
-    'nav-cs':         '💬 CS',
-  },
-  en: {
-    'txt-see-games':  'VIEW ALL GAMES',
-    'txt-cs':         'CUSTOMER SERVICE',
-    'stat-released':  'GAMES RELEASED',
-    'stat-players':   'TOTAL PLAYERS',
-    'stat-founded':   'FOUNDED',
-    'sec-games':      'OUR GAME PROJECTS',
-    'sec-about':      'ABOUT GRID SURVIVAL',
-    'about-desc':     'We are an indie game studio passionate about creating unique and challenging gaming experiences. Based in Indonesia, we focus on Survival, RPG, and Strategy genres — with deep storytelling in every gameplay. Hope our games entertain you!',
-    'about-tip':      'Try typing',
-    'about-tip2':     'for an easter egg!',
-    'btn-bug':        '🐛 REPORT A BUG',
-    'btn-saran':      '💡 SEND FEEDBACK',
-    'footer-copy':    '© 2025 Grid Survival. All Rights Reserved.',
-    'lang-label':     '🇬🇧 EN',
-    'nav-home':       'HOME',
-    'nav-games':      'GAMES',
-    'nav-stats':      'STATS',
-    'nav-about':      'ABOUT',
-    'nav-contact':    'CONTACT',
-    'nav-cs':         '💬 CS',
-  }
+// ── NAVIGATION ──
+const SECTIONS = ['dashboard','games','reports','logs'];
+const SECTION_TITLES = {
+    dashboard: 'Dashboard',
+    games: 'Manajemen Game',
+    reports: 'Laporan & Tiket',
+    logs: 'Activity Log'
 };
 
-function applyLang(lang) {
-  var t = TRANSLATIONS[lang];
-  document.querySelectorAll('[data-id]').forEach(function(el) {
-    var key = el.getAttribute('data-id');
-    if (t[key] !== undefined) el.innerHTML = t[key];
-  });
-  document.getElementById('lang-label').textContent = t['lang-label'];
-  document.documentElement.lang = lang;
-  // Nav menu links
-  var navLinks = document.querySelectorAll('.menu-links li a');
-  var keys = ['nav-home','nav-games','nav-stats','nav-about','nav-contact','nav-cs'];
-  navLinks.forEach(function(a, i) { if (keys[i] && t[keys[i]]) a.textContent = t[keys[i]]; });
-}
-
-document.getElementById('langToggle').addEventListener('click', function() {
-  LANG = LANG === 'id' ? 'en' : 'id';
-  localStorage.setItem('gs_lang', LANG);
-  applyLang(LANG);
-});
-
-applyLang(LANG);
-</script>
-
-<script>
-// ── CEK TIKET WIDGET ──
-function cekTiket() {
-    var raw = (document.getElementById('tiket-input').value || '').trim();
-    if (!raw) { shakeInput(); return; }
-
-    // Support both full URL and bare token
-    var token = raw;
-    var m = raw.indexOf('token=');
-    if (m !== -1) {
-        token = raw.slice(m + 6).split('&')[0].split('#')[0];
-        try { token = decodeURIComponent(token); } catch(e) {}
-    }
-
-    // Redirect ke halaman tiket dengan token di URL
-    window.location.href = '/tiket/?token=' + encodeURIComponent(token);
-}
-
-function shakeInput() {
-    var inp = document.getElementById('tiket-input');
-    inp.classList.add('shake');
-    inp.focus();
-    setTimeout(function(){ inp.classList.remove('shake'); }, 500);
-}
-
-// Allow Enter key in input
-document.addEventListener('DOMContentLoaded', function() {
-    var inp = document.getElementById('tiket-input');
-    if (inp) {
-        inp.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') cekTiket();
-        });
-    }
-});
-</script>
-<script>
-// ── REPORT MODAL (main website) ──
-function openReportModal(type) {
-    var bg = document.getElementById('modal-' + type + '-bg');
-    if (bg) { bg.classList.add('open'); document.body.classList.add('modal-open'); }
-    // reset success state
-    var form = document.getElementById('modal-' + type + '-form');
-    var succ = document.getElementById('modal-' + type + '-success');
-    if (form) form.style.display = '';
-    if (succ) succ.style.display = 'none';
-    var btn = document.getElementById(type + '-submit');
-    if (btn) { btn.disabled = false; btn.textContent = type === 'bug' ? '🐛 Kirim Laporan Bug' : '💡 Kirim Saran'; }
-}
-
-function closeReportModal(type) {
-    var bg = document.getElementById('modal-' + type + '-bg');
-    if (bg) { bg.classList.remove('open'); document.body.classList.remove('modal-open'); }
-}
-
-// Close on backdrop click
-['modal-bug-bg','modal-saran-bg'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener('click', function(e) {
-        if (e.target === el) closeReportModal(el.id.replace('modal-','').replace('-bg',''));
+function navTo(id) {
+    SECTIONS.forEach(s => {
+        document.getElementById('sec-' + s).classList.toggle('active', s === id);
+        const link = document.querySelector(`.sidebar-link[data-section="${s}"]`);
+        if (link) link.classList.toggle('active', s === id);
     });
-});
-
-async function submitReport(type) {
-    var game    = (document.getElementById(type + '-game')?.value || '').trim();
-    var desc    = (document.getElementById(type + '-desc')?.value || '').trim();
-    var email   = (document.getElementById(type + '-email')?.value || '').trim();
-    var contact = (document.getElementById(type + '-contact')?.value || '').trim();
-    var btn     = document.getElementById(type + '-submit');
-
-    if (!desc) { alert('Deskripsi tidak boleh kosong.'); return; }
-
-    btn.disabled = true;
-    btn.textContent = 'Mengirim...';
-
-    try {
-        var res  = await fetch('/.netlify/functions/report', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type, game: game || 'Tidak disebutkan', desc, email, contact }),
-        });
-        var data = await res.json();
-
-        // Show success
-        var form = document.getElementById('modal-' + type + '-form');
-        var succ = document.getElementById('modal-' + type + '-success');
-        if (form) form.style.display = 'none';
-        if (succ) succ.style.display = '';
-
-        if (data.ticketId && type === 'bug') {
-            var ticketBox = document.getElementById('bug-ticket-box');
-            var ticketNum = document.getElementById('bug-ticket-num');
-            if (ticketBox) ticketBox.style.display = '';
-            if (ticketNum) ticketNum.textContent = '#' + data.ticketId;
-        }
-    } catch (err) {
-        btn.disabled = false;
-        btn.textContent = type === 'bug' ? '🐛 Kirim Laporan Bug' : '💡 Kirim Saran';
-        alert('Gagal mengirim. Coba lagi.');
-    }
+    const title = document.getElementById('topbarTitle');
+    if (title) title.textContent = SECTION_TITLES[id] || id;
+    closeSidebar();
+    if (id === 'games') renderGameTable();
+    if (id === 'reports') renderReports();
 }
+
+// ── SIDEBAR TOGGLE ──
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('visible');
+}
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('visible');
+}
+document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+
+// Sync both session timers
+const _origStartSessionTimer = typeof startSessionTimer !== 'undefined' ? startSessionTimer : null;
 </script>
 </body>
 </html>

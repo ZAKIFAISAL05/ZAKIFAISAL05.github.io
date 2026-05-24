@@ -175,6 +175,10 @@
                 </div>
             </div>
 
+            <div id="dashboard-report-summary" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-family:var(--font-mono);font-size:0.8rem;padding:8px 12px;background:var(--bg-card);border:1px solid var(--border-dim);border-radius:6px;margin-top:8px;color:var(--text-muted);">
+                <span>Memuat statistik laporan...</span>
+            </div>
+
             <div class="dash-quick">
                 <div class="section-header">
                     <h2 class="section-title"><i class="fas fa-bolt"></i> Quick Actions</h2>
@@ -283,6 +287,9 @@
                         <button class="btn-cancel" id="btn-cancel-edit" onclick="resetForm()" style="display:none;">
                             <i class="fas fa-xmark"></i> Batal Edit
                         </button>
+                        <button class="btn-cancel" onclick="showGamePreview()" type="button" title="Preview tampilan card game">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
                     </div>
                 </div>
             </div>
@@ -304,6 +311,7 @@
                     <table class="admin-table">
                         <thead>
                             <tr>
+                                <th style="width:28px;" title="Drag untuk ubah urutan"><i class="fas fa-grip-vertical" style="color:var(--text-muted);"></i></th>
                                 <th>#</th>
                                 <th>Icon</th>
                                 <th>Game Title</th>
@@ -313,7 +321,7 @@
                             </tr>
                         </thead>
                         <tbody id="gameTableBody">
-                            <tr><td colspan="6" class="table-empty">Memuat data game...</td></tr>
+                            <tr><td colspan="7" class="table-empty">Memuat data game...</td></tr>
                         </tbody>
                     </table>
                 </div>

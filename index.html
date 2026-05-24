@@ -500,8 +500,11 @@ function cekTiket() {
 
     // Support both full URL and bare token
     var token = raw;
-    var urlMatch = raw.match(/[?&]token=([^&#]+)/);
-    if (urlMatch) token = decodeURIComponent(urlMatch[1]);
+    var m = raw.indexOf('token=');
+    if (m !== -1) {
+        token = raw.slice(m + 6).split('&')[0].split('#')[0];
+        try { token = decodeURIComponent(token); } catch(e) {}
+    }
 
     // Redirect ke halaman tiket dengan token di URL
     window.location.href = '/tiket/?token=' + encodeURIComponent(token);
@@ -512,73 +515,6 @@ function shakeInput() {
     inp.classList.add('shake');
     inp.focus();
     setTimeout(function(){ inp.classList.remove('shake'); }, 500);
-}
-
-var STATUS_NOTE = {
-    received:  { icon:'📥', text:'Laporan diterima, menunggu ditinjau tim developer.' },
-    seen:      { icon:'👀', text:'Developer sudah melihat laporan kamu dan sedang dipelajari.' },
-    confirmed: { icon:'🔧', text:'Laporan dikonfirmasi! Developer sedang mengerjakan perbaikan.' },
-    done:      { icon:'✅', text:'Masalah sudah diselesaikan. Terima kasih atas laporanmu!' },
-};
-var STEP_LABELS = ['Diterima','Dilihat','Dikonfirmasi','Selesai'];
-
-function renderTiketResult(t) {
-    var wrap   = document.getElementById('tiket-result-wrap');
-    var step   = t.statusStep || 0;
-    var isDone = t.done || t.status === 'done';
-    var note   = STATUS_NOTE[t.status] || { icon:'ℹ️', text: t.status };
-    var typeLabel = t.type === 'bug' ? '🐛 Laporan Bug' : '💡 Saran';
-
-    var stepsHtml = STEP_LABELS.map(function(label, i) {
-        var cls = i < step ? 'done' : (i === step ? (isDone ? 'done' : 'active') : '');
-        return '<div class="tr-step ' + cls + '">' +
-            '<div class="tr-dot">' + (i < step || isDone ? '✓' : (i+1)) + '</div>' +
-            '<div class="tr-step-label">' + label + '</div>' +
-        '</div>';
-    }).join('');
-
-    wrap.innerHTML =
-        '<div class="tiket-card">' +
-            '<div class="tiket-card-head">' +
-                '<div>' +
-                    '<div class="tc-num">Tiket #' + (t.num || '—') + '</div>' +
-                    '<div class="tc-id">' + (t.id || '') + '</div>' +
-                '</div>' +
-                '<span class="tc-type">' + typeLabel + '</span>' +
-            '</div>' +
-            '<div class="tr-steps' + (isDone ? ' is-done' : '') + '">' + stepsHtml + '</div>' +
-            '<div class="tc-note ' + t.status + '">' + note.icon + ' ' + note.text + '</div>' +
-            (t.devNote ? '<div class="tc-devnote"><span>💬 Catatan Developer:</span> ' + t.devNote + '</div>' : '') +
-            '<div class="tc-fields">' +
-                '<div class="tc-field"><span>Game</span><p>' + (t.game || '—') + '</p></div>' +
-                '<div class="tc-field"><span>Laporan</span><p>' + (t.desc || '—').replace(/
-/g,'<br>') + '</p></div>' +
-                '<div class="tc-field"><span>Dibuat</span><p>' + formatTiketDate(t.createdAt) + '</p></div>' +
-            '</div>' +
-        '</div>';
-}
-
-function renderTiketExpired(num) {
-    document.getElementById('tiket-result-wrap').innerHTML =
-        '<div class="tiket-card tiket-done">' +
-            '<div style="font-size:2rem;margin-bottom:8px;">🎉</div>' +
-            '<div style="font-weight:800;font-size:1.1rem;margin-bottom:6px;">Tiket #' + num + ' — Selesai!</div>' +
-            '<div style="opacity:.75;font-size:.9rem;">Masalah sudah diselesaikan oleh developer. Terima kasih!</div>' +
-        '</div>';
-}
-
-function renderTiketError(msg) {
-    document.getElementById('tiket-result-wrap').innerHTML =
-        '<div class="tiket-card tiket-error">' +
-            '<div style="font-size:1.8rem;margin-bottom:8px;">🔒</div>' +
-            '<div style="font-weight:700;font-size:1rem;margin-bottom:6px;">Tiket Tidak Ditemukan</div>' +
-            '<div style="opacity:.75;font-size:.85rem;">' + msg + '</div>' +
-        '</div>';
-}
-
-function formatTiketDate(iso) {
-    if (!iso) return '—';
-    return new Date(iso).toLocaleString('id-ID', { day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit', timeZone:'Asia/Jakarta' });
 }
 
 // Allow Enter key in input

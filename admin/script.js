@@ -154,7 +154,8 @@ function resetForm() {
   editingGameId = null;
   document.getElementById('btn-add-game').textContent = '▶ Simpan Game ke Katalog';
   document.getElementById('btn-cancel-edit').style.display = 'none';
-  document.querySelector('.admin-section-title[data-form]').textContent = '▌ Tambah Game Baru';
+  const formTitle = document.getElementById('formPanelTitle') || document.querySelector('.admin-section-title[data-form]');
+  if (formTitle) formTitle.innerHTML = '<i class="fas fa-plus-circle"></i> Tambah Game Baru';
 }
 
 function editGame(id) {
@@ -183,7 +184,8 @@ function editGame(id) {
 
   document.getElementById('btn-add-game').textContent = '💾 Update Game';
   document.getElementById('btn-cancel-edit').style.display = 'inline-block';
-  document.querySelector('.admin-section-title[data-form]').textContent = `▌ Edit Game: ${escHtml(game.title)}`;
+  const formTitle = document.getElementById('formPanelTitle') || document.querySelector('.admin-section-title[data-form]');
+  if (formTitle) formTitle.innerHTML = `<i class="fas fa-pen-to-square"></i> Edit Game: ${escHtml(game.title)}`;
   document.querySelector('.add-form').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
@@ -237,10 +239,15 @@ let pendingDeleteId = null;
 function confirmDelete(id, title) {
   pendingDeleteId = id;
   document.getElementById('confirmMsg').textContent = `Hapus game "${title}" dari katalog?`;
-  document.getElementById('confirmOverlay').classList.add('show');
+  const ov = document.getElementById('confirmOverlay');
+  ov.classList.add('show'); ov.classList.add('visible');
   document.getElementById('confirmYes').onclick = () => { doDeleteGame(pendingDeleteId, title); closeConfirm(); };
 }
-function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('show'); pendingDeleteId = null; }
+function closeConfirm() {
+  const ov = document.getElementById('confirmOverlay');
+  ov.classList.remove('show'); ov.classList.remove('visible');
+  pendingDeleteId = null;
+}
 
 async function doDeleteGame(id, title) {
   try {
@@ -292,10 +299,15 @@ async function renderGameTable() {
 /* ── STATS ── */
 async function updateStats() {
   const games = _gamesCache || [];
-  document.getElementById('statTotal').textContent     = games.length;
-  document.getElementById('statRoblox').textContent    = games.filter(g=>(g.platforms||[]).some(p=>p.cls==='btn-roblox')).length;
-  const plats = new Set(games.flatMap(g=>(g.platforms||[]).map(p=>p.cls)));
-  document.getElementById('statPlatforms').textContent = plats.size || 0;
+  const total   = games.length;
+  const roblox  = games.filter(g=>(g.platforms||[]).some(p=>p.cls==='btn-roblox')).length;
+  const plats   = new Set(games.flatMap(g=>(g.platforms||[]).map(p=>p.cls)));
+  // Update semua elemen stats (ada di dashboard & section games)
+  document.querySelectorAll('#statTotal').forEach(el     => el.textContent = total);
+  document.querySelectorAll('#statRoblox').forEach(el    => el.textContent = roblox);
+  document.querySelectorAll('#statPlatforms').forEach(el => el.textContent = plats.size || 0);
+  // Update report badge di sidebar
+  updateReportBadge();
 }
 
 /* ── EXPORT ── */
@@ -401,6 +413,8 @@ function doLogout() { addLog('LOGOUT — session terminated','warn'); clearSessi
 
 function startSessionTimer(sess) {
   const timerEl  = document.getElementById('sessionTimer');
+  const timerEl2 = document.getElementById('sessionTimerDash');
+  let warnedExpiry = false;
   const interval = setInterval(() => {
     const remaining = Math.max(0, sess.exp - Date.now());
     if (remaining === 0) {
@@ -411,7 +425,15 @@ function startSessionTimer(sess) {
     }
     const m = String(Math.floor(remaining/60000)).padStart(2,'0');
     const s = String(Math.floor((remaining%60000)/1000)).padStart(2,'0');
-    timerEl.textContent = `${m}:${s}`;
+    const txt = `${m}:${s}`;
+    if (timerEl)  timerEl.textContent  = txt;
+    if (timerEl2) timerEl2.textContent = txt;
+    // Peringatan 5 menit sebelum expire
+    if (!warnedExpiry && remaining < 5 * 60 * 1000) {
+      warnedExpiry = true;
+      addLog('⚠ Session hampir habis — kurang dari 5 menit!', 'warn');
+      showToast('Session hampir habis! Simpan pekerjaan kamu.', 'warn');
+    }
   }, 1000);
 }
 
@@ -603,7 +625,166 @@ function clearDoneReports() {
 
 
 
-/* ── INIT ── */
+/* ════════════════════════════════════════
+   TOAST NOTIFICATION
+   ════════════════════════════════════════ */
+function showToast(msg, type = 'info') {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;';
+    document.body.appendChild(container);
+  }
+  const colors = { info:'rgba(212,130,10,0.9)', ok:'rgba(26,153,0,0.9)', warn:'rgba(204,136,0,0.9)', err:'rgba(204,34,34,0.9)' };
+  const icons  = { info:'fa-circle-info', ok:'fa-circle-check', warn:'fa-triangle-exclamation', err:'fa-circle-xmark' };
+  const toast  = document.createElement('div');
+  toast.style.cssText = `background:${colors[type]||colors.info};color:#fff;padding:10px 16px;border-radius:4px;font-family:'Share Tech Mono',monospace;font-size:0.78rem;display:flex;align-items:center;gap:8px;max-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.2);pointer-events:auto;opacity:0;transition:opacity 0.25s,transform 0.25s;transform:translateY(8px);`;
+  toast.innerHTML = `<i class="fas ${icons[type]||icons.info}"></i> ${escHtml(msg)}`;
+  container.appendChild(toast);
+  requestAnimationFrame(() => { toast.style.opacity='1'; toast.style.transform='translateY(0)'; });
+  setTimeout(() => {
+    toast.style.opacity='0'; toast.style.transform='translateY(8px)';
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
+}
+
+/* ════════════════════════════════════════
+   REPORT BADGE (angka tiket aktif di sidebar)
+   ════════════════════════════════════════ */
+function updateReportBadge(count) {
+  const badge = document.getElementById('reportBadge');
+  if (!badge) return;
+  if (count === undefined) {
+    // hitung dari cache tiket jika ada
+    return;
+  }
+  if (count > 0) {
+    badge.textContent = count > 99 ? '99+' : count;
+    badge.style.display = 'inline-block';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+/* ════════════════════════════════════════
+   SEARCH & FILTER GAME TABLE
+   ════════════════════════════════════════ */
+let _searchQuery = '';
+let _filterGenre = '';
+
+function initGameSearch() {
+  const wrap = document.getElementById('gameTableBody');
+  if (!wrap) return;
+  // Cek apakah toolbar search sudah ada
+  const existing = document.getElementById('game-search-input');
+  if (existing) return;
+
+  const toolbar = document.querySelector('.table-toolbar');
+  if (!toolbar) return;
+
+  // Input search
+  const searchInput = document.createElement('input');
+  searchInput.id = 'game-search-input';
+  searchInput.type = 'text';
+  searchInput.placeholder = '🔍 Cari game...';
+  searchInput.style.cssText = "background:var(--bg-input);border:1.5px solid var(--border-vis);border-radius:4px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:var(--text-primary);outline:none;width:160px;";
+  searchInput.addEventListener('input', e => { _searchQuery = e.target.value.toLowerCase(); filterGameTable(); });
+  searchInput.addEventListener('focus', e => { e.target.style.borderColor='var(--brand)'; });
+  searchInput.addEventListener('blur',  e => { e.target.style.borderColor='var(--border-vis)'; });
+
+  // Select filter genre
+  const genreFilter = document.createElement('select');
+  genreFilter.id = 'game-genre-filter';
+  genreFilter.style.cssText = "background:var(--bg-input);border:1.5px solid var(--border-vis);border-radius:4px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:var(--text-primary);outline:none;cursor:pointer;";
+  genreFilter.innerHTML = '<option value="">Semua Genre</option><option value="Arcade">Arcade</option><option value="Action">Action</option><option value="Simulation">Simulation</option><option value="Platformer">Platformer</option><option value="Survival">Survival</option><option value="RPG">RPG</option><option value="Strategy">Strategy</option><option value="Puzzle">Puzzle</option><option value="Horror">Horror</option><option value="Other">Other</option>';
+  genreFilter.addEventListener('change', e => { _filterGenre = e.target.value; filterGameTable(); });
+
+  toolbar.insertBefore(genreFilter, toolbar.firstChild);
+  toolbar.insertBefore(searchInput, toolbar.firstChild);
+}
+
+function filterGameTable() {
+  const rows = document.querySelectorAll('#gameTableBody tr[data-id]');
+  let visible = 0;
+  rows.forEach(row => {
+    const title = (row.cells[2]?.textContent || '').toLowerCase();
+    const genre = (row.cells[3]?.textContent || '').toLowerCase();
+    const matchSearch = !_searchQuery || title.includes(_searchQuery);
+    const matchGenre  = !_filterGenre || genre.includes(_filterGenre.toLowerCase());
+    const show = matchSearch && matchGenre;
+    row.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  // Tampilkan pesan jika tidak ada hasil
+  let noResult = document.getElementById('table-no-result');
+  if (!visible && (rows.length > 0)) {
+    if (!noResult) {
+      noResult = document.createElement('tr');
+      noResult.id = 'table-no-result';
+      noResult.innerHTML = '<td colspan="6" class="table-empty">Tidak ada game yang cocok.</td>';
+      document.getElementById('gameTableBody').appendChild(noResult);
+    }
+    noResult.style.display = '';
+  } else if (noResult) {
+    noResult.style.display = 'none';
+  }
+}
+
+/* ════════════════════════════════════════
+   KEYBOARD SHORTCUTS
+   ════════════════════════════════════════ */
+function initKeyboardShortcuts() {
+  document.addEventListener('keydown', e => {
+    if (!isSessionValid()) return;
+    // Alt+1/2/3/4 = navigasi section
+    if (e.altKey && ['1','2','3','4'].includes(e.key)) {
+      const sections = ['dashboard','games','reports','logs'];
+      const idx = parseInt(e.key) - 1;
+      if (typeof navTo === 'function') navTo(sections[idx]);
+      e.preventDefault();
+    }
+    // Alt+N = tambah game baru (fokus ke form)
+    if (e.altKey && e.key === 'n') {
+      if (typeof navTo === 'function') navTo('games');
+      setTimeout(() => { const t = document.getElementById('fg-title'); if (t) t.focus(); }, 100);
+      e.preventDefault();
+    }
+    // Escape = tutup modal
+    if (e.key === 'Escape') {
+      closeConfirm();
+      if (typeof closeSidebar === 'function') closeSidebar();
+    }
+  });
+}
+
+/* ── Override renderGameTable: tambah initGameSearch setelah render ── */
+const _origRenderGameTable = renderGameTable;
+async function renderGameTable() {
+  await _origRenderGameTable();
+  initGameSearch();
+}
+
+/* ── Override fetchTickets: update report badge setelah fetch ── */
+const _origFetchTickets = fetchTickets;
+async function fetchTickets() {
+  await _origFetchTickets();
+  // Hitung tiket aktif dari panel yang sudah dirender
+  setTimeout(() => {
+    const activeItems = document.querySelectorAll('.report-item:not(.report-done)');
+    updateReportBadge(activeItems.length);
+  }, 200);
+}
+
+/* ── Override showAdmin: init fitur baru ── */
+const _origShowAdmin = showAdmin;
+async function showAdmin(sess) {
+  await _origShowAdmin(sess);
+  initKeyboardShortcuts();
+  addLog('Fitur tambahan aktif: search, keyboard shortcuts');
+}
+
+
 document.addEventListener('DOMContentLoaded', function() {
   ['adminUser','adminPass'].forEach(id => {
     const el = document.getElementById(id);

@@ -1,32 +1,39 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>ADMIN // Grid Survival</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <!-- ══ LOGIN ══ -->
 <div class="login-wrap" id="loginWrap">
+    <div class="login-scanlines"></div>
     <div class="login-box">
         <div class="login-logo">
-            <img src="../assets/img/studio_logo.png" alt="Grid Survival">
+            <img src="../assets/img/studio_logo.png" alt="Grid Survival" onerror="this.style.display='none'">
+            <div class="login-logo-fallback"><i class="fas fa-shield-halved"></i></div>
         </div>
-        <div class="login-title">Admin Panel</div>
+        <div class="login-title">ADMIN PANEL</div>
         <div class="login-sub">Grid Survival Studio — Secure Access</div>
         <div class="login-field">
             <label for="adminUser">USERNAME</label>
-            <input type="text" id="adminUser" autocomplete="off" spellcheck="false" placeholder="Username" maxlength="32">
+            <input type="text" id="adminUser" autocomplete="off" spellcheck="false" placeholder="Enter username" maxlength="32">
         </div>
         <div class="login-field">
             <label for="adminPass">PASSWORD</label>
             <input type="password" id="adminPass" autocomplete="off" placeholder="••••••••" maxlength="64">
         </div>
-        <button class="btn-login" id="loginBtn" onclick="doLogin()">Masuk ke Panel</button>
+        <button class="btn-login" id="loginBtn" onclick="doLogin()">
+            <i class="fas fa-right-to-bracket"></i> MASUK KE PANEL
+        </button>
         <div class="login-err" id="loginErr"></div>
         <div class="login-attempts" id="loginAttempts"></div>
         <div class="lockout-msg" id="lockoutMsg" style="display:none;"></div>
@@ -35,143 +42,372 @@
 
 <!-- ══ ADMIN PANEL ══ -->
 <div class="admin-wrap" id="adminWrap">
-    <nav class="admin-nav">
-        <div class="admin-nav-title">
-            <canvas id="adminCharCanvas" width="60" height="36" style="image-rendering:pixelated;display:inline-block;vertical-align:middle;margin-right:10px;"></canvas>
-            Grid Survival Admin
-        </div>
-        <div class="admin-nav-right">
-            <span class="admin-user" id="adminUserDisplay"></span>
-            <button class="btn-logout" onclick="doLogout()">Logout</button>
-        </div>
-    </nav>
 
-    <main class="admin-main">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <canvas id="adminCharCanvas" width="36" height="60" style="image-rendering:pixelated;"></canvas>
+            </div>
+            <div class="sidebar-brand">
+                <span class="sidebar-title">GRID SURVIVAL</span>
+                <span class="sidebar-sub">ADMIN PANEL</span>
+            </div>
+            <button class="sidebar-close" id="sidebarClose" aria-label="Tutup sidebar">
+                <i class="fas fa-xmark"></i>
+            </button>
+        </div>
 
-        <!-- Session Info -->
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">NAVIGASI</div>
+            <a class="sidebar-link active" data-section="dashboard" onclick="navTo('dashboard')">
+                <i class="fas fa-gauge-high"></i>
+                <span>Dashboard</span>
+                <span class="kbd-hint">Alt+1</span>
+            </a>
+            <a class="sidebar-link" data-section="games" onclick="navTo('games')">
+                <i class="fas fa-gamepad"></i>
+                <span>Manajemen Game</span>
+                <span class="kbd-hint">Alt+2</span>
+            </a>
+            <a class="sidebar-link" data-section="reports" onclick="navTo('reports')">
+                <i class="fas fa-flag"></i>
+                <span>Laporan & Tiket</span>
+                <span class="sidebar-badge" id="reportBadge" style="display:none">0</span>
+                <span class="kbd-hint">Alt+3</span>
+            </a>
+            <a class="sidebar-link" data-section="logs" onclick="navTo('logs')">
+                <i class="fas fa-terminal"></i>
+                <span>Activity Log</span>
+                <span class="kbd-hint">Alt+4</span>
+            </a>
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-section-label">SESSION</div>
+            <div class="sidebar-info-row">
+                <i class="fas fa-user-shield"></i>
+                <span id="adminUserDisplay">—</span>
+            </div>
+            <div class="sidebar-info-row small">
+                <i class="fas fa-clock"></i>
+                <span id="sessionTimer">--:--</span>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="doLogout()">
+                <i class="fas fa-right-from-bracket"></i> LOGOUT
+            </button>
+        </div>
+    </aside>
+
+    <!-- SIDEBAR OVERLAY -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- MAIN CONTENT -->
+    <div class="admin-main">
+
+        <!-- TOP BAR -->
+        <header class="admin-topbar">
+            <button class="topbar-menu-btn" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Buka menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <div class="topbar-title" id="topbarTitle">Dashboard</div>
+            <div class="topbar-right">
+                <div class="session-chip">
+                    <span class="session-dot"></span>
+                    <span>LIVE</span>
+                </div>
+                <div class="topbar-storage">
+                    <i class="fas fa-server"></i>
+                    <span>Netlify Blobs</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- SESSION BAR -->
         <div class="session-bar">
-            <div>SESSION: <span id="sessionId">—</span></div>
-            <div>LOGIN: <span id="loginTime">—</span></div>
-            <div>STORAGE: <span style="color:var(--c-green);">● Server (Netlify Blobs)</span></div>
-            <div>STATUS: <span style="color:var(--c-green);">● ACTIVE</span></div>
+            <div class="session-item">
+                <span class="session-label">SESSION</span>
+                <span id="sessionId">—</span>
+            </div>
+            <div class="session-item">
+                <span class="session-label">LOGIN</span>
+                <span id="loginTime">—</span>
+            </div>
+            <div class="session-item">
+                <span class="session-label">STORAGE</span>
+                <span class="status-green">● Server (Netlify)</span>
+            </div>
+            <div class="session-item">
+                <span class="session-label">STATUS</span>
+                <span class="status-green">● ACTIVE</span>
+            </div>
         </div>
 
-        <!-- Stats -->
-        <div class="admin-section-title">▌ Dashboard Overview</div>
-        <div class="admin-stats">
-            <div class="stat-card"><span class="stat-num" id="statTotal">0</span><div class="stat-label">Total Games</div></div>
-            <div class="stat-card"><span class="stat-num" id="statPlatforms">0</span><div class="stat-label">Platforms</div></div>
-            <div class="stat-card"><span class="stat-num" id="statRoblox">0</span><div class="stat-label">Roblox Games</div></div>
-            <div class="stat-card"><span class="stat-num" id="sessionTimer">00:00</span><div class="stat-label">Session Time</div></div>
-        </div>
+        <!-- ═══ SECTION: DASHBOARD ═══ -->
+        <section class="admin-section active" id="sec-dashboard">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fas fa-gauge-high"></i> Dashboard Overview</h2>
+            </div>
 
-        <!-- Add / Edit Game -->
-        <div class="admin-section-title" data-form>▌ Tambah Game Baru</div>
-        <div id="alertBox" class="alert"></div>
-        <div class="add-form">
-            <div class="form-field">
-                <label>Game Title *</label>
-                <input type="text" id="fg-title" placeholder="Nama game..." maxlength="80">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-gamepad"></i></div>
+                    <div class="stat-num" id="statTotal">0</div>
+                    <div class="stat-label">Total Games</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-mobile-screen"></i></div>
+                    <div class="stat-num" id="statPlatforms">0</div>
+                    <div class="stat-label">Platforms</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-cube"></i></div>
+                    <div class="stat-num" id="statRoblox">0</div>
+                    <div class="stat-label">Roblox Games</div>
+                </div>
+                <div class="stat-card timer-card">
+                    <div class="stat-icon"><i class="fas fa-stopwatch"></i></div>
+                    <div class="stat-num" id="sessionTimerDash">00:00</div>
+                    <div class="stat-label">Session Time</div>
+                </div>
             </div>
-            <div class="form-field">
-                <label>Genre *</label>
-                <select id="fg-genre">
-                    <option value="">-- Pilih Genre --</option>
-                    <option value="Arcade">Arcade</option>
-                    <option value="Action">Action</option>
-                    <option value="Simulation">Simulation</option>
-                    <option value="Platformer">Platformer</option>
-                    <option value="Survival">Survival</option>
-                    <option value="RPG">RPG</option>
-                    <option value="Strategy">Strategy</option>
-                    <option value="Puzzle">Puzzle</option>
-                    <option value="Horror">Horror</option>
-                    <option value="Other">Other</option>
-                </select>
+
+            <div class="dash-quick">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-bolt"></i> Quick Actions</h2>
+                </div>
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="navTo('games')">
+                        <i class="fas fa-plus"></i>
+                        <span>Tambah Game</span>
+                    </button>
+                    <button class="quick-btn" onclick="navTo('reports')">
+                        <i class="fas fa-flag"></i>
+                        <span>Lihat Laporan</span>
+                    </button>
+                    <button class="quick-btn" onclick="renderGameTable()">
+                        <i class="fas fa-rotate"></i>
+                        <span>Refresh Data</span>
+                    </button>
+                    <button class="quick-btn" onclick="navTo('logs')">
+                        <i class="fas fa-terminal"></i>
+                        <span>Activity Log</span>
+                    </button>
+                </div>
             </div>
-            <div class="form-field full">
-                <label>Deskripsi</label>
-                <textarea id="fg-desc" rows="3" placeholder="Deskripsi singkat game..."></textarea>
+        </section>
+
+        <!-- ═══ SECTION: GAME MANAGER ═══ -->
+        <section class="admin-section" id="sec-games">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fas fa-gamepad"></i> Manajemen Game</h2>
             </div>
-            <div class="form-field full">
-                <label>Icon / Logo Game</label>
-                <div class="icon-upload-wrap">
-                    <div class="icon-preview" id="iconPreview"><i class="fas fa-gamepad"></i></div>
-                    <div>
-                        <button class="btn-upload-icon" onclick="document.getElementById('iconFile').click()">▶ Pilih Gambar</button>
-                        <input type="file" id="iconFile" accept="image/*" style="display:none" onchange="handleIconUpload(event)">
-                        <div style="margin-top:8px;font-size:13px;color:var(--text-muted);">PNG, JPG, WEBP — maks 2MB</div>
+
+            <div class="panel-box">
+                <div class="panel-box-title" id="formPanelTitle">
+                    <i class="fas fa-plus-circle"></i> Tambah Game Baru
+                </div>
+                <div id="alertBox" class="alert"></div>
+
+                <div class="add-form">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label>Game Title *</label>
+                            <input type="text" id="fg-title" placeholder="Nama game..." maxlength="80">
+                        </div>
+                        <div class="form-field">
+                            <label>Genre *</label>
+                            <select id="fg-genre">
+                                <option value="">-- Pilih Genre --</option>
+                                <option value="Arcade">Arcade</option>
+                                <option value="Action">Action</option>
+                                <option value="Simulation">Simulation</option>
+                                <option value="Platformer">Platformer</option>
+                                <option value="Survival">Survival</option>
+                                <option value="RPG">RPG</option>
+                                <option value="Strategy">Strategy</option>
+                                <option value="Puzzle">Puzzle</option>
+                                <option value="Horror">Horror</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-field full">
+                        <label>Deskripsi</label>
+                        <textarea id="fg-desc" rows="3" placeholder="Deskripsi singkat game..."></textarea>
+                    </div>
+                    <div class="form-field full">
+                        <label>Icon / Logo Game</label>
+                        <div class="icon-upload-wrap">
+                            <div class="icon-preview" id="iconPreview">
+                                <i class="fas fa-gamepad"></i>
+                            </div>
+                            <div class="icon-upload-info">
+                                <button class="btn-upload-icon" onclick="document.getElementById('iconFile').click()">
+                                    <i class="fas fa-upload"></i> Pilih Gambar
+                                </button>
+                                <input type="file" id="iconFile" accept="image/*" style="display:none" onchange="handleIconUpload(event)">
+                                <p>PNG, JPG, WEBP — maks 2MB</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-field full">
+                        <label>Platform &amp; Link Download</label>
+                        <div class="platform-builder" id="platformBuilder">
+                            <div class="platform-row" id="prow-0">
+                                <select class="p-type">
+                                    <option value="btn-taptap">TapTap</option>
+                                    <option value="btn-itchio">Itch.io</option>
+                                    <option value="btn-roblox">Roblox</option>
+                                    <option value="btn-amazon">Amazon</option>
+                                    <option value="btn-gplay">Google Play</option>
+                                    <option value="btn-steam">Steam</option>
+                                </select>
+                                <input class="p-url" type="url" placeholder="https://...">
+                                <button class="btn-rm-platform" onclick="removePlatform('prow-0')" title="Hapus">
+                                    <i class="fas fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn-add-platform" onclick="addPlatformRow()">
+                            <i class="fas fa-plus"></i> Tambah Platform
+                        </button>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn-save" id="btn-add-game" onclick="submitAddGame()">
+                            <i class="fas fa-floppy-disk"></i> Simpan Game ke Katalog
+                        </button>
+                        <button class="btn-cancel" id="btn-cancel-edit" onclick="resetForm()" style="display:none;">
+                            <i class="fas fa-xmark"></i> Batal Edit
+                        </button>
                     </div>
                 </div>
             </div>
-            <div class="form-field full">
-                <label>Platform &amp; Link Download</label>
-                <div class="platform-builder" id="platformBuilder">
-                    <div class="platform-row" id="prow-0">
-                        <select class="p-type">
-                            <option value="btn-taptap">TapTap</option>
-                            <option value="btn-itchio">Itch.io</option>
-                            <option value="btn-roblox">Roblox</option>
-                            <option value="btn-amazon">Amazon</option>
-                            <option value="btn-gplay">Google Play</option>
-                            <option value="btn-steam">Steam</option>
-                        </select>
-                        <input class="p-url" type="url" placeholder="https://...">
-                        <button class="btn-rm-platform" onclick="removePlatform('prow-0')" title="Hapus">×</button>
-                    </div>
+
+            <div class="panel-box">
+                <div class="panel-box-title">
+                    <i class="fas fa-list"></i> Game Catalog
                 </div>
-                <button class="btn-add-platform" onclick="addPlatformRow()">+ Tambah Platform</button>
+                <div class="table-toolbar">
+                    <button class="btn-tool" onclick="renderGameTable()">
+                        <i class="fas fa-rotate"></i> Refresh
+                    </button>
+                    <button class="btn-tool" onclick="exportGameData()">
+                        <i class="fas fa-download"></i> Export gameData.js
+                    </button>
+                    <span class="toolbar-note">Data tersimpan permanen di server Netlify</span>
+                </div>
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Icon</th>
+                                <th>Game Title</th>
+                                <th>Genre</th>
+                                <th>Platforms</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gameTableBody">
+                            <tr><td colspan="6" class="table-empty">Memuat data game...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="form-field full" style="display:flex;gap:12px;flex-wrap:wrap;">
-                <button class="btn-add-game" id="btn-add-game" onclick="submitAddGame()" style="flex:1;min-width:200px;">▶ Simpan Game ke Katalog</button>
-                <button class="btn-small" id="btn-cancel-edit" onclick="resetForm()" style="display:none;padding:14px 20px;font-size:0.95em;">✕ Batal Edit</button>
+        </section>
+
+        <!-- ═══ SECTION: REPORTS ═══ -->
+        <section class="admin-section" id="sec-reports">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fas fa-flag"></i> Laporan Bug &amp; Saran</h2>
             </div>
-        </div>
+            <div class="panel-box">
+                <div class="reports-toolbar">
+                    <button class="btn-tool" onclick="renderReports()">
+                        <i class="fas fa-rotate"></i> Refresh
+                    </button>
+                    <button class="btn-danger-sm" onclick="clearDoneReports()">
+                        <i class="fas fa-trash"></i> Hapus Selesai
+                    </button>
+                    <span class="toolbar-note" id="reportCount">Memuat...</span>
+                </div>
+                <div id="reports-panel"></div>
+            </div>
+        </section>
 
-        <!-- Game Catalog -->
-        <div class="admin-section-title">▌ Game Catalog</div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
-            <button class="btn-small" onclick="renderGameTable()">🔄 Refresh</button>
-            <button class="btn-small" onclick="exportGameData()">⬇ Export gameData.js</button>
-            <span style="font-size:0.78rem;color:var(--text-muted);">Data tersimpan permanen di server Netlify</span>
-        </div>
-        <div class="admin-table-wrap">
-            <table class="admin-table">
-                <thead>
-                    <tr><th>#</th><th>Icon</th><th>Game Title</th><th>Genre</th><th>Platforms</th><th>Actions</th></tr>
-                </thead>
-                <tbody id="gameTableBody"></tbody>
-            </table>
-        </div>
+        <!-- ═══ SECTION: LOGS ═══ -->
+        <section class="admin-section" id="sec-logs">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fas fa-terminal"></i> Activity Log</h2>
+            </div>
+            <div class="panel-box">
+                <div class="admin-log" id="activityLog"></div>
+            </div>
+        </section>
 
-        <!-- Reports -->
-        <div class="admin-section-title">▌ Laporan Bug &amp; Saran</div>
-        <div class="reports-toolbar">
-            <button class="btn-small" onclick="renderReports()">🔄 Refresh</button>
-            <button class="btn-delete" onclick="clearDoneReports()">🗑 Hapus Selesai</button>
-            <span style="font-size:0.8rem;color:var(--text-muted);" id="reportCount">Memuat...</span>
-        </div>
-        <div id="reports-panel"></div>
-
-        <!-- Log -->
-        <div class="admin-section-title">▌ Activity Log</div>
-        <div class="admin-log" id="activityLog"></div>
-
-    </main>
-</div>
+    </div><!-- /.admin-main -->
+</div><!-- /.admin-wrap -->
 
 <!-- Confirm Delete Modal -->
 <div class="confirm-overlay" id="confirmOverlay">
     <div class="confirm-box">
-        <div class="confirm-title">⚠ Konfirmasi Hapus</div>
+        <div class="confirm-icon"><i class="fas fa-triangle-exclamation"></i></div>
+        <div class="confirm-title">Konfirmasi Hapus</div>
         <div class="confirm-msg" id="confirmMsg">Hapus game ini?</div>
         <div class="confirm-actions">
-            <button class="btn-delete" id="confirmYes" style="padding:10px 24px;">Ya, Hapus</button>
-            <button class="btn-small" onclick="closeConfirm()" style="padding:10px 24px;">Batal</button>
+            <button class="btn-danger" id="confirmYes">
+                <i class="fas fa-trash"></i> Ya, Hapus
+            </button>
+            <button class="btn-cancel" onclick="closeConfirm()">
+                <i class="fas fa-xmark"></i> Batal
+            </button>
         </div>
     </div>
 </div>
 
 <script src="script.js"></script>
+<script>
+// ── NAVIGATION ──
+const SECTIONS = ['dashboard','games','reports','logs'];
+const SECTION_TITLES = {
+    dashboard: 'Dashboard',
+    games: 'Manajemen Game',
+    reports: 'Laporan & Tiket',
+    logs: 'Activity Log'
+};
+
+function navTo(id) {
+    SECTIONS.forEach(s => {
+        document.getElementById('sec-' + s).classList.toggle('active', s === id);
+        const link = document.querySelector(`.sidebar-link[data-section="${s}"]`);
+        if (link) link.classList.toggle('active', s === id);
+    });
+    const title = document.getElementById('topbarTitle');
+    if (title) title.textContent = SECTION_TITLES[id] || id;
+    closeSidebar();
+    if (id === 'games') renderGameTable();
+    if (id === 'reports') renderReports();
+}
+
+// ── SIDEBAR TOGGLE ──
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('visible');
+}
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('visible');
+}
+document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+
+// Sync both session timers
+const _origStartSessionTimer = typeof startSessionTimer !== 'undefined' ? startSessionTimer : null;
+</script>
 </body>
 </html>

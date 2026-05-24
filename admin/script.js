@@ -422,6 +422,8 @@ async function showAdmin(sess) {
   await renderGameTable();
   updateStats();
   renderReports();
+  initKeyboardShortcuts();
+  initAutoSlug();
   addLog(`Session aktif — expires in ${SESSION_MINUTES} minutes`);
 }
 
@@ -505,6 +507,11 @@ async function fetchTickets() {
     const tickets = data.tickets || [];
     if (countEl) countEl.textContent = `${tickets.length} tiket (${tickets.filter(t=>!t.done).length} aktif)`;
     renderTicketPanel(tickets);
+
+    // Init filter toolbar & update stats setelah render
+    initTicketFilter();
+    updateReportBadge(tickets.filter(t=>!t.done).length);
+    updateReportStats(tickets);
   } catch (e) {
     if (panel) panel.innerHTML = `<div style="padding:24px;text-align:center;color:var(--c-red);">Error: ${escHtml(e.message)}</div>`;
     addLog('Gagal fetch tiket: ' + e.message, 'err');
@@ -970,36 +977,6 @@ function initKeyboardShortcuts() {
     }
   });
 }
-
-/* ── Override fetchTickets: update report badge + stats + filter setelah fetch ── */
-const _origFetchTickets = fetchTickets;
-async function fetchTickets() {
-  await _origFetchTickets();
-  // Init filter toolbar
-  initTicketFilter();
-  // Hitung tiket aktif dari panel yang sudah dirender
-  setTimeout(() => {
-    const allItems    = document.querySelectorAll('.report-item');
-    const activeItems = document.querySelectorAll('.report-item:not(.report-done)');
-    updateReportBadge(activeItems.length);
-    // Ambil data tiket dari DOM untuk stats
-    const tickets = [...allItems].map(item => ({
-      done: item.classList.contains('report-done'),
-      type: (item.querySelector('.report-type, [data-type]') || {textContent:''}).textContent
-    }));
-    updateReportStats(tickets);
-  }, 200);
-}
-
-/* ── Override showAdmin: init fitur baru ── */
-const _origShowAdmin = showAdmin;
-async function showAdmin(sess) {
-  await _origShowAdmin(sess);
-  initKeyboardShortcuts();
-  initAutoSlug();
-  addLog('Fitur tambahan aktif: search, keyboard shortcuts, drag-drop reorder, preview');
-}
-
 
 document.addEventListener('DOMContentLoaded', function() {
   ['adminUser','adminPass'].forEach(id => {

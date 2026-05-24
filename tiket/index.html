@@ -410,11 +410,35 @@ function renderError(msg) {
             <div class="error-title">Tiket Tidak Ditemukan</div>
             <div class="error-msg">
                 ${msg || 'Token tidak valid atau tiket tidak ditemukan.'}<br><br>
-                Pastikan kamu menggunakan link yang dikirim saat laporan dibuat.<br><br>
-                <a href="../cs/" class="error-link">← Kembali ke Customer Service</a>
+                Pastikan kamu menggunakan link yang dikirim saat laporan dibuat.
             </div>
+            <div class="manual-input-area">
+                <p class="manual-label">Atau masukkan nomor token tiket kamu:</p>
+                <div class="manual-row">
+                    <input type="text" id="manual-token-input" class="manual-token-input"
+                        placeholder="Contoh: GS-ABC123..." maxlength="80" autocomplete="off" spellcheck="false">
+                    <button class="manual-token-btn" onclick="manualCek()">🔍 CEK</button>
+                </div>
+            </div>
+            <a href="../cs/" class="error-link">← Kembali ke Customer Service</a>
         </div>`;
     document.getElementById('refresh-wrap').style.display = 'none';
+
+    // Allow Enter key on manual input
+    setTimeout(function() {
+        var inp = document.getElementById('manual-token-input');
+        if (inp) inp.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') manualCek();
+        });
+    }, 100);
+}
+
+function manualCek() {
+    var raw = (document.getElementById('manual-token-input').value || '').trim();
+    if (!raw) return;
+    var urlMatch = raw.match(/[?&]token=([^&#]+)/);
+    var token = urlMatch ? decodeURIComponent(urlMatch[1]) : raw;
+    window.location.href = '/tiket/?token=' + encodeURIComponent(token);
 }
 
 async function loadTicket() {

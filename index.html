@@ -231,17 +231,63 @@
 <div id="gameModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-content">
         <span class="close-modal" id="closeModalBtn" role="button" tabindex="0" aria-label="Close">&times;</span>
-        <img id="modal-logo" src="" alt="Game Logo" class="modal-logo">
-        <h2 id="modal-title" class="modal-title"></h2>
-        <p id="modal-description" class="modal-description"></p>
-        <div class="gallery-container">
-            <div id="gallery-slides" class="gallery-slides"></div>
-            <button class="gallery-btn gallery-prev" id="prevSlide" aria-label="Previous">&#10094;</button>
-            <button class="gallery-btn gallery-next" id="nextSlide" aria-label="Next">&#10095;</button>
+
+        <!-- Modal Header -->
+        <div class="modal-header-area">
+            <img id="modal-logo" src="" alt="Game Logo" class="modal-logo">
+            <div class="modal-header-info">
+                <h2 id="modal-title" class="modal-title"></h2>
+                <span id="modal-genre-badge" class="modal-genre-badge"></span>
+            </div>
         </div>
-        <div id="gallery-dots" class="gallery-dots"></div>
-        <div class="download-section">
-            <div id="platform-buttons" class="platform-buttons"></div>
+
+        <!-- Tab Navigation -->
+        <div class="modal-tabs" role="tablist">
+            <button class="modal-tab active" data-tab="info" role="tab" aria-selected="true">📋 INFO GAME</button>
+            <button class="modal-tab" data-tab="gallery" role="tab" aria-selected="false">🖼️ GALERI</button>
+            <button class="modal-tab" data-tab="play" role="tab" aria-selected="false">🎮 MAIN SEKARANG</button>
+        </div>
+
+        <!-- Tab: INFO GAME -->
+        <div class="modal-tab-content active" id="tab-info">
+            <div class="modal-info-box">
+                <h3 class="modal-info-label">📖 Deskripsi</h3>
+                <p id="modal-description" class="modal-description"></p>
+            </div>
+            <div class="modal-info-box">
+                <h3 class="modal-info-label">🏢 Developer</h3>
+                <p id="modal-developer" class="modal-dev-text">Grid Survival</p>
+            </div>
+            <div class="modal-info-box">
+                <h3 class="modal-info-label">🎯 Genre</h3>
+                <p id="modal-genre-text" class="modal-dev-text"></p>
+            </div>
+            <!-- Quick Play CTA -->
+            <div class="modal-cta-area">
+                <p class="modal-cta-hint">Siap main? Klik tab <strong>MAIN SEKARANG</strong> ⬆️</p>
+                <button class="modal-goto-play-btn" onclick="document.querySelector('.modal-tab[data-tab=play]').click()">
+                    🎮 Ke Halaman Download / Main
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab: GALERI -->
+        <div class="modal-tab-content" id="tab-gallery">
+            <div class="gallery-container">
+                <div id="gallery-slides" class="gallery-slides"></div>
+                <button class="gallery-btn gallery-prev" id="prevSlide" aria-label="Previous">&#10094;</button>
+                <button class="gallery-btn gallery-next" id="nextSlide" aria-label="Next">&#10095;</button>
+            </div>
+            <div id="gallery-dots" class="gallery-dots"></div>
+        </div>
+
+        <!-- Tab: MAIN SEKARANG -->
+        <div class="modal-tab-content" id="tab-play">
+            <div class="modal-play-header">
+                <h3 class="modal-play-title">🎮 Pilih Platform</h3>
+                <p class="modal-play-sub">Klik tombol di bawah untuk download atau main langsung</p>
+            </div>
+            <div id="platform-buttons" class="platform-buttons platform-buttons-big"></div>
             <div class="supported-platforms">
                 <span class="platform-icon"><i class="fas fa-desktop"></i></span>
                 <span class="platform-icon"><i class="fab fa-android"></i></span>
@@ -249,6 +295,8 @@
                 <p>Tersedia di PC, Android, dan iOS.</p>
             </div>
         </div>
+
+        <!-- Other Games (always visible below tabs) -->
         <div id="other-games-container">
             <h3 class="section-title">Game Lain dari Grid Survival</h3>
             <div id="other-games-grid" class="other-games-grid"></div>
@@ -447,9 +495,7 @@ applyLang(LANG);
 <script>
 // ── CEK TIKET WIDGET ──
 function cekTiket() {
-    var raw   = (document.getElementById('tiket-input').value || '').trim();
-    var wrap  = document.getElementById('tiket-result-wrap');
-    var btn   = document.getElementById('tiket-cek-btn');
+    var raw = (document.getElementById('tiket-input').value || '').trim();
     if (!raw) { shakeInput(); return; }
 
     // Support both full URL and bare token
@@ -457,22 +503,8 @@ function cekTiket() {
     var urlMatch = raw.match(/[?&]token=([^&#]+)/);
     if (urlMatch) token = decodeURIComponent(urlMatch[1]);
 
-    wrap.style.display = 'block';
-    wrap.innerHTML = '<div class="tiket-loading"><div class="tiket-spinner"></div><span>Mencari tiket...</span></div>';
-    btn.disabled = true;
-
-    fetch('/.netlify/functions/ticket?token=' + encodeURIComponent(token))
-        .then(function(r){ return r.json(); })
-        .then(function(data) {
-            btn.disabled = false;
-            if (!data.ok) { renderTiketError(data.error || 'Tiket tidak ditemukan.'); return; }
-            if (data.expired) { renderTiketExpired(data.num); return; }
-            renderTiketResult(data.ticket);
-        })
-        .catch(function() {
-            btn.disabled = false;
-            renderTiketError('Gagal terhubung ke server. Coba lagi.');
-        });
+    // Redirect ke halaman tiket dengan token di URL
+    window.location.href = '/tiket/?token=' + encodeURIComponent(token);
 }
 
 function shakeInput() {

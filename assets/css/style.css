@@ -1627,3 +1627,198 @@ footer, .section-padding, .about-section, .cek-tiket-section { position: relativ
 @keyframes countUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
 @keyframes pulse-dot { 0%,100%{transform:scale(1);} 50%{transform:scale(1.3);} }
+
+/* ────────────────────────────────────────────────
+   MODAL TABS — ZAKIFAISAL05 UPDATE
+──────────────────────────────────────────────── */
+
+/* Modal header area */
+.modal-header-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+.modal-header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.modal-genre-badge {
+    display: inline-block;
+    background: var(--accent, #9b59b6);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    width: fit-content;
+}
+
+/* Tab bar */
+.modal-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border, rgba(255,255,255,0.1));
+    padding-bottom: 0;
+    flex-wrap: wrap;
+}
+.modal-tab {
+    background: none;
+    border: none;
+    color: var(--text-muted, #aaa);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    padding: 10px 16px;
+    border-radius: 8px 8px 0 0;
+    transition: all 0.2s;
+    position: relative;
+    white-space: nowrap;
+}
+.modal-tab:hover {
+    color: var(--text, #fff);
+    background: rgba(155,89,182,0.15);
+}
+.modal-tab.active {
+    color: var(--accent, #9b59b6);
+    background: rgba(155,89,182,0.12);
+    border-bottom: 3px solid var(--accent, #9b59b6);
+}
+
+/* Tab content panels */
+.modal-tab-content {
+    display: none;
+    animation: tabFadeIn 0.25s ease;
+}
+.modal-tab-content.active {
+    display: block;
+}
+@keyframes tabFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Info boxes */
+.modal-info-box {
+    background: var(--card-bg, rgba(255,255,255,0.05));
+    border: 1px solid var(--border, rgba(255,255,255,0.08));
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+}
+.modal-info-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent, #9b59b6);
+    margin: 0 0 6px 0;
+}
+.modal-dev-text {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text, #fff);
+}
+
+/* CTA area inside INFO tab */
+.modal-cta-area {
+    text-align: center;
+    margin-top: 20px;
+    padding: 18px;
+    background: linear-gradient(135deg, rgba(155,89,182,0.15), rgba(155,89,182,0.05));
+    border: 1px dashed var(--accent, #9b59b6);
+    border-radius: 12px;
+}
+.modal-cta-hint {
+    margin: 0 0 12px 0;
+    font-size: 0.9rem;
+    color: var(--text-muted, #aaa);
+}
+.modal-goto-play-btn {
+    background: var(--accent, #9b59b6);
+    color: #fff;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.5px;
+}
+.modal-goto-play-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(155,89,182,0.5);
+}
+
+/* Play tab */
+.modal-play-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+.modal-play-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin: 0 0 6px 0;
+    color: var(--text, #fff);
+}
+.modal-play-sub {
+    font-size: 0.85rem;
+    color: var(--text-muted, #aaa);
+    margin: 0;
+}
+
+/* Big platform buttons in PLAY tab */
+.platform-buttons-big {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.platform-buttons-big .btn-platform {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 24px !important;
+    font-size: 1rem !important;
+    font-weight: 800 !important;
+    border-radius: 14px !important;
+    letter-spacing: 1px;
+    transition: transform 0.15s, box-shadow 0.15s !important;
+}
+.platform-buttons-big .btn-platform:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
+}
+
+/* Itch.io button override */
+.btn-itchio {
+    background: linear-gradient(135deg, #fa5c5c, #d14343) !important;
+    color: #fff !important;
+}
+/* Roblox button override */
+.btn-roblox {
+    background: linear-gradient(135deg, #00b2ff, #0076e4) !important;
+    color: #fff !important;
+}
+/* TapTap button override */
+.btn-taptap {
+    background: linear-gradient(135deg, #ff6b35, #e04e1a) !important;
+    color: #fff !important;
+}
+/* Amazon button override */
+.btn-amazon {
+    background: linear-gradient(135deg, #ff9900, #e68900) !important;
+    color: #fff !important;
+}
+
+@media (max-width: 480px) {
+    .modal-tabs { gap: 4px; }
+    .modal-tab  { font-size: 0.72rem; padding: 8px 10px; }
+    .modal-header-area { flex-direction: column; text-align: center; align-items: center; }
+}

@@ -179,6 +179,23 @@
     };
 
     // ────────────────────────────────────────────────
+    // TAB SWITCHING
+    // ────────────────────────────────────────────────
+    const switchTab = (tabName) => {
+        document.querySelectorAll('.modal-tab').forEach(t => {
+            t.classList.toggle('active', t.getAttribute('data-tab') === tabName);
+            t.setAttribute('aria-selected', t.getAttribute('data-tab') === tabName);
+        });
+        document.querySelectorAll('.modal-tab-content').forEach(c => {
+            c.classList.toggle('active', c.id === `tab-${tabName}`);
+        });
+    };
+
+    document.querySelectorAll('.modal-tab').forEach(tab => {
+        tab.addEventListener('click', () => switchTab(tab.getAttribute('data-tab')));
+    });
+
+    // ────────────────────────────────────────────────
     // SHOW GAME MODAL
     // ────────────────────────────────────────────────
     const showGameDetails = (gameId) => {
@@ -186,13 +203,24 @@
         if (!game) return;
 
         currentSlide = 0;
-        document.getElementById('modal-logo').src         = game.logo;
-        document.getElementById('modal-title').textContent = game.title;
+        document.getElementById('modal-logo').src          = game.logo;
+        document.getElementById('modal-title').textContent  = game.title;
         document.getElementById('modal-description').textContent = game.desc;
+
+        const genreBadge = document.getElementById('modal-genre-badge');
+        const genreText  = document.getElementById('modal-genre-text');
+        if (genreBadge) genreBadge.textContent = game.genre || '';
+        if (genreText)  genreText.textContent  = game.genre || '-';
+
+        const devEl = document.getElementById('modal-developer');
+        if (devEl) devEl.textContent = game.developer || 'Grid Survival';
 
         renderGallery(game, game.gallery);
         renderPlatformButtons(game.platforms);
         renderOtherGames(gameId);
+
+        // Always open on INFO tab
+        switchTab('info');
 
         modal.classList.add('active');
         lockScroll();

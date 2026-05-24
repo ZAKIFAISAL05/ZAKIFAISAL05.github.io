@@ -131,8 +131,8 @@
 <script src="/assets/js/gameData.js"></script>
 
 <script>
-// ── Slug map: URL slug → game id ──
-// Tambahkan slug baru di sini kalau ada game baru
+// ── Slug maps ──
+// URL slug (lowercase) → game id
 const SLUG_MAP = {
     'minecraft-parkun-2d':          'minecraft-parkour-2d',
     'the-one-for-zombie':           'the-one-for-zombie',
@@ -141,6 +141,17 @@ const SLUG_MAP = {
     'desa-cipta-karya-ch2':         'desa-cipta-karya-ch2',
     'the-undeads-roblox':           'the-undeads-roblox',
     'frequency-fury-obby':          'frequency-fury-obby',
+};
+
+// game id → exact Netlify redirect URL (harus sama persis dengan netlify.toml)
+const ID_TO_URL = {
+    'minecraft-parkour-2d':        '/Minecraft-Parkun-2D',
+    'the-one-for-zombie':          '/The-One-For-Zombie',
+    'desa-karya-investasi-zombie': '/Desa-Karya-Investasi-Zombie',
+    'gerbang-parkun-2d':           '/Gerbang-Parkun-2D',
+    'desa-cipta-karya-ch2':        '/Desa-Cipta-Karya-Ch2',
+    'the-undeads-roblox':          '/The-Undeads-Roblox',
+    'frequency-fury-obby':         '/Frequency-Fury-Obby',
 };
 
 // Cari ID dari URL
@@ -226,12 +237,9 @@ function renderOtherGames(currentId) {
     const shuffled = [...others].sort(() => Math.random() - 0.5).slice(0, 4);
 
     // Slug reverse map for URLs
-    const ID_TO_SLUG = {};
-    Object.entries(SLUG_MAP).forEach(([slug, id]) => { ID_TO_SLUG[id] = slug; });
-
     grid.innerHTML = shuffled.map(g => {
-        const slug = ID_TO_SLUG[g.id] || g.id;
-        return `<a href="/${slug}" class="gp-other-card">
+        const url = ID_TO_URL[g.id] || ('/game/?id=' + g.id);
+        return `<a href="${url}" class="gp-other-card">
             <div class="gp-other-img-wrap">
                 <img src="/${g.thumb}" alt="${g.title}" loading="lazy">
             </div>

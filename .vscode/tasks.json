@@ -1,0 +1,11 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Auto Push",
+      "type": "shell",
+      "command": "git add -A && git commit -m \"auto: update $(date +'%H:%M:%S')\" && git push",
+      "presentation": { "reveal": "silent" }
+    }
+  ]
+}

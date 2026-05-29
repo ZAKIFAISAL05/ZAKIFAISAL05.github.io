@@ -1,5 +1,5 @@
 // assets/js/main.js
-// Grid Survival — Main Script
+// Nusabit Studio — Main Script
 
 (function () {
     'use strict';
@@ -213,7 +213,7 @@
         if (genreText)  genreText.textContent  = game.genre || '-';
 
         const devEl = document.getElementById('modal-developer');
-        if (devEl) devEl.textContent = game.developer || 'Grid Survival';
+        if (devEl) devEl.textContent = game.developer || 'Nusabit Studio';
 
         renderGallery(game, game.gallery);
         renderPlatformButtons(game.platforms);

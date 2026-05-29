@@ -1,6 +1,6 @@
 // ============================================================
 //  netlify/functions/games.js
-//  Grid Survival — Persistent Game Catalog API
+//  Nusabit Studio — Persistent Game Catalog API
 //  Pakai Netlify Blobs untuk storage server-side permanen
 //  GET    → list semua game
 //  POST   → tambah / update game (body: { action:'add'|'update', game:{...} })
@@ -23,7 +23,7 @@ function createStore() {
   const siteID = process.env.NETLIFY_SITE_ID || process.env.SITE_ID;
   const token  = process.env.NETLIFY_AUTH_TOKEN || process.env.NETLIFY_TOKEN;
 
-  const opts = { name: 'grid-survival', consistency: 'strong' };
+  const opts = { name: 'nusabit-studio', consistency: 'strong' };
 
   // Kalau env vars tersedia, inject manual (berguna saat netlify dev atau env tidak ter-inject)
   if (siteID && token) {

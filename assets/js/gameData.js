@@ -1,5 +1,5 @@
 // assets/js/gameData.js
-// Data semua game Grid Survival Studio
+// Data semua game Nusabit Studio
 
 const gameData = [
     {
@@ -18,7 +18,7 @@ const gameData = [
         platforms: [
             { name: 'TapTap (Mobile)', url: 'https://www.taptap.io/app/236072?utm_medium=share&utm_source=copylink', cls: 'btn-taptap' }
         ],
-        developer: 'Grid Survival'
+        developer: 'Nusabit Studio'
     },
     {
         id: 'the-one-for-zombie',
@@ -35,7 +35,7 @@ const gameData = [
         platforms: [
             { name: 'TapTap (Mobile)', url: 'https://www.taptap.io/app/346358?utm_medium=share&utm_source=copylink', cls: 'btn-taptap' }
         ],
-        developer: 'Grid Survival'
+        developer: 'Nusabit Studio'
     },
     {
         id: 'desa-karya-investasi-zombie',
@@ -54,7 +54,7 @@ const gameData = [
             { name: 'TapTap (Mobile)', url: 'https://www.taptap.io/app/33703520', cls: 'btn-taptap' },
             { name: 'Itch.io (Mobile)', url: 'https://zakifaisalofficial.itch.io/desa-cipta-karya-invensi-zombie', cls: 'btn-itchio' }
         ],
-        developer: 'Grid Survival'
+        developer: 'Nusabit Studio'
     },
     {
         id: 'gerbang-parkun-2d',
@@ -72,7 +72,7 @@ const gameData = [
             { name: 'Itch.io (Mobile/Windows)', url: 'https://zakifaisalofficial.itch.io/gerbang-parkun-2d', cls: 'btn-itchio' },
             { name: 'TapTap (Mobile)', url: 'https://www.taptap.io/app/33618770', cls: 'btn-taptap' }
         ],
-        developer: 'Grid Survival'
+        developer: 'Nusabit Studio'
     },
     {
         id: 'desa-cipta-karya-ch2',
@@ -92,7 +92,7 @@ const gameData = [
             { name: 'Itch.io (Mobile)', url: 'https://zakifaisalofficial.itch.io/desa-karya-chapter-2', cls: 'btn-itchio' },
             { name: 'Amazon (Mobile)', url: 'https://www.amazon.com/gp/product/B0DH53XXFR', cls: 'btn-amazon' }
         ],
-        developer: 'Grid Survival'
+        developer: 'Nusabit Studio'
     },
     {
         id: 'the-undeads-roblox',
@@ -110,7 +110,7 @@ const gameData = [
         platforms: [
             { name: 'Play on Roblox', url: 'https://www.roblox.com/share?code=e4fd841cb9108b43bc5d7e7d9b47a2b3&type=ExperienceDetails&stamp=1765460894310', cls: 'btn-roblox' }
         ],
-        developer: 'Grid Survival'
+        developer: 'Nusabit Studio'
     },
     {
         id: 'frequency-fury-obby',
@@ -127,7 +127,7 @@ const gameData = [
         platforms: [
             { name: 'Play on Roblox', url: 'https://www.roblox.com/id/games/113175281404228/Frequency-Fury-Obby', cls: 'btn-roblox' }
         ],
-        developer: 'Grid Survival'
+        developer: 'Nusabit Studio'
     }
 ];
 
@@ -160,7 +160,7 @@ const gameData = [
             genre:     ag.genre || (existing && existing.genre) || '',
             gallery:   (existing && existing.gallery)  || [],
             platforms: ag.platforms || (existing && existing.platforms) || [],
-            developer: 'Grid Survival'
+            developer: 'Nusabit Studio'
         };
     });
 

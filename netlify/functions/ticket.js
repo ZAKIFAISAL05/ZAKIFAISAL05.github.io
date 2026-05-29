@@ -1,5 +1,5 @@
 // ============================================================
-//  netlify/functions/ticket.js — Grid Survival
+//  netlify/functions/ticket.js — Nusabit Studio
 //  Sistem tiket laporan bug/saran dengan nomor urut & status bar
 //
 //  GET  /?token=xxx           → ambil tiket (hanya pemilik token)
@@ -30,7 +30,7 @@ const STATUS = {
 function createStore() {
   const siteID = process.env.NETLIFY_SITE_ID || process.env.SITE_ID;
   const token  = process.env.NETLIFY_AUTH_TOKEN || process.env.NETLIFY_TOKEN;
-  const opts   = { name: 'grid-survival', consistency: 'strong' };
+  const opts   = { name: 'nusabit-studio', consistency: 'strong' };
   if (siteID && token) { opts.siteID = siteID; opts.token = token; }
   return getStore(opts);
 }

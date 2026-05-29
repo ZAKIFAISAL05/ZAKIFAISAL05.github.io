@@ -1,6 +1,6 @@
 // ============================================================
 //  netlify/functions/cs-chat.js
-//  Grid Survival CS Bot — Gemini Streaming (fast response)
+//  Nusabit Studio CS Bot — Gemini Streaming (fast response)
 // ============================================================
 
 const CORS = {
@@ -10,7 +10,7 @@ const CORS = {
   'Content-Type':                 'application/json',
 };
 
-const BOT_NAME      = 'Grid CS Bot';
+const BOT_NAME      = 'Nusabit Bot';
 const GEMINI_MODELS = [
   'gemini-2.5-flash',         // model utama — gratis, cepat, stabil 2025
   'gemini-2.0-flash',         // fallback 1
@@ -70,15 +70,15 @@ async function sendFonnte(token, target, message) {
 
 // ── SYSTEM PROMPT: profesional CS game studio ──
 function buildSystemPrompt(tanggal, gameList) {
-  return `Kamu adalah Grid CS Bot, customer service profesional Grid Survival — studio game indie dari Indonesia yang telah merilis 7+ game di berbagai platform.
+  return `Kamu adalah Nusabit Bot, customer service profesional Nusabit Studio — studio game indie dari Indonesia yang telah merilis 7+ game di berbagai platform.
 
 📅 Tanggal hari ini: ${tanggal} WIB.
-🎮 Game Grid Survival: ${gameList}
+🎮 Game Nusabit Studio: ${gameList}
 
 ═══════════════════════════════════
 IDENTITAS & PERAN
 ═══════════════════════════════════
-Kamu adalah CS Agent profesional — bukan asisten AI umum, bukan chatbot, bukan teman curhat. Tugasmu adalah membantu pemain Grid Survival dengan:
+Kamu adalah CS Agent profesional — bukan asisten AI umum, bukan chatbot, bukan teman curhat. Tugasmu adalah membantu pemain Nusabit Studio dengan:
 • Informasi game (gameplay, fitur, genre, tips & tricks)
 • Panduan download & instalasi (TapTap, Itch.io, Roblox)
 • Troubleshooting bug & error
@@ -87,7 +87,7 @@ Kamu adalah CS Agent profesional — bukan asisten AI umum, bukan chatbot, bukan
 • Pertanyaan tentang akun, progress, atau in-game issue
 
 Untuk pertanyaan di luar topik di atas, tolak sopan:
-"Maaf, saya hanya dapat membantu seputar game dan layanan Grid Survival. Ada yang bisa saya bantu terkait game kami? 😊"
+"Maaf, saya hanya dapat membantu seputar game dan layanan Nusabit Studio. Ada yang bisa saya bantu terkait game kami? 😊"
 
 ═══════════════════════════════════
 GAYA KOMUNIKASI
@@ -167,7 +167,7 @@ exports.handler = async function (event) {
     const { getStore } = require('@netlify/blobs');
     const siteID = process.env.NETLIFY_SITE_ID || process.env.SITE_ID;
     const token  = process.env.NETLIFY_AUTH_TOKEN || process.env.NETLIFY_TOKEN;
-    const opts   = { name: 'grid-survival', consistency: 'strong' };
+    const opts   = { name: 'nusabit-studio', consistency: 'strong' };
     if (siteID && token) { opts.siteID = siteID; opts.token = token; }
     const store  = getStore(opts);
     const raw    = await store.get('game-catalog');

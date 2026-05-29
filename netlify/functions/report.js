@@ -1,5 +1,5 @@
 // ============================================================
-//  netlify/functions/report.js — Grid Survival
+//  netlify/functions/report.js — Nusabit Studio
 //  POST { type, game, desc, contact, email, ticketId }
 //  1. Generate / terima ticketId
 //  2. AI summarize via Gemini
@@ -24,7 +24,7 @@ const GEMINI_MODEL = 'gemini-2.5-flash';
 function createTicketStore() {
   const siteID = process.env.NETLIFY_SITE_ID || process.env.SITE_ID;
   const tok    = process.env.NETLIFY_AUTH_TOKEN || process.env.NETLIFY_TOKEN;
-  const opts   = { name: 'grid-survival', consistency: 'strong' };
+  const opts   = { name: 'nusabit-studio', consistency: 'strong' };
   if (siteID && tok) { opts.siteID = siteID; opts.token = tok; }
   return getStore(opts);
 }
@@ -98,7 +98,7 @@ async function sendEmail(apiKey, to, subject, html) {
         'Content-Type':  'application/json',
       },
       body: JSON.stringify({
-        from:    'Grid Survival CS <onboarding@resend.dev>',
+        from:    'Nusabit Studio CS <onboarding@resend.dev>',
         to:      [to],
         subject: subject,
         html:    html,
@@ -143,7 +143,7 @@ function emailUserHtml(ticketId, type, game, desc, waktu) {
 <body>
 <div class="wrap">
   <div class="header">
-    <h1>🎮 Grid Survival</h1>
+    <h1>🎮 Nusabit Studio</h1>
     <p>Customer Service — Konfirmasi Laporan</p>
   </div>
   <div class="body">
@@ -151,7 +151,7 @@ function emailUserHtml(ticketId, type, game, desc, waktu) {
       <span class="ticket-label">Nomor Tiket Kamu</span>
       <span class="ticket-num">#${ticketId}</span>
     </div>
-    <p class="intro">Halo! Kami telah menerima laporanmu. Tim Grid Survival akan segera meninjau dan menindaklanjuti. Simpan nomor tiket di atas untuk follow-up.</p>
+    <p class="intro">Halo! Kami telah menerima laporanmu. Tim Nusabit Studio akan segera meninjau dan menindaklanjuti. Simpan nomor tiket di atas untuk follow-up.</p>
     <div class="field"><label>Jenis</label><p>${typeLabel}</p></div>
     <div class="field"><label>Game</label><p>${game || 'Tidak disebutkan'}</p></div>
     <div class="field"><label>Laporan</label><p>${desc.replace(/\n/g,'<br>')}</p></div>
@@ -159,7 +159,7 @@ function emailUserHtml(ticketId, type, game, desc, waktu) {
   </div>
   <div class="footer">
     Pertanyaan? Hubungi kami di <a href="mailto:dzakifaisal11@gmail.com">dzakifaisal11@gmail.com</a><br>
-    atau <a href="https://discord.gg/f8jW6B3X">Discord Grid Survival</a>
+    atau <a href="https://discord.gg/f8jW6B3X">Discord Nusabit Studio</a>
   </div>
 </div>
 </body></html>`;
@@ -201,7 +201,7 @@ function emailAdminHtml(ticketId, type, game, desc, contact, email, summary, wak
     <div class="field"><label>Email Pelapor</label><p>${email || '—'}</p></div>
     <div class="field"><label>Kontak Lain</label><p>${contact || '—'}</p></div>
   </div>
-  <div class="footer">Grid Survival Admin Notification</div>
+  <div class="footer">Nusabit Studio Admin Notification</div>
 </div>
 </body></html>`;
 }
@@ -249,7 +249,7 @@ exports.handler = async function (event) {
   // 2. Simpan tiket ke Netlify Blobs (nomor urut + token)
   const ticketData = await saveTicketToBlobs({ id: ticketId, type, game: gameLabel, desc: desc.trim(), email, contact, summary });
   const ticketNum  = ticketData?.num || '—';
-  const ticketUrl  = ticketData ? `https://zakifaisal05.netlify.app${ticketData.ticketUrl}` : '';
+  const ticketUrl  = ticketData ? `https://nusabit.netlify.app${ticketData.ticketUrl}` : '';
 
   // 3. WA admin via Fonnte
   if (fonnteToken && adminTarget) {
@@ -277,7 +277,7 @@ STATUS ${ticketId} seen|confirmed|done
 
   // 4. Email ke user (kalau ada email)
   if (resendKey && email && email.includes('@')) {
-    const subjUser = `[Tiket #${ticketNum}] ${type === 'bug' ? 'Bug Dilaporkan' : 'Saran Diterima'} — Grid Survival`;
+    const subjUser = `[Tiket #${ticketNum}] ${type === 'bug' ? 'Bug Dilaporkan' : 'Saran Diterima'} — Nusabit Studio`;
     const htmlUser = emailUserHtml(ticketId, type, gameLabel, desc.trim(), waktuWIB)
       .replace('</div>\n</body>', `
   <div class="body" style="padding-top:0;">

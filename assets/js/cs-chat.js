@@ -1,6 +1,6 @@
 // ============================================================
 //  assets/js/cs-chat.js
-//  CS Chat Widget + Bug Report/Saran Modal — Grid Survival
+//  CS Chat Widget + Bug Report/Saran Modal — Nusabit Studio
 // ============================================================
 (function () {
 'use strict';
@@ -20,11 +20,11 @@ var GAMES = [
 ];
 
 var QUICK_REPLIES = [
-    { label: '🎮 Info Game',     text: 'Ceritain dong game-game dari Grid Survival!' },
+    { label: '🎮 Info Game',     text: 'Ceritain dong game-game dari Nusabit Studio!' },
     { label: '📥 Cara Download', text: 'Gimana cara download game kalian?' },
     { label: '🐛 Lapor Bug',     text: '__open_report_bug__' },
     { label: '💡 Kirim Saran',   text: '__open_report_saran__' },
-    { label: '📞 Kontak',        text: 'Gimana cara menghubungi tim Grid Survival?' },
+    { label: '📞 Kontak',        text: 'Gimana cara menghubungi tim Nusabit Studio?' },
 ];
 
 var csHistory = [];
@@ -57,7 +57,7 @@ function buildHTML() {
     var win = document.createElement('div');
     win.id = 'cs-window';
     win.setAttribute('role', 'dialog');
-    win.setAttribute('aria-label', 'Grid Survival Customer Service');
+    win.setAttribute('aria-label', 'Nusabit Studio Customer Service');
     win.innerHTML =
         '<div class="cs-header">' +
             '<div class="cs-header-avatar"><img src="assets/img/studio_logo.png" alt="CS"></div>' +
@@ -221,7 +221,7 @@ function hideTyping() {
 }
 
 function sendWelcome() {
-    var welcome = 'Halo! 👋 Aku *Grid CS Bot*, asisten resmi Grid Survival.\n\nAda yang bisa aku bantu? Kamu bisa tanya soal game, cara download, atau lapor bug! 🎮';
+    var welcome = 'Halo! 👋 Aku *Nusabit Bot*, asisten resmi Nusabit Studio.\n\nAda yang bisa aku bantu? Kamu bisa tanya soal game, cara download, atau lapor bug! 🎮';
     appendMsg('bot', welcome, timeStr());
     csHistory.push({ role: 'bot', text: welcome });
 }
@@ -348,7 +348,7 @@ function setReportType(type) {
     } else {
         safeText('report-title',  '💡 KIRIM SARAN');
         safeText('r-desc-label',  'ISI SARAN / MASUKAN *');
-        safePH  ('r-desc',        'Tulis saran atau masukan kamu untuk game Grid Survival...');
+        safePH  ('r-desc',        'Tulis saran atau masukan kamu untuk game Nusabit Studio...');
         safeText('r-submit',      '▶ KIRIM SARAN');
     }
 }

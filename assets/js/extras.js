@@ -1,4 +1,4 @@
-// extras.js — Grid Survival
+// extras.js — Nusabit Studio
 // Dark mode • Mascot • Particles • Stats • Filter • Easter Egg • Toast • Scroll Top
 (function () {
     'use strict';

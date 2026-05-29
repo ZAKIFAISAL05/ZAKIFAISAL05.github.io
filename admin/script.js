@@ -1,5 +1,5 @@
 // ============================================================
-//  admin/script.js — Grid Survival Admin Panel
+//  admin/script.js — Nusabit Studio Admin Panel
 //  Storage: Netlify Blobs via /.netlify/functions/games
 //  Deploy ulang TIDAK menghapus data game
 // ============================================================
@@ -219,7 +219,7 @@ async function submitAddGame() {
     const game = {
       id:        editingGameId || title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''),
       title, genre,
-      desc:      desc || 'Game baru dari Grid Survival.',
+      desc:      desc || 'Game baru dari Nusabit Studio.',
       icon:      pendingIconDataUrl || (editingGameId ? (_gamesCache.find(g=>g.id===editingGameId)||{}).icon||'' : ''),
       platforms
     };
@@ -332,7 +332,7 @@ async function exportGameData() {
     id: g.id, title: g.title,
     logo:  g.icon || 'assets/img/studio_logo.png',
     thumb: g.icon || 'assets/img/studio_logo.png',
-    desc: g.desc, genre: g.genre, gallery:[], platforms: g.platforms, developer:'Grid Survival'
+    desc: g.desc, genre: g.genre, gallery:[], platforms: g.platforms, developer:'Nusabit Studio'
   }));
   const jsContent = `// assets/js/gameData.js\n// Auto-generated from Admin Panel — ${new Date().toLocaleString('id-ID')}\n\nconst gameData = ${JSON.stringify(mapped,null,4)};\n`;
   const blob = new Blob([jsContent], {type:'text/javascript'});

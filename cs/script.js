@@ -1,5 +1,5 @@
 // ============================================================
-//  cs/script.js — Grid Survival Customer Service Chat
+//  cs/script.js — Nusabit Studio Customer Service Chat
 //  CS bisa handle chat AI + laporan bug/saran langsung
 // ============================================================
 'use strict';
@@ -21,11 +21,11 @@ var soundEnabled    = true;
 var pendingFiles    = [];
 
 var QUICK = [
-    { label: '🎮 Info Game',        text: 'Ceritain dong game-game dari Grid Survival!' },
+    { label: '🎮 Info Game',        text: 'Ceritain dong game-game dari Nusabit Studio!' },
     { label: '📥 Cara Download',    text: 'Gimana cara download game kalian?' },
     { label: '🐛 Lapor Bug',        text: '__BUG__' },
     { label: '💡 Kirim Saran',      text: '__SARAN__' },
-    { label: '📞 Kontak Tim',       text: 'Gimana cara menghubungi tim Grid Survival?' },
+    { label: '📞 Kontak Tim',       text: 'Gimana cara menghubungi tim Nusabit Studio?' },
     { label: '📋 Cek Tiket',        text: '__TIKET__' },
 ];
 
@@ -53,7 +53,7 @@ var QUICK_CONTEXTS = {
     saran: [
         { label: '💡 Kirim Saran Lagi', text: '__SARAN__' },
         { label: 'Ada update game?',     text: 'Ada update terbaru game apa?' },
-        { label: '🎮 Info Game',        text: 'Ceritain dong game-game dari Grid Survival!' },
+        { label: '🎮 Info Game',        text: 'Ceritain dong game-game dari Nusabit Studio!' },
     ],
     tiket: [
         { label: '🐛 Lapor Bug Baru',   text: '__BUG__' },
@@ -61,12 +61,12 @@ var QUICK_CONTEXTS = {
         { label: 'Info game terbaru?',  text: 'Ada game baru yang lagi dikembangin?' },
     ],
     kontak: [
-        { label: 'Discord Grid Survival?', text: 'Gimana cara join Discord Grid Survival?' },
+        { label: 'Discord Nusabit Studio?', text: 'Gimana cara join Discord Nusabit Studio?' },
         { label: 'Email developer?',     text: 'Apa email yang bisa dihubungi?' },
         { label: '🐛 Lapor Bug',        text: '__BUG__' },
     ],
     def: [
-        { label: '🎮 Info Game',        text: 'Ceritain dong game-game dari Grid Survival!' },
+        { label: '🎮 Info Game',        text: 'Ceritain dong game-game dari Nusabit Studio!' },
         { label: '📥 Cara Download',    text: 'Gimana cara download game kalian?' },
         { label: '🐛 Lapor Bug',        text: '__BUG__' },
         { label: '💡 Kirim Saran',      text: '__SARAN__' },
@@ -159,7 +159,7 @@ function addMsg(role, text, time, mediaList) {
         : '';
 
     var nameHtml = role === 'bot'
-        ? '<div class="msg-name">Grid CS Bot</div>'
+        ? '<div class="msg-name">Nusabit Bot</div>'
         : '<div class="msg-name">Kamu</div>';
 
     var ttsBtn = role === 'bot'
@@ -255,7 +255,7 @@ function showContextualQuick(botReply) {
 function showTicketPrompt() {
     addMsg('bot',
         'Untuk cek status tiket, masukkan link tiket yang kamu dapat setelah laporan dikirim. ' +
-        'Formatnya: **https://zakifaisal05.netlify.app/tiket/?token=XXXXXX**\n\n' +
+        'Formatnya: **https://nusabit.netlify.app/tiket/?token=XXXXXX**\n\n' +
         'Atau klik tombol **🔍 Pantau Status Tiket** di bubble laporan sebelumnya.',
         now()
     );
@@ -270,7 +270,7 @@ function hideQuickArea() {
 function sendWelcome() {
     setTimeout(function() {
         addMsg('bot',
-            'Halo! Selamat datang di **Customer Service Grid Survival**.\n\n' +
+            'Halo! Selamat datang di **Customer Service Nusabit Studio**.\n\n' +
             'Ada yang bisa aku bantu? Kamu bisa tanya info game, cara download, atau **lapor bug / kirim saran** langsung di sini — ' +
             'aku yang terusin ke tim developer!',
             now()
@@ -415,14 +415,14 @@ function sendMsg(text, forcedFiles) {
                 row.innerHTML =
                     '<div class="msg-avatar"><img src="../assets/img/studio_logo.png" alt="CS"></div>' +
                     '<div class="msg-content">' +
-                        '<div class="msg-name">Grid CS Bot</div>' +
+                        '<div class="msg-name">Nusabit Bot</div>' +
                         '<div class="msg-bubble" style="background:linear-gradient(135deg,rgba(39,174,96,.2),rgba(26,188,156,.15));border:1px solid rgba(39,174,96,.35);">' +
                             '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
                                 '<span style="font-size:1.3em;">✅</span>' +
                                 '<strong style="font-size:0.92rem;">Laporan berhasil diteruskan ke developer!</strong>' +
                             '</div>' +
                             '<div style="font-size:0.82rem;line-height:1.5;opacity:.85;">' +
-                                'Tim Grid Survival sudah menerima laporanmu. ' +
+                                'Tim Nusabit Studio sudah menerima laporanmu. ' +
                                 'Kamu bisa pantau progresnya via link tiket yang dikirim, atau tanyakan ke kami kapan saja. 🙏' +
                             '</div>' +
                         '</div>' +
@@ -712,7 +712,7 @@ function postTicketBubble(ok, offline, ticketId, ticketNum, ticketUrl, hasEmail)
     row.innerHTML =
         '<div class="msg-avatar"><img src="../assets/img/studio_logo.png" alt="CS"></div>' +
         '<div class="msg-content">' +
-            '<div class="msg-name">Grid CS Bot</div>' +
+            '<div class="msg-name">Nusabit Bot</div>' +
             '<div class="msg-bubble">' + inner + '</div>' +
             '<div class="msg-meta"><span class="msg-time">' + now() + '</span></div>' +
         '</div>';

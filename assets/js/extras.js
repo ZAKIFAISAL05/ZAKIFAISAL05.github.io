@@ -30,7 +30,7 @@
     ══════════════════════════════════════════ */
     var msgs = [
         'HELLO! 👾', 'WELCOME!', 'PLAY OUR GAMES!',
-        'GRID SURVIVAL!', 'SELAMAT DATANG!', 'KLIK AKU! 😄',
+        'NUSABIT STUDIO!', 'SELAMAT DATANG!', 'KLIK AKU! 😄',
         'INDIE FROM ID! 🇮🇩', 'HAVE FUN! 🎮', 'EST. 2024 ⚔️'
     ];
     var mi = 0, ci = 0, typing = true, pt = null;
@@ -57,7 +57,7 @@
             ci = 0; typing = true;
             mi = (mi + 1) % msgs.length;
             tick();
-            showToast('> GRID SURVIVAL!');
+            showToast('> NUSABIT STUDIO!');
         });
     }
 

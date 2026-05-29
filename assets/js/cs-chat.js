@@ -62,7 +62,7 @@ function buildHTML() {
         '<div class="cs-header">' +
             '<div class="cs-header-avatar"><img src="assets/img/studio_logo.png" alt="CS"></div>' +
             '<div class="cs-header-info">' +
-                '<span class="cs-header-name">GRID CS BOT</span>' +
+                '<span class="cs-header-name">NUSABIT BOT</span>' +
                 '<span class="cs-header-status">Online 24/7</span>' +
             '</div>' +
             '<button class="cs-close-btn" id="cs-close" aria-label="Tutup">✕</button>' +

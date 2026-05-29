@@ -190,7 +190,7 @@ function emailAdminHtml(ticketId, type, game, desc, contact, email, summary, wak
 <body>
 <div class="wrap">
   <div class="header">
-    <h1>📋 ${typeLabel} — GRID SURVIVAL</h1>
+    <h1>📋 ${typeLabel} — NUSABIT STUDIO</h1>
     <p>${waktu}</p>
   </div>
   <div class="body">
@@ -255,7 +255,7 @@ exports.handler = async function (event) {
   if (fonnteToken && adminTarget) {
     const waMsg =
 `━━━━━━━━━━━━━━━━━━━━
-${typeLabel} — GRID SURVIVAL
+${typeLabel} — NUSABIT STUDIO
 Tiket: *#${ticketNum}* (${ticketId})
 ━━━━━━━━━━━━━━━━━━━━
 📅 *Waktu:* ${waktuWIB}

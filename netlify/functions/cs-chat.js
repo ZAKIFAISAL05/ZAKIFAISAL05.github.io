@@ -231,7 +231,7 @@ exports.handler = async function (event) {
         const typeLabel = reportPayload.type === 'bug' ? '🐛 BUG REPORT' : '💡 SARAN';
         const waMsg =
 `━━━━━━━━━━━━━━━━━━━━
-${typeLabel} — GRID SURVIVAL (via CS Chat)
+${typeLabel} — NUSABIT STUDIO (via CS Chat)
 ━━━━━━━━━━━━━━━━━━━━
 🎮 *Game:* ${reportPayload.game || '—'}
 📝 *Isi:* ${reportPayload.desc}
